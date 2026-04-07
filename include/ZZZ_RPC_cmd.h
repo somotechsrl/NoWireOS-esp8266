@@ -1,0 +1,1 @@
+#define RPC_TOKENS static String RPC_cmd[] = { String(F("CFG.Debug|")),String(F("CFG.Leds.Disable")),String(F("CFG.Leds.Enable")),String(F("CFG.Modbus.AddCall|")),String(F("CFG.Timestep|")),String(F("RPC.List")),String(F("RPC.Trigger")),String(F("Sys.Cancel.Reboot")),String(F("Sys.GetInfo")),String(F("Sys.GetStatus")),String(F("Sys.Identify")),String(F("Sys.Reboot")),String()}
