@@ -1,93 +1,71 @@
+#include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
 #include <EEPROM.h>
-#include "10-wifi.h"
 
-#define EEPROM_SIZE 512
-#define SSID_ADDR 0
-#define PASS_ADDR 32
+struct ApConfig {
+    char ssid[32];
+    char password[64];
+    uint8_t valid;
+};
 
-ESP8266WebServer server(80);
+const int EEPROM_SIZE = 512;
+const int EEPROM_ADDR = 0;
+const char DEFAULT_SSID[] = "NoWireAP";
+const char DEFAULT_PASSWORD[] = "nopassword";
 
-String ssid, password;
+ApConfig wifiConfig;
+
+void loadApConfig() {
+    EEPROM.begin(EEPROM_SIZE);
+    EEPROM.get(EEPROM_ADDR, wifiConfig);
+    if (wifiConfig.valid != 0xA5) {
+        strncpy(wifiConfig.ssid, DEFAULT_SSID, sizeof(wifiConfig.ssid));
+        strncpy(wifiConfig.password, DEFAULT_PASSWORD, sizeof(wifiConfig.password));
+        wifiConfig.valid = 0xA5;
+        EEPROM.put(EEPROM_ADDR, wifiConfig);
+        EEPROM.commit();
+    }
+}
+
+void saveApConfig(const char* ssid, const char* password) {
+    strncpy(wifiConfig.ssid, ssid, sizeof(wifiConfig.ssid) - 1);
+    wifiConfig.ssid[sizeof(wifiConfig.ssid) - 1] = '\0';
+    strncpy(wifiConfig.password, password, sizeof(wifiConfig.password) - 1);
+    wifiConfig.password[sizeof(wifiConfig.password) - 1] = '\0';
+    wifiConfig.valid = 0xA5;
+
+    EEPROM.begin(EEPROM_SIZE);
+    EEPROM.put(EEPROM_ADDR, wifiConfig);
+    EEPROM.commit();
+}
+
+void setupWifiAp() {
+    loadApConfig();
+
+    WiFi.softAPdisconnect(true);
+    WiFi.mode(WIFI_AP);
+
+    if (strlen(wifiConfig.password) >= 8) {
+        WiFi.softAP(wifiConfig.ssid, wifiConfig.password);
+    } else {
+        WiFi.softAP(wifiConfig.ssid);
+    }
+
+    IPAddress apIP = WiFi.softAPIP();
+    Serial.printf("AP started: %s / %s\n", wifiConfig.ssid, wifiConfig.password);
+    Serial.printf("AP IP: %s\n", apIP.toString().c_str());
+}
 
 void setup() {
     Serial.begin(115200);
-    EEPROM.begin(EEPROM_SIZE);
+    delay(100);
 
-    // Load saved credentials
-    ssid = readStringFromEEPROM(SSID_ADDR);
-    password = readStringFromEEPROM(PASS_ADDR);
+    // Example: Save a new AP configuration
+    saveApConfig("NoWireOS", "12345678");
 
-    if (ssid.length() > 0 && password.length() > 0) {
-        WiFi.begin(ssid.c_str(), password.c_str());
-        Serial.println("Connecting to WiFi...");
-        int attempts = 0;
-        while (WiFi.status() != WL_CONNECTED && attempts < 20) {
-            delay(500);
-            attempts++;
-        }
-        if (WiFi.status() == WL_CONNECTED) {
-            Serial.println("Connected!");
-            return;
-        }
-    }
-
-    // Start AP mode
-    WiFi.softAP("ESP8266_Config", "password123");
-    Serial.println("AP started. IP: " + WiFi.softAPIP().toString());
-
-    server.on("/", handleRoot);
-    server.on("/save", handleSave);
-    server.begin();
+    setupWifiAp();
 }
 
-setup wifi_init() {
-    server.handleClient();
-}
-
-void handleRoot() {
-    String html = "<html><body>";
-    html += "<h1>WiFi Config</h1>";
-    html += "<form action='/save' method='POST'>";
-    html += "SSID: <input type='text' name='ssid'><br>";
-    html += "Password: <input type='password' name='pass'><br>";
-    html += "<input type='submit' value='Save'>";
-    html += "</form></body></html>";
-    server.send(200, "text/html", html);
-}
-
-void handleSave() {
-    if (server.hasArg("ssid") && server.hasArg("pass")) {
-        ssid = server.arg("ssid");
-        password = server.arg("pass");
-        writeStringToEEPROM(SSID_ADDR, ssid);
-        writeStringToEEPROM(PASS_ADDR, password);
-        EEPROM.commit();
-        server.send(200, "text/plain", "Saved. Rebooting...");
-        delay(1000);
-        ESP.restart();
-    } else {
-        server.send(400, "text/plain", "Invalid request");
-    }
-}
-
-String readStringFromEEPROM(int addr) {
-    String data = "";
-    for (int i = addr; i < addr + 32; i++) {
-        char c = EEPROM.read(i);
-        if (c == 0) break;
-        data += c;
-    }
-    return data;
-}
-
-void writeStringToEEPROM(int addr, String data) {
-    for (int i = 0; i < 32; i++) {
-        if (i < data.length()) {
-            EEPROM.write(addr + i, data[i]);
-        } else {
-            EEPROM.write(addr + i, 0);
-        }
-    }
+void loop() {
+    // Put your main code here, to run repeatedly
 }
