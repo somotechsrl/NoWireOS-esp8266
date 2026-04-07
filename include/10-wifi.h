@@ -4,5 +4,6 @@
 // ****************************
 // src/10-wifi.cpp prototypes
 // ****************************
+void setup();
 setup wifi_init();
 #endif

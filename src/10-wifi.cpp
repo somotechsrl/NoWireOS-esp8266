@@ -11,7 +11,7 @@ ESP8266WebServer server(80);
 
 String ssid, password;
 
-static void setup() {
+void setup() {
     Serial.begin(115200);
     EEPROM.begin(EEPROM_SIZE);
 
