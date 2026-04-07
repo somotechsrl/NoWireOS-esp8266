@@ -32,7 +32,7 @@ tee -a $cmdh >> $idsh << EOT
 EOT
 
 # Generates prototypes
-for fn in src/*.ino*; do
+for fn in src/*.cpp; do
 	fh=$(sed -E -e 's/[.].*/.h/g' -e 's/.*\//include\//g' <<< $fn)
 	ft="__PROTO_$(sed -E -e 's/[.-]/_/g' -e 's/.*\///g' <<< $fn | tr '[:lower:]' '[:upper:]')__"
 	echo "extracting prototypes from  $fn to $fh: $ft ..." 1>&2
