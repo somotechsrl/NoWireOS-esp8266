@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <EEPROM.h>
+#include "10-wifi.h"
 
 #define EEPROM_SIZE 512
 #define SSID_ADDR 0
@@ -10,7 +11,7 @@ ESP8266WebServer server(80);
 
 String ssid, password;
 
-void setup() {
+static void setup() {
     Serial.begin(115200);
     EEPROM.begin(EEPROM_SIZE);
 
@@ -41,11 +42,11 @@ void setup() {
     server.begin();
 }
 
-void loop() {
+setup wifi_init() {
     server.handleClient();
 }
 
-void handleRoot() {
+static void handleRoot() {
     String html = "<html><body>";
     html += "<h1>WiFi Config</h1>";
     html += "<form action='/save' method='POST'>";
@@ -56,7 +57,7 @@ void handleRoot() {
     server.send(200, "text/html", html);
 }
 
-void handleSave() {
+static void handleSave() {
     if (server.hasArg("ssid") && server.hasArg("pass")) {
         ssid = server.arg("ssid");
         password = server.arg("pass");
@@ -71,7 +72,7 @@ void handleSave() {
     }
 }
 
-String readStringFromEEPROM(int addr) {
+static String readStringFromEEPROM(int addr) {
     String data = "";
     for (int i = addr; i < addr + 32; i++) {
         char c = EEPROM.read(i);
@@ -81,7 +82,7 @@ String readStringFromEEPROM(int addr) {
     return data;
 }
 
-void writeStringToEEPROM(int addr, String data) {
+static void writeStringToEEPROM(int addr, String data) {
     for (int i = 0; i < 32; i++) {
         if (i < data.length()) {
             EEPROM.write(addr + i, data[i]);

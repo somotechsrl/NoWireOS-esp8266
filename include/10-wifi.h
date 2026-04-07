@@ -4,10 +4,5 @@
 // ****************************
 // src/10-wifi.cpp prototypes
 // ****************************
-void setup();
-void loop();
-void handleRoot();
-void handleSave();
-String readStringFromEEPROM(int addr);
-void writeStringToEEPROM(int addr, String data);
+setup wifi_init();
 #endif
