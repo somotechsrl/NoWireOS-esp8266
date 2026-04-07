@@ -6,4 +6,8 @@
 // ****************************
 void setup();
 setup wifi_init();
+void handleRoot();
+void handleSave();
+String readStringFromEEPROM(int addr);
+void writeStringToEEPROM(int addr, String data);
 #endif

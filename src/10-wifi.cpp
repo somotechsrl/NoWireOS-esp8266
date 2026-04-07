@@ -46,7 +46,7 @@ setup wifi_init() {
     server.handleClient();
 }
 
-static void handleRoot() {
+void handleRoot() {
     String html = "<html><body>";
     html += "<h1>WiFi Config</h1>";
     html += "<form action='/save' method='POST'>";
@@ -57,7 +57,7 @@ static void handleRoot() {
     server.send(200, "text/html", html);
 }
 
-static void handleSave() {
+void handleSave() {
     if (server.hasArg("ssid") && server.hasArg("pass")) {
         ssid = server.arg("ssid");
         password = server.arg("pass");
@@ -72,7 +72,7 @@ static void handleSave() {
     }
 }
 
-static String readStringFromEEPROM(int addr) {
+String readStringFromEEPROM(int addr) {
     String data = "";
     for (int i = addr; i < addr + 32; i++) {
         char c = EEPROM.read(i);
@@ -82,7 +82,7 @@ static String readStringFromEEPROM(int addr) {
     return data;
 }
 
-static void writeStringToEEPROM(int addr, String data) {
+void writeStringToEEPROM(int addr, String data) {
     for (int i = 0; i < 32; i++) {
         if (i < data.length()) {
             EEPROM.write(addr + i, data[i]);
