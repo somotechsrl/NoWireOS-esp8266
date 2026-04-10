@@ -26,7 +26,6 @@ void setup() {
 
 void loop() {
 
-    void loop() {
     checkResetButton();
     
     if (provisionMode) {
