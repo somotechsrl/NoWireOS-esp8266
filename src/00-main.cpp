@@ -2,6 +2,10 @@
 #include "10-modbus-tcp.h"
 #include "10-wifi-provision.h"
 
+#define TIME_INCREMENT 1000
+uint32_t timestep=10000; // Modbus polling interval in milliseconds
+static uint32_t currenttime=0;
+
 void setup() {
     // Initialize serial communication
     Serial.begin(115200);
@@ -28,19 +32,27 @@ void setup() {
 void loop() {
 
     checkResetButton();
+    Serial.println(currenttime);
     
     if (provisionMode) {
         server.handleClient();
-    } else if (WiFi.status() == WL_CONNECTED) {
-        Serial.println("Connected to WiFi!");
-        readModbus();
-    }
+    } else if (WiFi.status() == WL_CONNECTED && currenttime >= timestep) {
+        //Serial.println("Connected to WiFi!");
+            readModbus();
+            currenttime = 0; // Reset timer after reading Modbus
+    } else if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("WiFi not connected. Attempting to reconnect...");
+        WiFi.reconnect();
+        delay(5000); // Wait before retrying
+        }
+
+    // increents tiestep
+    currenttime += TIME_INCREMENT;
     
-    delay(1000);
     // Main program logic
     digitalWrite(LED_BUILTIN, HIGH);
-    delay(1000);
+    delay(TIME_INCREMENT-100);
     
     digitalWrite(LED_BUILTIN, LOW);
-    delay(1000);
+    delay(TIME_INCREMENT-900);
 }

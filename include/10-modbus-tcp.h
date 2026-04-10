@@ -10,5 +10,5 @@
     void disconnect();
     bool readRegisters(uint8_t function, uint16_t startAddr, uint16_t quantity, uint16_t* values);
     bool writeRegister(uint16_t addr, uint16_t value);
-void readModbus();
+void readModbusTcp();
 #endif

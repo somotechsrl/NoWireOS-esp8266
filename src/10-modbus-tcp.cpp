@@ -99,7 +99,7 @@ public:
     }
 };
 
-void readModbus() {
+void readModbusTcp() {
     ModbusTCPMaster modbus("192.168.43.169", 502, 1);
     if (modbus.connect()) {
         uint16_t values[10];
