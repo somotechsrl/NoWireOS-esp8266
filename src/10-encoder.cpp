@@ -125,59 +125,59 @@ void jsonCloseAll() {
 }
 
 // adds a integer object
-void jsonAddValue_int_8(int8_t value) {
+void jsonAddValue(int8_t value) {
   bpAddValue(value==0 ? 'z' : 'B', &value, sizeof(value));
   sprintf(s + strlen(s), "%s%d", jsonComma(), value);
 }
 // adds an unsigned integer object
-void jsonAddValue_int_16(int16_t value) {
+void jsonAddValue(int16_t value) {
   bpAddValue(value==0 ? 'z' : 'W', &value, sizeof(value));
   sprintf(s + strlen(s), "%s%d", jsonComma(), value);
 }// adds an unsigned integer object
-void jsonAddValue_int_32(int32_t value) {
+void jsonAddValue(int32_t value) {
   bpAddValue(value==0 ? 'z' : 'L', &value, sizeof(value));
   sprintf(s + strlen(s), "%s%ld", jsonComma(), value);
 }
 // adds a char (char)
-void jsonAddValue_char(char value) {
+void jsonAddValue(char value) {
   bpAddValue(value==0 ? 'z' : 'b', &value, sizeof(value));
   sprintf(s + strlen(s), "%s%c", jsonComma(), value);
 }
 // adds a uiigned short
-void jsonAddValue_uint8_t(uint8_t value) {
+void jsonAddValue(uint8_t value) {
   bpAddValue(value==0 ? 'z' : 'b', &value, sizeof(value));
   sprintf(s + strlen(s), "%s%u", jsonComma(), value);
 }
 // adds a unsigned
-void jsonAddValue_uint16_t(uint16_t value) {
+void jsonAddValue(uint16_t value) {
   //if(value<=USHRT_MAX) return jsonAddValue((uint8_t)value);
   bpAddValue(value==0 ? 'z' : 'w', &value, sizeof(value));
   sprintf(s + strlen(s), "%s%u", jsonComma(), value);
 }
 // adds a unsigned long
-void jsonAddValue_uint32_t(uint32_t value) {
+void jsonAddValue(uint32_t value) {
   //if(value<=UINT_MAX) return jsonAddValue((uint16_t)value);
   bpAddValue(value==0 ? 'z' : 'L', &value, sizeof(value));
   sprintf(s + strlen(s), "%s%lu", jsonComma(), value);
 }
 // adds a float
-void jsonAddValue_float(float value) {
+void jsonAddValue(float value) {
   bpAddValue(value==0 ? 'z' : 'f', &value, sizeof(value));
   sprintf(s + strlen(s), "%s%f", jsonComma(), value);
 }
 // adds a double
-void jsonAddValue_double  (double value) {
+void jsonAddValue(double value) {
   bpAddValue(value==0 ? 'z' : 'f', &value, sizeof(value));
   sprintf(s + strlen(s), "%s%f", jsonComma(), value);
 }
 // adds a string
-void jsonAddValue_string(const char *value) {
+void jsonAddValue(const char *value) {
   uint8_t l=strlen(value);
   bpAddValue(l ? 's' : 'n', value, strlen(value) + 1);
   sprintf(s + strlen(s), "%s\"%s\"", jsonComma(), value);
 }
 // adds a string
-void jsonAddValue_printf(const char *format, ...) {
+void jsonAddValue(const char *format, ...) {
  
   char out[BUFTINY];
   va_list args;
@@ -202,14 +202,14 @@ void jsonAddObject(const char *oname) {
 }
 
 // adds a string data object
-void jsonAddObject_string(const char *oname, const char *value) {
+void jsonAddObject(const char *oname, const char *value) {
   bpAddValue('o', oname, strlen(oname) + 1);
   bpAddValue('s', value, strlen(value) + 1);
   sprintf(s + strlen(s), "%s\"%s\":\"%s\"", jsonComma(), oname, value);
 }
 
 // adds a string data object
-void jsonAddObject_printf(const char *oname, const char *format, ...) {
+void jsonAddObject(const char *oname, const char *format, ...) {
 
   char out[BUFTINY];
   va_list args;
@@ -224,42 +224,42 @@ void jsonAddObject_printf(const char *oname, const char *format, ...) {
 }
 
 // adds an unsigned short object
-void jsonAddObject_uint8_t(const char *oname, uint8_t value) {
+void jsonAddObject(const char *oname, uint8_t value) {
   bpAddValue('o', oname, strlen(oname) + 1);
   bpAddValue('b', &value, sizeof(value));
   sprintf(s + strlen(s), "%s\"%s\":%u", jsonComma(), oname, value);
 }
 
 // adds a bool object
-void jsonAddObject_bool(const char *oname, bool value) {
+void jsonAddObject(const char *oname, bool value) {
   bpAddValue('o', oname, strlen(oname) + 1);
   bpAddValue('b', &value, sizeof(value));
   sprintf(s + strlen(s), "%s\"%s\":%u", jsonComma(), oname, value);
 }
 
 // adds a unsigned object
-void jsonAddObject_uint16_t(const char *oname, uint16_t value) {
+void jsonAddObject(const char *oname, uint16_t value) {
   bpAddValue('o', oname, strlen(oname) + 1);
   bpAddValue('w', &value, sizeof(value));
   sprintf(s + strlen(s), "%s\"%s\":%u", jsonComma(), oname, value);
 }
 
 // adds an unsigned long object
-void jsonAddObject_uint32_t(const char *oname, uint32_t value) {
+void jsonAddObject(const char *oname, uint32_t value) {
   bpAddValue('o', oname, strlen(oname) + 1);
   bpAddValue('l', &value, sizeof(value));
   sprintf(s + strlen(s), "%s\"%s\":%lu", jsonComma(), oname, value);
 }
 
 // adds a float
-void jsonAddObject_float(const char *oname, float value) {
+void jsonAddObject(const char *oname, float value) {
   bpAddValue('o', oname, strlen(oname) + 1);
   bpAddValue('f', &value, sizeof(value));
   sprintf(s + strlen(s), "%s\"%s\":%f", jsonComma(), oname, value);
 }
 
 // adds a double
-void jsonAddObject_double(const char *oname, double value) {
+void jsonAddObject(const char *oname, double value) {
   bpAddValue('o', oname, strlen(oname) + 1);
   bpAddValue('d', &value, sizeof(value));
   sprintf(s + strlen(s), "%s\"%s\":%f", jsonComma(), oname, value);
