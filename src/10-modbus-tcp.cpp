@@ -98,3 +98,16 @@ public:
         return receiveResponse(response, 256, respLength) && response[7] == 0x10;
     }
 };
+
+void readModbus() {
+    ModbusTCPMaster modbus("192.168.43.169", 502, 1);
+    if (modbus.connect()) {
+        uint16_t values[10];
+        if (modbus.readRegisters(0x03, 4096, 10, values)) {
+            for (int i = 0; i < 10; i++) {
+                Serial.println(values[i]);
+            }
+        }
+        modbus.disconnect();
+    }
+}   

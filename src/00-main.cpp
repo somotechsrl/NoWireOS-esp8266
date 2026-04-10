@@ -1,4 +1,5 @@
 #include "main.h"
+#include "10-modbus-tcp.h"
 #include "10-wifi-provision.h"
 
 void setup() {
@@ -32,7 +33,7 @@ void loop() {
         server.handleClient();
     } else if (WiFi.status() == WL_CONNECTED) {
         Serial.println("Connected to WiFi!");
-        // Main application logic
+        readModbus();
     }
     
     delay(1000);
