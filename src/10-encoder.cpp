@@ -1,6 +1,6 @@
 #include "main.h"
 #include "10-encoder.h"
-#include "rbase64.h"
+#include "base64.h"
 
 // Json formatting utilities
 #define TAG "JSON"
@@ -84,12 +84,11 @@ const char *jsonGetBase64() {
   memset(eb,0,sizeof(eb));
   memset(b64,0,sizeof(b64));
 
-  // simple encrypt before send
+  // simple encrypt before send and then 64 encode
+  uint16_t olen;
   for(int i=0;i<bsize;i++) eb[i]=r[i]^XKEY;
+  //base64_encodestep(b64, sizeof(b64), &olen, eb, bsize);
   
-  size_t olen;
-  mbedtls_base64_encode(b64, sizeof(b64), &olen,eb,bsize);
-  ESP_LOGI(TAG,"Encrypted Size: %d -- Base64 size %d",bsize,olen);
   return (char *)b64;
 }
 
@@ -124,13 +123,6 @@ void jsonCloseAll() {
   *rp++='}';
   strcat(s, "}");
 }
-
-/**************************************************************************************
-
-   jsonAddValue/hsonAddObject function are Overloaded, in this way we have automatic 'type' recognition
-   and a kind of object-oriented usabel function in data module.
-
-*/
 
 // adds a integer object
 void jsonAddValue_int_8(int8_t value) {
