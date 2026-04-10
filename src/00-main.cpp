@@ -38,7 +38,7 @@ void loop() {
         server.handleClient();
     } else if (WiFi.status() == WL_CONNECTED && currenttime >= timestep) {
         //Serial.println("Connected to WiFi!");
-            readModbus();
+            readModbusTcp();
             currenttime = 0; // Reset timer after reading Modbus
     } else if (WiFi.status() != WL_CONNECTED) {
         Serial.println("WiFi not connected. Attempting to reconnect...");
