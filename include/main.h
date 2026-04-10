@@ -6,14 +6,17 @@
 #include <ESP8266WebServer.h>
 #include <EEPROM.h>         
 
-typedef strunct WifiConfig {
+// Wifi common definitions
+extern ESP8266WebServer server;
+extern bool provisionMode;
+#define RESET_BUTTON_PIN D3
+typedef struct WiFiConfig {
     char ssid[32];
     char password[64];
-} WifiConfig;   
-extern WifiConfig wifiConfig;
+} WiFiConfig;   
+extern WiFiConfig wifiConfig;
 
-#define RESET_BUTTON_PIN D3
-
+// Buffers sizes
 #define BUFSIZE 512
 #define BUFTINY 64  
 

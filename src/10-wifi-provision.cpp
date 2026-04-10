@@ -4,10 +4,8 @@
 #include <EEPROM.h>
 
 
-static ESP8266WebServer server(80);
+ESP8266WebServer server(80);
 bool provisionMode = false;
-
-
 WiFiConfig wifiConfig;
 
 static void handleRoot() {
