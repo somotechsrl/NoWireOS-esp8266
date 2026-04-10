@@ -1,6 +1,0 @@
-#!/bin/bash
-
-ls  | grep '[.]cpp' | while read fn; do
-nf=$(sed 's/[.]cpp/.ino/g' <<< $fn)
-	mv -v $fn $nf
-	done
