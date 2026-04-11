@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "00-debug.h"
 #include <ESP8266WiFi.h>
 
 static WiFiClient client;
@@ -23,10 +24,12 @@ static bool receiveResponse(uint8_t* response, uint16_t maxLength, uint16_t& len
 
 bool modbusTcpConnect(const char *host, int port, uint8_t unitId) {
     mbAddress = unitId;
+    ESP_LOGI("MODBUS", "Connecting to Modbus TCP server at %s:%d with unit ID %d", host, port, unitId);
     return client.connect(host, port);
     }
 
 void modbusTcpDisconnect() {
+    ESP_LOGI("MODBUS", "Disconnecting from Modbus TCP server");
     client.stop();
     }
 
@@ -55,7 +58,8 @@ bool modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint16_t quant
         return false;
         }
 
-    if (response[7] != 0x03) {
+    if (response[7] != function) {
+        ESP_LOGW("MODBUS", "Unexpected function code in response: 0x%02X", response[7]);
         return false;
     }
 

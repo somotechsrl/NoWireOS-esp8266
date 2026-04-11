@@ -3,16 +3,26 @@
 #include "10-modbus-tcp.h"
 #include "10-wifi-provision.h"
 
-#define TIME_INCREMENT 1000
+// 10 msecs time step, can be adjusted as needed for more responsive behavior or lower power consumption
+#define TIME_INCREMENT 10
+
+// common mac address and uuid for device, can be used for identification in MQTT topics, etc.
 char mac[18], uuid[33];
+
+// timestep for modbus polling, can be adjusted as needed for more frequent updates or lower network traffic
 uint32_t timestep=10000; // 10 secs
-static const char* TAG = "MAIN";
+
+// TAG for logging
+#define TAG "MAIN"
 
 void setup() {
+
     // Initialize serial communication
     Serial.begin(115200);
     delay(100);
-    
+   
+    ESP_LOGI(TAG, "Booting up...");
+
     EEPROM.begin(512);
     pinMode(RESET_BUTTON_PIN, INPUT_PULLUP);
     EEPROM.get(0, wifiConfig);
@@ -25,7 +35,7 @@ void setup() {
         startProvisioningMode();
     }
 
-    ESP_LOGI(TAG, "\n\nSystem started!");
+    ESP_LOGI(TAG, "System started!");
 
     // Initialize pins, sensors, etc.
     pinMode(LED_BUILTIN, OUTPUT);
@@ -35,17 +45,14 @@ void loop() {
 
     // time stepper
     static uint32_t currenttime=0;
-
-    checkResetButton();
-    Serial.println(currenttime);
     
     if (provisionMode) {
         server.handleClient();
     } else if (WiFi.status() == WL_CONNECTED && currenttime >= timestep) {
-        strcpy(mac, WiFi.macAddress().c_str());
-        strcpy(uuid, WiFi.macAddress().c_str());
         readModbusTcp();
         currenttime = 0; // Reset timer after reading Modbus
+    } else if(WiFi.status() == WL_CONNECTED) {
+       checkResetButton();
     } else if (WiFi.status() != WL_CONNECTED) {
         ESP_LOGW(TAG, "WiFi not connected. Attempting to reconnect...");
         WiFi.reconnect();
@@ -55,7 +62,7 @@ void loop() {
     // increents tiestep
     currenttime += TIME_INCREMENT;
     
-    // Main program logic
+    // Led blinking to indicate activity, can be adjusted or removed as needed
     digitalWrite(LED_BUILTIN, HIGH);
     delay(TIME_INCREMENT-100);
     
