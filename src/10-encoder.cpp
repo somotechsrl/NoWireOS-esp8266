@@ -1,6 +1,6 @@
 #include "main.h"
 #include "10-encoder.h"
-#include "base64.h"
+#include "rBase64.h"
 
 // Json formatting utilities
 #define TAG "JSON"
@@ -74,8 +74,8 @@ uint16_t jsonGetBufferSize() {
   return strlen(s);
 }
 
-static unsigned char eb[BUFSIZE];
-static unsigned char b64[BUFSIZE];
+static char eb[BUFSIZE];
+static char b64[BUFSIZE];
 const char *jsonGetBase64() {
 
   int bsize=rp-r;
@@ -87,7 +87,7 @@ const char *jsonGetBase64() {
   // simple encrypt before send and then 64 encode
   uint16_t olen;
   for(int i=0;i<bsize;i++) eb[i]=r[i]^XKEY;
-  //base64_encodestep(b64, sizeof(b64), &olen, eb, bsize);
+  rbase64_encode(b64, eb, bsize);
   
   return (char *)b64;
 }

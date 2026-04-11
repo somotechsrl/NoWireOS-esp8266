@@ -1,16 +1,10 @@
-#ifdef __20_MODBUS_MASTER_CPP
-
 #include "main.h"
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/time.h>
-#include <unistd.h>
 #include "10-encoder.h"
-#include "10-mqtt.h"
 #include "10-modbus-tcp.h"
-#include "10-modbus-rtu.h"  
+#include "20-mqtt.h"
 #include "20-modbus-master.h"
+#include "20-modbus-master.h"
+
 
 // Modbus configuration entry
 #define XTAG 32
@@ -58,7 +52,7 @@ void addModbusAggregatedCall(char *params) {
   // splits single aggregated call with comma separated registers into multiple calls with same tag, ad, fn, but different rs and rn, then adds each call to config for processing in modbus client task loop 
   if (sscanf(params, "%31[^;];%31[^;];%hhu;%511[^;]s", tag, ad, &fn, rs_str) != 4) {
     ESP_LOGE(TAG, "Invalid params: %s", params);
-    jsonAddObject_printf("CFG_RESULT","ERROR: Invalid params: %s", params);
+    jsonAddObject("CFG_RESULT","ERROR: Invalid params: %s", params);
     return; 
     }
 
@@ -66,14 +60,14 @@ void addModbusAggregatedCall(char *params) {
   for(int i=0;i<amodbus_cnt;i++) {
     if(strcmp(amodbus_cfg[i],params) == 0) {
       ESP_LOGW(TAG, "Duplicate configuration: %s",params);
-      jsonAddObject_printf("CFG_RESULT","Duplicate configuration: %s", params);
+      jsonAddObject("CFG_RESULT","Duplicate configuration: %s", params);
       return;
     }
   }
 
   strcpy(amodbus_cfg[amodbus_cnt++],params);
   ESP_LOGW(TAG, "Added configuration: %s",params);
-  jsonAddObject_printf("CFG_RESULT","Added configuration: %s", params);
+  jsonAddObject("CFG_RESULT","Added configuration: %s", params);
   }
 
 static modbus_config *parse_modbus_cfg(char *params) {
@@ -90,7 +84,7 @@ static modbus_config *parse_modbus_cfg(char *params) {
   // splits single aggregated call with comma separated registers into multiple calls with same tag, ad, fn, but different rs and rn, then adds each call to config for processing in modbus client task loop 
   if (sscanf(params, "%31[^;];%31[^;];%hhu;%511[^;]s",conf.tag, conf.ad, &conf.fn, rs_str) != 4) {
     ESP_LOGE(TAG, "Invalid params: %s", params);
-    jsonAddObject_printf("CFG_RESULT","ERROR: Invalid params: %s", params);
+    jsonAddObject("CFG_RESULT","ERROR: Invalid params: %s", params);
     return NULL; 
     }
 
@@ -103,7 +97,7 @@ static modbus_config *parse_modbus_cfg(char *params) {
       i++;
     } else {
       ESP_LOGW(TAG, "Invalid register set: %s", token);
-      jsonAddValue_printf("Invalid register set: %s", token);
+      jsonAddObject("CFG_RESULT","Invalid register set: %s", token);
     }
     token = strtok_r(NULL, ",",&st);
    }
@@ -135,21 +129,21 @@ static void modbus_master_task(void *pvParameters) {
           // explodes in modbus_cfg
           if((conf=parse_modbus_cfg(amodbus_cfg[i])) == NULL) {
             ESP_LOGE(TAG, "ERROR: Failed to get Modbus config");
-            jsonAddObject_printf("ERROR", "Failed to get modbus config");
+            jsonAddObject("ERROR", "Failed to get modbus config");
             continue;
             }
  
           // init json block for new server, if same server as previous call, will aggregate into same block
-          jsonAddObject_string("DEV",conf->tag);
-          jsonAddObject_string("BUS",conf->ad);
-          jsonAddObject_string("DRV","modbus");
+          jsonAddObject("DEV",conf->tag);
+          jsonAddObject("BUS",conf->ad);
+          jsonAddObject("DRV","modbus");
           jsonAddObject("data");
 
           ESP_LOGI(TAG, "Processing Modbus TCP call: tag=%s addr=%s func=%d", conf->tag, conf->ad, conf->fn);
           // extract modbus call parameters from call->ad 
           if(sscanf(conf->ad, "%31[^':']:%31[^':']:%hu:%hu", server_type, server_host, &server_port, &server_unit_id) != 4) {
               ESP_LOGE(TAG, "Failed to parse Modbus TCP call address: %s", conf->ad);
-              jsonAddObject_printf("CFG_Error", "Failed to parse Modbus TCP call address: %s", conf->ad);
+              jsonAddObject("CFG_Error", "Failed to parse Modbus TCP call address: %s", conf->ad);
               continue;
               }
  
@@ -187,14 +181,6 @@ static void modbus_master_task(void *pvParameters) {
       mqtt_send_up_data(jsonGetBase64());
 
       ESP_LOGI(TAG,"Modbus client task delay %lus",timestep/1000);
-      vTaskDelay(pdMS_TO_TICKS(timestep));
       ESP_LOGI(TAG,"Modbus client task delay terminated, restarting loop");
     }
   }
-
-
-void modbus_init(void) {
-    xTaskCreate(modbus_master_task, "modbus_master", 4096, NULL, 5, NULL);
-}
-
-#endif

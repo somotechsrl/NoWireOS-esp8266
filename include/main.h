@@ -4,7 +4,13 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include <EEPROM.h>         
+#include <EEPROM.h>        
+#include "HAL.h" 
+
+// teprary log macros, to avoid including esp_log.h in all files, can be replaced with actual logging implementation later
+#define ESP_LOGI()
+#define ESP_LOGW()
+#define ESP_LOGE()  
 
 // Wifi common definitions
 extern ESP8266WebServer server;
@@ -15,10 +21,7 @@ typedef struct WiFiConfig {
     char password[64];
 } WiFiConfig;   
 extern WiFiConfig wifiConfig;
-
-// Buffers sizes
-#define BUFSIZE 512
-#define BUFTINY 64  
-
+extern char uuid[33], mac[18];
+extern uint32_t timestep;
 
 #endif

@@ -10,9 +10,17 @@ CFG.Timestep
 RPC.List
 RPC.Trigger
 
+CFG.LOG.Mqtt
+CFG.LOG.Local
+CFG.LOG.None
+CFG.LOG.Off
+
 Sys.GetInfo
 Sys.GetStatus
 Sys.Identify
 Sys.Reboot
 Sys.Cancel.Reboot
+Sys.Update.Firmware
+Sys.Update.Filesystem
+Sys.Update.Cancel
 
