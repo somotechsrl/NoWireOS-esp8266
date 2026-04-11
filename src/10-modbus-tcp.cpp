@@ -13,7 +13,7 @@ static void sendRequest(uint8_t* request, uint16_t length) {
     client.write(request, length);
    }
 
-static bool receiveResponse(uint8_t* response, uint16_t maxLength, uint16_t& length) {
+static bool receiveResponse(uint8_t* response, uint16_t maxLength, uint16_t *length) {
     length = 0;
     unsigned long timeout = millis() + 2000;
         
@@ -60,9 +60,9 @@ static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAd
     sendRequest(request, 12);
 
     // read response, check for errors, extract register values into provided buffer, and add to json response for mqtt transmission, can be expanded later to include error handling, retries, etc. as needed for robustness in real-world applications
-    uint8_t respLength;
+    uint8_t respLength=0;
     static uint8_t response[MODBUS_MAX_TCP_RESPONSE];
-    if (!receiveResponse(dest, sizeof(response), respLength)) {
+    if (!receiveResponse(dest, sizeof(response), &respLength)) {
         modbus_error=0xf0; // custom error code for no response
         ESP_LOGE("MODBUS", "No response received from Modbus TCP server");
         return NULL;

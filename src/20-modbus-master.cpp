@@ -140,34 +140,26 @@ static void modbus_master_task(void *pvParameters) {
           if(strcmp(server_type, "tcp") == 0) {
               if (modbusTcpConnect(server_host, server_port, server_unit_id)) {
                 for(int i=0;i<conf->ncalls;i++) {
-                  uint16_t *response;
-                  uint8_t respLength;
                   // gest response buffer and sets respLength
-                  response=modbusTcpReadRegisters(conf->fn, conf->calls[i].rs, conf->calls[i].rn, respLength); 
-                  if(response != NULL) {
-                    // add register values to json response for mqtt transmission, can be expanded later to include error handling, retries, etc. as needed for robustness in real-world applications
-                    for(int j=0;j<respLength/2;j++) {
-                      jsonAddValue(response[j]);
-                      }
-                    } else {
-                      jsonAddObject("ERROR", "Failed to read registers for call: rs:%u,rn:%u", conf->calls[i].rs, conf->calls[i].rn);
-                      ESP_LOGE(TAG, "Failed to read registers for call: rs:%u,rn:%u", conf->calls[i].rs, conf->calls[i].rn);
-                      }
-                    } 
+                  modbusTcpReadJson(conf->fn, conf->calls[i].rs, conf->calls[i].rn); 
                   }
                 modbusTcpDisconnect();
 
               } else {
+                ESP_LOGE(TAG, "Failed to connect to Modbus TCP server: %s:%d", server_host, server_port);
                 jsonAddObject("ERROR", "Failed to connect to Modbus TCP server: %s:%d", server_host, server_port);
                 } 
             }
           // RTU Serial call - not implemented yet, placeholder for future expansion 
           else if(strcmp(server_type, "rtu") == 0) {
               // RTU client call - not implemented yet, placeholder for future expansion
+              ESP_LOGE(TAG, "RTU client call not implemented yet: %s", conf->ad);
+              jsonAddObject("ERROR", "RTU client call not implemented yet: %s", conf->ad);
               continue; 
             } 
        // Unknown server type
           else {
+              ESP_LOGE(TAG, "Unknown server type in Modbus call address: %s", conf->ad);
               jsonAddObject("ERROR", "Unknown server type: %s", server_type);
               continue;
             }
