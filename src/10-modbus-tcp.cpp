@@ -21,7 +21,7 @@ static bool receiveResponse(uint8_t* response, uint16_t maxLength, uint16_t& len
     return length > 0;
     }
 
-bool modbusTcpConnect(const char *host, int port  = 502   , uint8_t unitId = 1) {
+bool modbusTcpConnect(const char *host, int port, uint8_t unitId) {
     mbAddress = unitId;
     return client.connect(host, port);
     }
