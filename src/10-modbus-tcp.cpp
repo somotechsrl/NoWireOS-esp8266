@@ -2,46 +2,44 @@
 #include "00-debug.h"
 #include <ESP8266WiFi.h>
 #include "10-encoder.h"
+#include "HAL.h"
 
 static WiFiClient client;
 static uint16_t transactionId;
 
 #define TAG "MBTCP"
-#define MODBUS_TCP_MAX_REGS 125
-#define MODBUS_MAX_TCP_RESPONSE (9 + 2*MODBUS_TCP_MAX_REGS)
+#define MODBUS_TCP_BUFFER  BUFTINY
 
 static void sendRequest(uint8_t* request, uint16_t length) {
     client.write(request, length);
    }
 
-static bool receiveResponse(uint8_t* response, uint16_t maxLength, uint16_t *length) {
-    length = 0;
+static uint16_t receiveResponse(uint8_t* response, uint16_t maxLength) {
+
+    uint16_t length=0;
     unsigned long timeout = millis() + 2000;
         
-    while (millis() < timeout && *length < maxLength) {
+    while (millis() < timeout && length < maxLength) {
         if (client.available()) {
-            response[(*length)++] = client.read();
+            response[length++] = client.read();
             }
         }
-    return *length > 0;
+    return length;
     }
 
 bool modbusTcpConnect(const char *host, int port, uint8_t unitId) {
-    ESP_LOGI("MODBUS", "Connecting to Modbus TCP server at %s:%d", host, port);
+    ESP_LOGI(TAG, "Connecting to Modbus TCP server at %s:%d", host, port);
     return client.connect(host, port);
     }
 
 void modbusTcpDisconnect() {
-    ESP_LOGI("MODBUS", "Disconnecting from Modbus TCP server");
+    ESP_LOGI(TAG, "Disconnecting from Modbus TCP server");
     client.stop();
     }
 
 static uint8_t modbus_error;
-static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAddr, uint8_t quantity) {
+static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAddr, uint16_t quantity) {
 
-    // buffer for register values, can be expanded as needed for larger reads, currently set to max of 125 registers for Modbus TCP
-    static uint8_t dest[MODBUS_TCP_MAX_REGS];
-    
     uint8_t request[12];
     transactionId++;
 
@@ -58,20 +56,25 @@ static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAd
     request[10] = (quantity >> 8) & 0xFF;
     request[11] = quantity & 0xFF;
 
+    // sends request to Modbus TCP server, can be expanded later to include retries, error handling, etc. as needed for robustness in real-world applications
     sendRequest(request, 12);
-
+ 
     // read response, check for errors, extract register values into provided buffer, and add to json response for mqtt transmission, can be expanded later to include error handling, retries, etc. as needed for robustness in real-world applications
     uint16_t respLength=0;
-    static uint8_t response[MODBUS_MAX_TCP_RESPONSE];
-    if (!receiveResponse(dest, sizeof(response), &respLength)) {
+    static uint8_t response[MODBUS_TCP_BUFFER];
+    // lenght of pdu plus header should be 9 + quantity*2 for read holding registers, can be expanded later to support other function codes and variable length responses as needed for robustness in real-world applications
+    respLength=receiveResponse(response,quantity*2+9);
+    if (respLength == 0) {
         modbus_error=0xf0; // custom error code for no response
-        ESP_LOGE("MODBUS", "No response received from Modbus TCP server");
+        ESP_LOGE(TAG, "No response received from Modbus TCP server");
         return NULL;
         }
 
-    uint8_t *header=&response[0]; // response starts with 7 byte header: transaction id (2), protocol id (2), length (2), unit id (1)
-    uint8_t *pdu=&response[7];  // pdu starts after header, first byte is function code
-
+    // response starts with 7 byte header: transaction id (2), protocol id (2), length (2), unit id (1)
+    uint8_t *header=response; 
+    // pdu starts after header, first byte is function code
+    uint8_t *pdu=response+7;
+    
     // basic validation of response header, can be expanded later to include more detailed validation and error handling as needed for robustness in real-world applications
     modbus_error=0;
     uint16_t recv_transaction = (header[0] << 8) | header[1];
@@ -109,27 +112,28 @@ static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAd
 
     // error response has function code with MSB set and error code in byte 8 of response, can be expanded later to include more detailed error handling as needed for robustness in real-world applications
     if (pdu[0] & 0x80) {
-        ESP_LOGE("MODBUS", "Modbus error response received: function code 0x%02X, error code 0x%02X", pdu[0], pdu[1]);
+        ESP_LOGE(TAG, "Modbus error response received: function code 0x%02X, error code 0x%02X", pdu[0], pdu[1]);
         modbus_error=pdu[1]; // error code is in byte 8 of response
         return NULL;
         }
     
     //unexpected function code in response, can be expanded later to include more detailed error handling as needed for robustness in real-world applications
     if (pdu[0] != function) {
-        ESP_LOGE("MODBUS", "Unexpected function code in response: 0x%02X", pdu[0]);
+        ESP_LOGE(TAG, "Unexpected function code in response: 0x%02X", pdu[0]);
         modbus_error=pdu[0]; // error code is in byte 8 of response
         return NULL;
     }
 
     if(pdu[1]!=quantity*2) {
-        ESP_LOGE("MODBUS", "Unexpected byte count in response: expected %d got %d", quantity*2, pdu[1]);
+        ESP_LOGE(TAG, "Unexpected byte count in response: expected %d got %d", quantity*2, pdu[1]);
         modbus_error=0xff; // custom error code for invalid response
         return NULL;
     }
 
 
-    // return pointer to register values in response starting from function code, can be used for further processing if needed, currently we are just adding values to json response for mqtt transmission
-    return (uint16_t*)&pdu[1];
+    // return pointer to register values in response starting from count
+    modbus_error=0xe0;
+    return (uint16_t*)(pdu+1);
     }
 
 #ifdef __MODBUS_TCP_WRITE_ENABLED__ // can be enabled as needed for write functionality, currently we are just implementing read functionality for simplicity, can be expanded later to include write functionality as needed
@@ -162,12 +166,12 @@ static bool writeRegister(uint16_t addr, uint16_t value) {
 // Default entry for modbus tcp client task, will be called by modbus client task loop for each call in config
 uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
 
-    uint16_t *response;
-    char jobjectid[64];
+    char jobjectid[BUFTINY];
     sprintf(jobjectid,"x%04x",start_address);
 
     // reads data from modbus tcp server, response is array of uint16_t, jsonAddValue will add as number, if want to add as string need to convert to string first
-    response=modbusTcpRead(unit_id , func, start_address, quantity);
+    ESP_LOGI
+    uint16_t *response=modbusTcpRead(unit_id , func, start_address, quantity);
 
     jsonAddArray(jobjectid);
     jsonAddValue(func);
@@ -175,7 +179,8 @@ uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_addres
     jsonAddValue(start_address);
 
     // get values for non null response, if response is null, it means there was an error, modbus_error variable will have error code, if response is not null, modbus_error should be 0
-    for (uint16_t i = 0; response && i < quantity; ++i) {
+    for (uint16_t i = 0; response!=NULL && i < quantity; ++i) {
+        ESP_LOGI(TAG, "Read register %u: %u", start_address + i, response[i]);
         jsonAddValue(response[i]);
         }
 
@@ -186,12 +191,18 @@ uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_addres
 
 // just for testing, will be removed later, can be called from loop or modbus client task loop for testing connectivity and response parsing, can be expanded later to include more detailed testing and error handling as needed for robustness in real-world applications
 void readModbusTcp() {
-    char *host="rpc.somotech.it";
+    const char *host="192.168.43.169"; // replace with actual Modbus TCP server IP or hostname
     uint16_t port=502;
     uint8_t unit_id=1;
     uint8_t func=3; // read holding registers
     uint16_t start_address=4096;
     uint16_t quantity=10;
+
+    jsonInit();
+    jsonAddObject("DEV","test_device");
+    jsonAddObject("BUS","test_bus");
+    jsonAddObject("DRV",TAG);
+    jsonAddObject("data");
 
     if (modbusTcpConnect(host, port, unit_id)) {
         modbusTcpReadJson(unit_id, func, start_address, quantity);
@@ -199,5 +210,9 @@ void readModbusTcp() {
         } else {
         ESP_LOGE(TAG, "Failed to connect to Modbus TCP server: %s:%d", host, port);
         } 
+
+    jsonCloseAll();
+
+    ESP_LOGI(TAG,"JSON: %s",jsonGetBuffer());
 
 }
