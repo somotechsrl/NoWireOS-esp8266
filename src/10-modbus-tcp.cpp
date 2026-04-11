@@ -2,14 +2,14 @@
 #include <ESP8266WiFi.h>
 
 static WiFiClient client;
-static uint8_t unitId;
+static uint8_t mbAddress = 1; // Modbus unit ID, can be configured as needed
 static uint16_t transactionId;
 
 static void sendRequest(uint8_t* request, uint16_t length) {
     client.write(request, length);
    }
 
-bool receiveResponse(uint8_t* response, uint16_t maxLength, uint16_t& length) {
+static bool receiveResponse(uint8_t* response, uint16_t maxLength, uint16_t& length) {
     length = 0;
     unsigned long timeout = millis() + 2000;
         
@@ -22,6 +22,7 @@ bool receiveResponse(uint8_t* response, uint16_t maxLength, uint16_t& length) {
     }
 
 bool modbusTcpConnect(const char *host, int port  = 502   , uint8_t unitId = 1) {
+    mbAddress = unitId;
     return client.connect(host, port);
     }
 
@@ -39,7 +40,7 @@ bool modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint16_t quant
     request[3] = 0x00;  // Protocol ID low
     request[4] = 0x00;  // Length high
     request[5] = 0x06;  // Length low
-    request[6] = unitId;
+    request[6] = mbAddress;  // Unit ID
     request[7] = function;  // Function code
     request[8] = (startAddr >> 8) & 0xFF;
     request[9] = startAddr & 0xFF;
@@ -76,7 +77,7 @@ static bool writeRegister(uint16_t addr, uint16_t value) {
     request[3] = 0x00;
     request[4] = 0x00;
     request[5] = 0x06;
-    request[6] = unitId;
+    request[6] = mbAddress;  // Unit ID
     request[7] = 0x10;  // Function code: Write Multiple Registers
     request[8] = (addr >> 8) & 0xFF;
     request[9] = addr & 0xFF;
