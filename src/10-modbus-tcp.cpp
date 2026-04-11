@@ -23,15 +23,15 @@ bool receiveResponse(uint8_t* response, uint16_t maxLength, uint16_t& length) {
     return length > 0;
     }
 
-static bool modbusTcpConnect(const char *host, int port  = 502   , uint8_t unitId = 1) {
+bool modbusTcpConnect(const char *host, int port  = 502   , uint8_t unitId = 1) {
     return client.connect(host, port);
     }
 
-static void modbusTcpDisconnect() {
+void modbusTcpDisconnect() {
     client.stop();
     }
 
-static bool modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint16_t quantity, uint16_t* values) {
+bool modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint16_t quantity, uint16_t* values) {
     uint8_t request[12];
     transactionId++;
 

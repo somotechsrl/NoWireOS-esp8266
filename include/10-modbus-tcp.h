@@ -5,5 +5,7 @@
 // src/10-modbus-tcp.cpp prototypes
 // ****************************
 bool receiveResponse(uint8_t* response, uint16_t maxLength, uint16_t& length);
+void modbusTcpDisconnect();
+bool modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint16_t quantity, uint16_t* values);
 void readModbusTcp();
 #endif
