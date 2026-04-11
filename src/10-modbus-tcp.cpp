@@ -184,7 +184,7 @@ uint16_t *ModbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_addres
     return response;
 }
 
-void readModbusTcp();
+void readModbusTcp() {
     char *host="rpc.somotech.it"
     uint16_t port=502;
     uint8_t unit_id=1;
