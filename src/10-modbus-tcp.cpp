@@ -6,6 +6,9 @@ static WiFiClient client;
 static uint8_t mbAddress = 1; // Modbus unit ID, can be configured as needed
 static uint16_t transactionId;
 
+#define MODBUS_TCP_MAX_REGS 125
+#define MODBUS_MAX_TCP_RESPONSE (9 + 2*MODBUS_TCP_MAX_REGS)
+
 static void sendRequest(uint8_t* request, uint16_t length) {
     client.write(request, length);
    }
@@ -33,7 +36,7 @@ void modbusTcpDisconnect() {
     client.stop();
     }
 
-uint16_t modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint16_t &quantity) {
+uint16_t *modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint16_t &quantity) {
 
     // buffer for register values, can be expanded as needed for larger reads, currently set to max of 125 registers for Modbus TCP
     static uint8_t dest[MODBUS_TCP_MAX_REGS];
