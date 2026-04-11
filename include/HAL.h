@@ -29,7 +29,7 @@
 #define GPIO_WIFI_RESET D3 // Flash Button
 #define BUFSIZE 1024
 #define BUFTINY 512
-#define BOARDID F("nodemcu")
+#define BOARDID "nodemcu"
 #define ONBOARD_LED LED_BUILTIN
 #endif
 

@@ -31,6 +31,7 @@ void setup() {
         startProvisioningMode();
     }
 
+    mqttInit();
     ESP_LOGI(TAG, "System started!");
 
     // Initialize pins, sensors, etc.
@@ -41,6 +42,8 @@ void loop() {
 
     // time stepper
     static uint64_t cmillis=millis();
+
+    mqttPoll();
 
     if(millis()<cmillis) {
         cmillis=millis(); // reset timer if overflow

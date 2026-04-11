@@ -2,6 +2,8 @@
 #include "rBase64.h"
 #include "MQTT.h"
 #include <WiFiClientSecure.h>
+#include "20-mqtt.h"
+#include "10-encoder.h"
 
 #define MQTT_TASK
 #ifdef MQTT_TASK
@@ -32,7 +34,7 @@ static void netInit() {
 
 // Uses Crypted NET (inseCure with unk certificate, but anyway crypted...)
 static MQTTClient mqttClient(BUFSIZE);
-static void messageReceived(char *topic, char *payload) {
+static void messageReceived(String &topic, String &payload) {
 
   // Note: Do not use the client in the callback to publish, subscribe or
   // unsubscribe as it may cause deadlocks when other things arrive while
@@ -42,11 +44,11 @@ static void messageReceived(char *topic, char *payload) {
   // must find a way to handle async calls, even if not necessary...
   //debug(DBG_MQTT,String("Received topic: ")+topic);
   //debug(DBG_MQTT,String("Received message: ")+payload);
-
-  if(strstr(topic,"rpc")) {
+  
+  if(topic.indexOf("rpc") != -1) {
     //rpcManage(payload,true); return;
     }
-  if(strstr(topic,"asy")) {
+  if(topic.indexOf("asy") != -1) {
     //rpcManage(payload,false); return;
     }
 
@@ -54,6 +56,26 @@ static void messageReceived(char *topic, char *payload) {
 
 }
 
+
+
+static void mqttReconnect() {
+
+  if (mqttClient.connected()) return;
+
+  //debug(DBG_MQTT, "Connecting...");
+  while (!mqttClient.connect(broker,port)) {
+    ESP_LOGE(TAG, "Failed to connect to MQTT broker at %s:%d -- %s", broker, port,mqttClient.lastError());
+    //debug(DBG_MQTT, "Failed: RC="+mqttClient.lastError());
+    delay(1000);
+  }
+
+  snprintf(topic, TSIZE, "nowireos/%s/%s/rpc", BOARDID, uuid.c_str());
+  mqttClient.subscribe(topic);
+  snprintf(topic, TSIZE, "nowireos/%s/%s/asy", BOARDID, uuid.c_str());
+  mqttClient.subscribe(topic);
+  snprintf(topic, TSIZE, "nowireos/%s/%s/down", BOARDID, uuid.c_str());
+  mqttClient.subscribe(topic);
+}
 
 void mqttInit() {
 
@@ -67,25 +89,6 @@ void mqttInit() {
   // first connect...
   mqttReconnect();
   }
-
-static void mqttReconnect() {
-
-  if (mqttClient.connected()) return;
-
-  //debug(DBG_MQTT, "Connecting...");
-  while (!mqttClient.connect(broker,port)) {
-    ESP_LOGE(TAG, "Failed to connect to MQTT broker at %s:%d -- %s", broker, port,mqttClient.lastError());
-    //debug(DBG_MQTT, "Failed: RC="+mqttClient.lastError());
-    delay(1000);
-  }
-
-  snprintf(topic, TSIZE, "nowireos/%s/%s/rpc", BOARDID, uuid);
-  mqttClient.subscribe(topic);
-  snprintf(topic, TSIZE, "nowireos/%s/%s/asy", BOARDID, uuid);
-  mqttClient.subscribe(topic);
-  snprintf(topic, TSIZE, "nowireos/%s/%s/down", BOARDID, uuid);
-  mqttClient.subscribe(topic);
-}
 
 void mqttPoll() {
   mqttReconnect();
@@ -102,23 +105,15 @@ static void mqttSend(const char * topic, const char *data) {
 // commond publish function
 void mqttUp() {
   // Magic calculation on expanded buffer
-  char mbuff[16];
   uint16_t randseed=rand();
   uint16_t magic=randseed ^ 0x1b2c;
-  sprintf(topic,"nowireos/%s/%s/up/%04x%04x",uuid,BOARDID,randseed,magic);
-  mqttSend(topic);
+  sprintf(topic,"nowireos/%s/%s/up/%04x%04x",BOARDID,uuid.c_str(),randseed,magic);
+  mqttSend(topic,jsonGetBase64());
 }
 
-void mqttRpcUp(String subtopic,bool sync) {
-    snprintf(topic, TSIZE, "nowireos/%s/%s/%s/%s", BOARDID, uuid, (sync ? "rpc" : "asy"), subtopic.c_str());
-    mqttSend(topic);
+void mqttRpcUp(String responseID,bool sync) {
+    snprintf(topic, TSIZE, "nowireos/%s/%s/%s/%s", BOARDID, uuid.c_str(), (sync ? "rpc" : "asy"), responseID.c_str());
+    mqttSend(topic,jsonGetBase64());
 }
-
-void mqttDebugUp(const char *json) {
-  reconnect();
-  mqttClient.publish(dbg.c_str(), json, strlen(json));
-}
-
-
 
 #endif

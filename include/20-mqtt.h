@@ -7,6 +7,5 @@
 void mqttInit();
 void mqttPoll();
 void mqttUp();
-void mqttRpcUp(String subtopic,bool sync);
-void mqttDebugUp(const char *json);
+void mqttRpcUp(String responseID,bool sync);
 #endif
