@@ -2,8 +2,6 @@
 #include <ESP8266WiFi.h>
 
 static WiFiClient client;
-static const char* host;
-static uint16_t port;
 static uint8_t unitId;
 static uint16_t transactionId;
 
