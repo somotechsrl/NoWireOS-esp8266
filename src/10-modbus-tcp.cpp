@@ -36,7 +36,7 @@ void modbusTcpDisconnect() {
     client.stop();
     }
 
-uint16_t *modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint16_t &quantity) {
+uint16_t *modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint8_t quantity,uint8_t &respLength) {
 
     // buffer for register values, can be expanded as needed for larger reads, currently set to max of 125 registers for Modbus TCP
     static uint8_t dest[MODBUS_TCP_MAX_REGS];
@@ -61,7 +61,6 @@ uint16_t *modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint16_t 
 
     // read response, check for errors, extract register values into provided buffer, and add to json response for mqtt transmission, can be expanded later to include error handling, retries, etc. as needed for robustness in real-world applications
     static uint8_t response[MODBUS_MAX_TCP_RESPONSE];
-    uint16_t respLength;
     if (!receiveResponse(dest, sizeof(response), respLength)) {
         return NULL;
         }
