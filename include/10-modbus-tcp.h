@@ -6,6 +6,5 @@
 // ****************************
 bool modbusTcpConnect(const char *host, int port, uint8_t unitId);
 void modbusTcpDisconnect();
-uint16_t *modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint8_t quantity,uint8_t &respLength);
-void readModbusTcp();
+uint16_t *ModbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_address, uint16_t quantity);
 #endif

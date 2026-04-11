@@ -140,7 +140,20 @@ static void modbus_master_task(void *pvParameters) {
           if(strcmp(server_type, "tcp") == 0) {
               if (modbusTcpConnect(server_host, server_port, server_unit_id)) {
                 for(int i=0;i<conf->ncalls;i++) {
-                  modbusTcpReadRegisters(conf->fn, conf->calls[i].rs, conf->calls[i].rn, NULL); // for now we are not storing values, just testing calls, can be expanded later to store values in json response
+                  uint16_t *response;
+                  uint8_t respLength;
+                  // gest response buffer and sets respLength
+                  response=modbusTcpReadRegisters(conf->fn, conf->calls[i].rs, conf->calls[i].rn, respLength); 
+                  if(response != NULL) {
+                    // add register values to json response for mqtt transmission, can be expanded later to include error handling, retries, etc. as needed for robustness in real-world applications
+                    for(int j=0;j<respLength/2;j++) {
+                      jsonAddValue(response[j]);
+                      }
+                    } else {
+                      jsonAddObject("ERROR", "Failed to read registers for call: rs:%u,rn:%u", conf->calls[i].rs, conf->calls[i].rn);
+                      ESP_LOGE(TAG, "Failed to read registers for call: rs:%u,rn:%u", conf->calls[i].rs, conf->calls[i].rn);
+                      }
+                    } 
                   }
                 modbusTcpDisconnect();
 

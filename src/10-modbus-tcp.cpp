@@ -3,7 +3,6 @@
 #include <ESP8266WiFi.h>
 
 static WiFiClient client;
-static uint8_t mbAddress = 1; // Modbus unit ID, can be configured as needed
 static uint16_t transactionId;
 
 #define MODBUS_TCP_MAX_REGS 125
@@ -36,7 +35,8 @@ void modbusTcpDisconnect() {
     client.stop();
     }
 
-uint16_t *modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint8_t quantity,uint8_t &respLength) {
+static uint8_t modbus_error;
+static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAddr, uint8_t quantity)) {
 
     // buffer for register values, can be expanded as needed for larger reads, currently set to max of 125 registers for Modbus TCP
     static uint8_t dest[MODBUS_TCP_MAX_REGS];
@@ -50,7 +50,7 @@ uint16_t *modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint8_t q
     request[3] = 0x00;  // Protocol ID low
     request[4] = 0x00;  // Length high
     request[5] = 0x06;  // Length low
-    request[6] = mbAddress;  // Unit ID
+    request[6] = unitId;  // Unit ID
     request[7] = function;  // Function code
     request[8] = (startAddr >> 8) & 0xFF;
     request[9] = startAddr & 0xFF;
@@ -62,22 +62,70 @@ uint16_t *modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint8_t q
     // read response, check for errors, extract register values into provided buffer, and add to json response for mqtt transmission, can be expanded later to include error handling, retries, etc. as needed for robustness in real-world applications
     static uint8_t response[MODBUS_MAX_TCP_RESPONSE];
     if (!receiveResponse(dest, sizeof(response), respLength)) {
-        return NULL;
+        respLength=0;
         }
 
-    // check function field for errors
-    if (response[7] & 0x80) {
-        ESP_LOGE("MODBUS", "Modbus error response received: function code 0x%02X, error code 0x%02X", response[7], response[8]);
-        return NULL;
-        }
+    uint8_t *header=&response[0]; // response starts with 7 byte header: transaction id (2), protocol id (2), length (2), unit id (1)
+    uint8_t pdu=&response[7];  // pdu starts after header, first byte is function code
 
-    if (response[7] != function) {
-        ESP_LOGE("MODBUS", "Unexpected function code in response: 0x%02X", response[7]);
+    // basic validation of response header, can be expanded later to include more detailed validation and error handling as needed for robustness in real-world applications
+    modbus_error=0;
+    uint16_t recv_transaction = (uint16_t)&header[0];
+    uint16_t protocol_id = (uint16_t)&header[2];
+    uint16_t length = (uint16_t&header[4];
+    uint8_t recv_unit = header[6];
+
+    if (recv_transaction != (modbus_transaction_id - 1)) {
+        ESP_LOGW(TAG, "transaction id mismatch: expected %u got %u", modbus_transaction_id - 1, recv_transaction);
+        modbus_error=0xfa; // custom error code for transaction id mismatch
+        return NULL;
+    }
+    if (protocol_id != 0) {
+        ESP_LOGW(TAG, "unexpected Modbus protocol id %u", protocol_id);
+        modbus_error=0xfb; // custom error code for protocol id mismatch
+        return NULL;
+    }
+    if (recv_unit != unit_id) {
+        ESP_LOGW(TAG, "unexpected unit id %u", recv_unit);
+        modbus_error=0xfc; // custom error code for unit id mismatch
+        return NULL;
+    }
+    if (length < 2) {
+        ESP_LOGE(TAG, "invalid Modbus response length %u", length);
+        modbus_error=0xfd; // custom error code for invalid response
         return NULL;
     }
 
-    // return pointer to register values in response, can be used for further processing if needed, currently we are just adding values to json response for mqtt transmission
-    return (uint16_t*)(response+9);
+    size_t pdu_length = length - 1;
+    if (pdu_length > 253) {
+        ESP_LOGE(TAG, "too large Modbus PDU length %zu", pdu_length);
+        modbus_error=0xfe; // custom error code for invalid response
+        return NULL;
+    }
+
+    // error response has function code with MSB set and error code in byte 8 of response, can be expanded later to include more detailed error handling as needed for robustness in real-world applications
+    if (pdu[0] & 0x80) {
+        ESP_LOGE("MODBUS", "Modbus error response received: function code 0x%02X, error code 0x%02X", pdu[0], pdu[1]);
+        modbus_error=pdu[1]; // error code is in byte 8 of response
+        return NULL;
+        }
+    
+    //unexpected function code in response, can be expanded later to include more detailed error handling as needed for robustness in real-world applications
+    if (pdu[0] != function) {
+        ESP_LOGE("MODBUS", "Unexpected function code in response: 0x%02X", pdu[0]);
+        modbus_error=pdu[0]; // error code is in byte 8 of response
+        return NULL;
+    }
+
+    if(pdu[1]!=quantty*2) {
+        ESP_LOGE("MODBUS", "Unexpected byte count in response: expected %d got %d", quantity*2, pdu[1]);
+        modbus_error=0xff; // custom error code for invalid response
+        return NULL;
+    }
+
+
+    // return pointer to register values in response starting from function code, can be used for further processing if needed, currently we are just adding values to json response for mqtt transmission
+    return (uint16_t*)pdu[;
     }
 
 #ifdef __MODBUS_TCP_WRITE_ENABLED__ // can be enabled as needed for write functionality, currently we are just implementing read functionality for simplicity, can be expanded later to include write functionality as needed
@@ -106,17 +154,28 @@ static bool writeRegister(uint16_t addr, uint16_t value) {
     }
 #endif
 
-void readModbusTcp() {
-    if (modbusTcpConnect("192.168.43.169", 502, 1)) {
-        
-        uint16_t *values;
-    
-        if ((values=modbusTcpReadRegisters(0x03, 4096, 10)) != NULL) {
-            for (int i = 0; i < 10; i++) {
-                Serial.println(values[i]);
-            }
+// Default entry for modbus tcp client task, will be called by modbus client task loop for each call in config
+uint16_t *ModbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
+
+    uint16_t *response;
+    char jobjectid[64];
+    sprintf(jobjectid,"x%04x",start_address);
+
+    // reads data from modbus tcp server, response is array of uint16_t, jsonAddValue will add as number, if want to add as string need to convert to string first
+    response=modbusTcpRead(sock, unit_id , func, start_address, quantity);
+
+    jsonAddArray(jobjectid);
+    jsonAddValue_uint8_t(func);
+    jsonAddValue_uint16_t(modbus_error);
+    jsonAddValue_uint16_t(start_address);
+
+    // get values for non null response, if response is null, it means there was an error, modbus_error variable will have error code, if response is not null, modbus_error should be 0
+    for (uint16_t i = 0; response && i < quantity; ++i) {
+        jsonAddValue_uint16_t(response[i]);
         }
 
-        modbusTcpDisconnect();
-    }
-}   
+    jsonClose();
+
+    return response;
+}
+
