@@ -1,17 +1,15 @@
 include <stdio.h>
 #include "main.h"   
 
-void log_function(const char *type, const char *tag,const char *fmt, ...) {
+// default output formatter to serial -- can be extended to send logs to MQTT or other remote logging service
+static void log_serial(const char *type, const char *tag,const char *fmt, va_list args) {
 
-    char logMessage[BUFTINY];
-    va_list args;
-    va_start(args, fmt);
+    char logmessage[BUFTINY],logfull[BUFTINY];
     vsnprintf(logMessage, sizeof(logMessage), fmt, args);
-    va_end(args);
+    snprint(logfull,BUFTINY,"%s: %s: %s", type, tag, logMessage);
 
-    Serial.printf("%s\n", logMessage); // Print to serial for local debugging
+    Serial.printf("%s\n", logfull); // Print to serial for local debugging
 }
-
 
 // Custom debug function to send logs to MQTT
 void ESP_LOGI(char *tag,const char* format, ...) {
@@ -19,10 +17,28 @@ void ESP_LOGI(char *tag,const char* format, ...) {
     char logMessage[BUFTINY];
     va_list args;
     va_start(args, format);
-    log_function(format, args); // Log to serial for local debugging
-    vsnprintf(logMessage, sizeof(logMessage), format, args);
+    log_serial("I: ", tag, format, args); // Log to serial for local debugging
     va_end(args);
+    }   
 
-    Serial.printf("%s: %s\n", tag, logMessage); // Print to serial for local debugging
+// Custom debug function to send logs to MQTT
+void ESP_LOGW(char *tag,const char* format, ...) {
+
+    char logMessage[BUFTINY];
+    va_list args;
+    va_start(args, format);
+    log_serial("W: ", tag, format, args); // Log to serial for local debugging
+    va_end(args);
+    }   
+    
+// Custom debug function to send logs to MQTT
+void ESP_LOGE(char *tag,const char* format, ...) {
+
+    char logMessage[BUFTINY];
+    va_list args;
+    va_start(args, format);
+    log_serial("E: ", tag, format, args); // Log to serial for local debugging
+    va_end(args);
+    }   
     
 
