@@ -17,12 +17,12 @@ static bool receiveResponse(uint8_t* response, uint16_t maxLength, uint16_t *len
     length = 0;
     unsigned long timeout = millis() + 2000;
         
-    while (millis() < timeout && length < maxLength) {
+    while (millis() < timeout && *length < maxLength) {
         if (client.available()) {
-            response[*length++] = client.read();
+            response[(*length)++] = client.read();
             }
         }
-    return length > 0;
+    return *length > 0;
     }
 
 bool modbusTcpConnect(const char *host, int port, uint8_t unitId) {
@@ -60,7 +60,7 @@ static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAd
     sendRequest(request, 12);
 
     // read response, check for errors, extract register values into provided buffer, and add to json response for mqtt transmission, can be expanded later to include error handling, retries, etc. as needed for robustness in real-world applications
-    uint8_t respLength=0;
+    uint16_t respLength=0;
     static uint8_t response[MODBUS_MAX_TCP_RESPONSE];
     if (!receiveResponse(dest, sizeof(response), &respLength)) {
         modbus_error=0xf0; // custom error code for no response
@@ -128,7 +128,7 @@ static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAd
 
 
     // return pointer to register values in response starting from function code, can be used for further processing if needed, currently we are just adding values to json response for mqtt transmission
-    return (uint16_t*)pdu[;
+    return (uint16_t*)pdu[1];
     }
 
 #ifdef __MODBUS_TCP_WRITE_ENABLED__ // can be enabled as needed for write functionality, currently we are just implementing read functionality for simplicity, can be expanded later to include write functionality as needed
@@ -157,6 +157,7 @@ static bool writeRegister(uint16_t addr, uint16_t value) {
     }
 #endif
 
+
 // Default entry for modbus tcp client task, will be called by modbus client task loop for each call in config
 uint16_t *ModbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
 
@@ -183,3 +184,19 @@ uint16_t *ModbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_addres
     return response;
 }
 
+void readModbusTcp();
+    char *host="rpc.somotech.it"
+    uint16_t port=502;
+    uint8_t unit_id=1;
+    uint8_t func=3; // read holding registers
+    uint16_t start_address=4096;
+    uint16_t quantity=10;
+
+    if (modbusTcpConnect(host, port, unit_id)) {
+        ModbusTcpReadJson(unit_id, func, start_address, quantity);
+        modbusTcpDisconnect();
+        } else {
+        ESP_LOGE(TAG, "Failed to connect to Modbus TCP server: %s:%d", host, port);
+        } 
+
+}
