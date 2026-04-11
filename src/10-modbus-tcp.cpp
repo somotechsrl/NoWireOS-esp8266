@@ -80,6 +80,7 @@ uint16_t *modbusTcpReadRegisters(uint8_t function, uint16_t startAddr, uint8_t q
     return (uint16_t*)(response+9);
     }
 
+#ifdef __MODBUS_TCP_WRITE_ENABLED__ // can be enabled as needed for write functionality, currently we are just implementing read functionality for simplicity, can be expanded later to include write functionality as needed
 static bool writeRegister(uint16_t addr, uint16_t value) {
     uint8_t request[12];
     transactionId++;
@@ -103,6 +104,7 @@ static bool writeRegister(uint16_t addr, uint16_t value) {
     uint16_t respLength;
     return receiveResponse(response, 256, respLength) && response[7] == 0x10;
     }
+#endif
 
 void readModbusTcp() {
     if (modbusTcpConnect("192.168.43.169", 502, 1)) {
