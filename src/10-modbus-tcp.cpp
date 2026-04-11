@@ -5,6 +5,7 @@
 static WiFiClient client;
 static uint16_t transactionId;
 
+#define TAG "MBTCP"
 #define MODBUS_TCP_MAX_REGS 125
 #define MODBUS_MAX_TCP_RESPONSE (9 + 2*MODBUS_TCP_MAX_REGS)
 
@@ -25,8 +26,7 @@ static bool receiveResponse(uint8_t* response, uint16_t maxLength, uint16_t& len
     }
 
 bool modbusTcpConnect(const char *host, int port, uint8_t unitId) {
-    mbAddress = unitId;
-    ESP_LOGI("MODBUS", "Connecting to Modbus TCP server at %s:%d with unit ID %d", host, port, unitId);
+    ESP_LOGI("MODBUS", "Connecting to Modbus TCP server at %s:%d", host, port);
     return client.connect(host, port);
     }
 
@@ -36,7 +36,7 @@ void modbusTcpDisconnect() {
     }
 
 static uint8_t modbus_error;
-static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAddr, uint8_t quantity)) {
+static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAddr, uint8_t quantity) {
 
     // buffer for register values, can be expanded as needed for larger reads, currently set to max of 125 registers for Modbus TCP
     static uint8_t dest[MODBUS_TCP_MAX_REGS];
@@ -60,9 +60,12 @@ static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAd
     sendRequest(request, 12);
 
     // read response, check for errors, extract register values into provided buffer, and add to json response for mqtt transmission, can be expanded later to include error handling, retries, etc. as needed for robustness in real-world applications
+    uint8_t respLength;
     static uint8_t response[MODBUS_MAX_TCP_RESPONSE];
     if (!receiveResponse(dest, sizeof(response), respLength)) {
-        respLength=0;
+        modbus_error=0xf0; // custom error code for no response
+        ESP_LOGE("MODBUS", "No response received from Modbus TCP server");
+        return NULL;
         }
 
     uint8_t *header=&response[0]; // response starts with 7 byte header: transaction id (2), protocol id (2), length (2), unit id (1)
@@ -72,7 +75,7 @@ static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAd
     modbus_error=0;
     uint16_t recv_transaction = (uint16_t)&header[0];
     uint16_t protocol_id = (uint16_t)&header[2];
-    uint16_t length = (uint16_t&header[4];
+    uint16_t length = (uint16_t)&header[4];
     uint8_t recv_unit = header[6];
 
     if (recv_transaction != (modbus_transaction_id - 1)) {
@@ -158,6 +161,7 @@ static bool writeRegister(uint16_t addr, uint16_t value) {
 uint16_t *ModbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
 
     uint16_t *response;
+    uint8_t respLength
     char jobjectid[64];
     sprintf(jobjectid,"x%04x",start_address);
 
