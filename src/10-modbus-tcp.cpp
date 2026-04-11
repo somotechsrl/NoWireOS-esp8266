@@ -7,7 +7,7 @@ static uint16_t port;
 static uint8_t unitId;
 static uint16_t transactionId;
 
-void sendRequest(uint8_t* request, uint16_t length) {
+static void sendRequest(uint8_t* request, uint16_t length) {
     client.write(request, length);
    }
 
