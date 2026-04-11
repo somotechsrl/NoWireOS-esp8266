@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "00-debug.h"
 #include <ESP8266WiFi.h>
+#nclude "10-encoder.h"
 
 static WiFiClient client;
 static uint16_t transactionId;
@@ -69,17 +70,17 @@ static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAd
         }
 
     uint8_t *header=&response[0]; // response starts with 7 byte header: transaction id (2), protocol id (2), length (2), unit id (1)
-    uint8_t pdu=&response[7];  // pdu starts after header, first byte is function code
+    uint8_t *pdu=&response[7];  // pdu starts after header, first byte is function code
 
     // basic validation of response header, can be expanded later to include more detailed validation and error handling as needed for robustness in real-world applications
     modbus_error=0;
-    uint16_t recv_transaction = (uint16_t)&header[0];
-    uint16_t protocol_id = (uint16_t)&header[2];
-    uint16_t length = (uint16_t)&header[4];
+    uint16_t recv_transaction = (header[0] << 8) | header[1];
+    uint16_t protocol_id = (header[2] << 8) | header[3];
+    uint16_t length = (header[4] << 8) | header[5];
     uint8_t recv_unit = header[6];
 
-    if (recv_transaction != (modbus_transaction_id - 1)) {
-        ESP_LOGW(TAG, "transaction id mismatch: expected %u got %u", modbus_transaction_id - 1, recv_transaction);
+    if (recv_transaction != (transactionId - 1)) {
+        ESP_LOGW(TAG, "transaction id mismatch: expected %u got %u", transactionId - 1, recv_transaction);
         modbus_error=0xfa; // custom error code for transaction id mismatch
         return NULL;
     }
@@ -88,7 +89,7 @@ static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAd
         modbus_error=0xfb; // custom error code for protocol id mismatch
         return NULL;
     }
-    if (recv_unit != unit_id) {
+    if (recv_unit != unitId) {
         ESP_LOGW(TAG, "unexpected unit id %u", recv_unit);
         modbus_error=0xfc; // custom error code for unit id mismatch
         return NULL;
@@ -120,7 +121,7 @@ static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAd
         return NULL;
     }
 
-    if(pdu[1]!=quantty*2) {
+    if(pdu[1]!=quantity*2) {
         ESP_LOGE("MODBUS", "Unexpected byte count in response: expected %d got %d", quantity*2, pdu[1]);
         modbus_error=0xff; // custom error code for invalid response
         return NULL;
@@ -159,15 +160,15 @@ static bool writeRegister(uint16_t addr, uint16_t value) {
 
 
 // Default entry for modbus tcp client task, will be called by modbus client task loop for each call in config
-uint16_t *ModbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
+uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
 
     uint16_t *response;
-    uint8_t respLength
+    uint8_t respLength;
     char jobjectid[64];
     sprintf(jobjectid,"x%04x",start_address);
 
     // reads data from modbus tcp server, response is array of uint16_t, jsonAddValue will add as number, if want to add as string need to convert to string first
-    response=modbusTcpRead(sock, unit_id , func, start_address, quantity);
+    response=modbusTcpRead(unit_id , func, start_address, quantity);
 
     jsonAddArray(jobjectid);
     jsonAddValue_uint8_t(func);
