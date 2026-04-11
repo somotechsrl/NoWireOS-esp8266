@@ -4,9 +4,6 @@
 #include "20-mqtt.h"
 #include "20-modbus-master.h"
 
-#define MODBUS_MASTER_TASK
-#ifdef MODBUS_MASTER_TASK
-
 // Modbus configuration entry
 #define XTAG 32
 
@@ -160,9 +157,7 @@ static void modbus_master_task(void *pvParameters) {
       // logs json, and base 64 encrypted json
       //ESP_LOGI(TAG,"%s",jsonGetBase64());
 
-      mqtt_send_up_data(jsonGetBase64());
+      //mqtt_send_up_data(jsonGetBase64());
 
     }
   }
-
-  #endif
