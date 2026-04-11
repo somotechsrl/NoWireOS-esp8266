@@ -6,11 +6,7 @@
 #include <ESP8266WebServer.h>
 #include <EEPROM.h>        
 #include "HAL.h" 
-
-// teprary log macros, to avoid including esp_log.h in all files, can be replaced with actual logging implementation later
-#define ESP_LOGI()
-#define ESP_LOGW()
-#define ESP_LOGE()  
+#include "00-debug.h"
 
 // Wifi common definitions
 extern ESP8266WebServer server;

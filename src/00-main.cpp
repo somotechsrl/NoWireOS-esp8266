@@ -7,6 +7,8 @@
 char mac[18], uuid[33];
 uint32_t timestep=10000; // 5 minutes
 
+const char* TAG = "MAIN";
+
 void setup() {
     // Initialize serial communication
     Serial.begin(115200);
@@ -19,13 +21,13 @@ void setup() {
     if (strlen(wifiConfig.ssid) > 0) {
         WiFi.mode(WIFI_STA);
         WiFi.begin(wifiConfig.ssid, wifiConfig.password);
-        Serial.println("Connecting to WiFi...");
+        ESP_LOGI(TAG, "Connecting to WiFi...");
     } else {
         startProvisioningMode();
     }
 
-    Serial.println("\n\nSystem started!");
-    
+    ESP_LOGI(TAG, "\n\nSystem started!");
+
     // Initialize pins, sensors, etc.
     pinMode(LED_BUILTIN, OUTPUT);
 }
@@ -43,11 +45,10 @@ void loop() {
     } else if (WiFi.status() == WL_CONNECTED && currenttime >= timestep) {
         strcpy(mac, WiFi.macAddress().c_str());
         strcpy(uuid, WiFi.macAddress().c_str());
-        //Serial.println("Connected to WiFi!");
         readModbusTcp();
         currenttime = 0; // Reset timer after reading Modbus
     } else if (WiFi.status() != WL_CONNECTED) {
-        Serial.println("WiFi not connected. Attempting to reconnect...");
+        ESP_LOGW(TAG, "WiFi not connected. Attempting to reconnect...");
         WiFi.reconnect();
         delay(5000); // Wait before retrying
         }
