@@ -202,13 +202,6 @@ void jsonAddObject(const char *oname) {
 }
 
 // adds a string data object
-void jsonAddObject(const char *oname, const char *value) {
-  bpAddValue('o', oname, strlen(oname) + 1);
-  bpAddValue('s', value, strlen(value) + 1);
-  sprintf(s + strlen(s), "%s\"%s\":\"%s\"", jsonComma(), oname, value);
-}
-
-// adds a string data object
 void jsonAddObject(const char *oname, const char *format, ...) {
 
   char out[BUFTINY];

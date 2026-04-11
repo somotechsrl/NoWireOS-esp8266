@@ -26,20 +26,18 @@ typedef struct {
 
 
 #define TAG "MODBUS_CFG"
-TaskHandle_t modbus_master_task_handle;
-
 static int amodbus_cnt;
 static char amodbus_cfg[MODBUS_CONFIGS][BUFTINY];
 
 void addModbusAggregatedCall(char *params) {
 
-  jsonAddObject_printf("CFG_STRING",params);
+  jsonAddObject("CFG_STRING",params);
 
   // param is in the form dev_id;tpc:address:port:unit;function;r:n,r:n,r:n....
   // checks if we reached limit
   if(amodbus_cnt>=MODBUS_CONFIGS) {
     ESP_LOGE(TAG,"Maximum configs (%d) reached",amodbus_cnt);
-    jsonAddObject_printf("CFG_RESULT","ERROR: Maximum number of configs reached: %d",amodbus_cnt);
+    jsonAddObject("CFG_RESULT","ERROR: Maximum number of configs reached: %d",amodbus_cnt);
     return;
     }
 
