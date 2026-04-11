@@ -1,4 +1,5 @@
 #include "main.h"
+#include "00-debug.h"
 #include "10-modbus-tcp.h"
 #include "10-wifi-provision.h"
 
