@@ -7,6 +7,7 @@
 #include <EEPROM.h>        
 #include "HAL.h" 
 #include "00-debug.h"
+#include "00-utils.h"
 
 // Wifi common definitions
 extern ESP8266WebServer server;

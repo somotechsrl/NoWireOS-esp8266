@@ -1,5 +1,4 @@
 #include "main.h"
-#include "00-debug.h"
 #include "10-modbus-tcp.h"
 #include "10-wifi-provision.h"
 
@@ -62,10 +61,5 @@ void loop() {
     // increents tiestep
     currenttime += TIME_INCREMENT;
     
-    // Led blinking to indicate activity, can be adjusted or removed as needed
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(TIME_INCREMENT-100);
-    
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(TIME_INCREMENT-900);
+    ledBlink();
 }
