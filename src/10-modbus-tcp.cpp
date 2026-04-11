@@ -19,7 +19,7 @@ static bool receiveResponse(uint8_t* response, uint16_t maxLength, uint16_t *len
         
     while (millis() < timeout && length < maxLength) {
         if (client.available()) {
-            response[length++] = client.read();
+            response[*length++] = client.read();
             }
         }
     return length > 0;
