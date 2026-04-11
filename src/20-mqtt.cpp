@@ -3,22 +3,36 @@
 #include "MQTT.h"
 #include <WiFiClientSecure.h>
 
+#define MQTT_TASK
 #ifdef MQTT_TASK
 
-#define TAG MQTT
-static WiFiClientSecure snet;
 
+// Default server and port, can be overridden by config or other means
 static const char *broker = "rpc.somotech.it";
 static uint16_t port=8893;
+static WiFiClientSecure snet;
+
+
+#define TAG "MQTT"
 #define TSIZE 128
 static char topic[TSIZE];
 
-// topics (uuid is defined HERE)
-#define DBG_MQTT "MQTT"
+// uuid and mac
+String uuid, mac;
+static void netInit() {
+
+  WiFi.begin();
+  uuid = mac = WiFi.macAddress();
+  ESP_LOGI(TAG, "MAC: %s", mac.c_str());
+  uuid.replace(":", "");
+  ESP_LOGI(TAG, "UUID: %s", uuid.c_str());
+
+}
+
 
 // Uses Crypted NET (inseCure with unk certificate, but anyway crypted...)
 static MQTTClient mqttClient(BUFSIZE);
-void messageReceived(String &topic, String &payload) {
+static void messageReceived(char *topic, char *payload) {
 
   // Note: Do not use the client in the callback to publish, subscribe or
   // unsubscribe as it may cause deadlocks when other things arrive while
@@ -29,11 +43,11 @@ void messageReceived(String &topic, String &payload) {
   //debug(DBG_MQTT,String("Received topic: ")+topic);
   //debug(DBG_MQTT,String("Received message: ")+payload);
 
-  if(strstr(topic.c_str(),"rpc")) {
-    rpcManage(payload,true); return;
+  if(strstr(topic,"rpc")) {
+    //rpcManage(payload,true); return;
     }
-  if(strstr(topic.c_str(),"asy")) {
-    rpcManage(payload,false); return;
+  if(strstr(topic,"asy")) {
+    //rpcManage(payload,false); return;
     }
 
   //debug(DBG_MQTT,String("Not Handled"));
@@ -59,7 +73,8 @@ static void mqttReconnect() {
   if (mqttClient.connected()) return;
 
   //debug(DBG_MQTT, "Connecting...");
-  while (!mqttClient.connect(clientId.c_str())) {
+  while (!mqttClient.connect(broker,port)) {
+    ESP_LOGE(TAG, "Failed to connect to MQTT broker at %s:%d -- %s", broker, port,mqttClient.lastError());
     //debug(DBG_MQTT, "Failed: RC="+mqttClient.lastError());
     delay(1000);
   }

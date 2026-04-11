@@ -4,7 +4,6 @@
 // ****************************
 // src/20-mqtt.cpp prototypes
 // ****************************
-void messageReceived(String &topic, String &payload);
 void mqttInit();
 void mqttPoll();
 void mqttUp();

@@ -18,7 +18,7 @@ typedef struct WiFiConfig {
     char password[64];
 } WiFiConfig;   
 extern WiFiConfig wifiConfig;
-extern char uuid[33], mac[18];
+extern String uuid, mac;
 extern uint64_t timestep;
 
 #endif

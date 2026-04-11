@@ -5,9 +5,6 @@
 // 10 msecs time step, can be adjusted as needed for more responsive behavior or lower power consumption
 #define TIME_INCREMENT 10
 
-// common mac address and uuid for device, can be used for identification in MQTT topics, etc.
-char mac[18], uuid[33];
-
 // timestep for modbus polling, can be adjusted as needed for more frequent updates or lower network traffic
 uint64_t timestep=10000; // 10 secs
 
