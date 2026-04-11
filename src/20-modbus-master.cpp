@@ -141,7 +141,7 @@ static void modbus_master_task(void *pvParameters) {
               if (modbusTcpConnect(server_host, server_port, server_unit_id)) {
                 for(int i=0;i<conf->ncalls;i++) {
                   // gest response buffer and sets respLength
-                  modbusTcpReadJson(conf->fn, conf->calls[i].rs, conf->calls[i].rn); 
+                  modbusTcpReadJson(server_unit_id,conf->fn, conf->calls[i].rs, conf->calls[i].rn); 
                   }
                 modbusTcpDisconnect();
 

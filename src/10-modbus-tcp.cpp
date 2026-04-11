@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "00-debug.h"
 #include <ESP8266WiFi.h>
-#nclude "10-encoder.h"
+#include "10-encoder.h"
 
 static WiFiClient client;
 static uint16_t transactionId;
@@ -129,7 +129,7 @@ static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAd
 
 
     // return pointer to register values in response starting from function code, can be used for further processing if needed, currently we are just adding values to json response for mqtt transmission
-    return (uint16_t*)pdu[1];
+    return (uint16_t*)&pdu[1];
     }
 
 #ifdef __MODBUS_TCP_WRITE_ENABLED__ // can be enabled as needed for write functionality, currently we are just implementing read functionality for simplicity, can be expanded later to include write functionality as needed
@@ -163,7 +163,6 @@ static bool writeRegister(uint16_t addr, uint16_t value) {
 uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
 
     uint16_t *response;
-    uint8_t respLength;
     char jobjectid[64];
     sprintf(jobjectid,"x%04x",start_address);
 
@@ -171,13 +170,13 @@ uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_addres
     response=modbusTcpRead(unit_id , func, start_address, quantity);
 
     jsonAddArray(jobjectid);
-    jsonAddValue_uint8_t(func);
-    jsonAddValue_uint16_t(modbus_error);
-    jsonAddValue_uint16_t(start_address);
+    jsonAddValue(func);
+    jsonAddValue(modbus_error);
+    jsonAddValue(start_address);
 
     // get values for non null response, if response is null, it means there was an error, modbus_error variable will have error code, if response is not null, modbus_error should be 0
     for (uint16_t i = 0; response && i < quantity; ++i) {
-        jsonAddValue_uint16_t(response[i]);
+        jsonAddValue(response[i]);
         }
 
     jsonClose();
@@ -185,8 +184,9 @@ uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_addres
     return response;
 }
 
+// just for testing, will be removed later, can be called from loop or modbus client task loop for testing connectivity and response parsing, can be expanded later to include more detailed testing and error handling as needed for robustness in real-world applications
 void readModbusTcp() {
-    char *host="rpc.somotech.it"
+    char *host="rpc.somotech.it";
     uint16_t port=502;
     uint8_t unit_id=1;
     uint8_t func=3; // read holding registers
@@ -194,7 +194,7 @@ void readModbusTcp() {
     uint16_t quantity=10;
 
     if (modbusTcpConnect(host, port, unit_id)) {
-        ModbusTcpReadJson(unit_id, func, start_address, quantity);
+        modbusTcpReadJson(unit_id, func, start_address, quantity);
         modbusTcpDisconnect();
         } else {
         ESP_LOGE(TAG, "Failed to connect to Modbus TCP server: %s:%d", host, port);
