@@ -100,7 +100,6 @@ return &conf;
 static void modbus_master_task(void *pvParameters) {
 
     modbus_config *conf;
-    ModbusTCPMaster modbusClient;
 
     static char server_type[32]; // rtu, tcp
     static char server_host[BUFTINY]; // serial,speed,sb,parity || server FQDN or IP
@@ -133,12 +132,11 @@ static void modbus_master_task(void *pvParameters) {
  
           // TCP Network call
           if(strcmp(server_type, "tcp") == 0) {
-              modbusClient.connect(server_host, server_port);
-              if (modbusClient.isConnected()) {
+              if (modbusTcpConnect(server_host, server_port, server_unit_id)) {
                 for(int i=0;i<conf->ncalls;i++) {
-                  modbusClient.readJSON(server_unit_id, conf->fn, conf->calls[i].rs, conf->calls[i].rn);
+                  modbusTcpReadRegisters(conf->fn, conf->calls[i].rs, conf->calls[i].rn, NULL); // for now we are not storing values, just testing calls, can be expanded later to store values in json response
                   }
-                modbusClient.disconnect();
+                modbusTcpDisconnect();
 
               } else {
                 jsonAddObject("ERROR", "Failed to connect to Modbus TCP server: %s:%d", server_host, server_port);
