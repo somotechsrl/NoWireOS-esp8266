@@ -9,7 +9,7 @@
 char mac[18], uuid[33];
 
 // timestep for modbus polling, can be adjusted as needed for more frequent updates or lower network traffic
-uint32_t timestep=10000; // 10 secs
+uint64_t timestep=10000; // 10 secs
 
 // TAG for logging
 #define TAG "MAIN"
@@ -43,23 +43,34 @@ void setup() {
 void loop() {
 
     // time stepper
-    static uint32_t currenttime=0;
+    static uint64_t cmillis=millis();
+
+    if(millis()<cmillis) {
+        cmillis=millis(); // reset timer if overflow
+        }
     
     if (provisionMode) {
         server.handleClient();
-    } else if (WiFi.status() == WL_CONNECTED && currenttime >= timestep) {
-        readModbusTcp();
-        currenttime = 0; // Reset timer after reading Modbus
-    } else if(WiFi.status() == WL_CONNECTED) {
-       checkResetButton();
-    } else if (WiFi.status() != WL_CONNECTED) {
+        return;
+        }
+
+    if (WiFi.status() == WL_CONNECTED) {
+        if(millis()-cmillis > timestep) {
+            readModbusTcp();
+            cmillis = millis(); // Reset timer after reading Modbus
+            ESP_LOGI(TAG, "Modbus data read successfully, waiting %lu", timestep);
+            }
+        checkResetButton();
+        // increents tiestep
+        }
+
+    if (WiFi.status() != WL_CONNECTED) {
         ESP_LOGW(TAG, "WiFi not connected. Attempting to reconnect...");
         WiFi.reconnect();
         delay(5000); // Wait before retrying
         }
 
-    // increents tiestep
-    currenttime += TIME_INCREMENT;
+    //ESP_LOGI(TAG, "Current timestep: %llu, %llu", timestep, cmillis);
     
     ledBlink();
 }

@@ -1,8 +1,18 @@
 #include "main.h"
 
+#define BLINK_DELAY 1000
+
 void ledBlink() {
+    static unsigned long lastBlink = 0;
+    unsigned long now = millis();
     // Led blinking to indicate activity, can be adjusted or removed as needed
-    digitalWrite(ONBOARD_LED, HIGH);
-    delay(BLINKDELAY);
-    digitalWrite(ONBOARD_LED, LOW);
+    if (now - lastBlink >= BLINK_DELAY) {
+        lastBlink = now;
+        digitalWrite(ONBOARD_LED, LOW);
+        delay(200);
+        digitalWrite(ONBOARD_LED, HIGH);
     }
+}
+
+
+    

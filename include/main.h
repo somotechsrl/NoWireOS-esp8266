@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include <EEPROM.h>        
+#include <EEPROM.h>
 #include "HAL.h" 
 #include "00-debug.h"
 #include "00-utils.h"
@@ -19,6 +19,6 @@ typedef struct WiFiConfig {
 } WiFiConfig;   
 extern WiFiConfig wifiConfig;
 extern char uuid[33], mac[18];
-extern uint32_t timestep;
+extern uint64_t timestep;
 
 #endif
