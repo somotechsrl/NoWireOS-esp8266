@@ -6,7 +6,8 @@
 #include "20-mqtt.h"
 #include "20-rpc-utils.h"
 #include "20-modbus-master.h"
-#include "30-utils.h"
+
+#ifdef RPC_MANAGER_TASK
 
 #define TAG "RPC"
 bool trigger = false;
@@ -151,3 +152,4 @@ void rpcManage(const char *payload, bool sync) {
  }
   
 
+#endif

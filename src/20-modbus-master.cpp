@@ -3,8 +3,9 @@
 #include "10-modbus-tcp.h"
 #include "20-mqtt.h"
 #include "20-modbus-master.h"
-#include "20-modbus-master.h"
 
+#define MODBUS_MASTER_TASK
+#ifdef MODBUS_MASTER_TASK
 
 // Modbus configuration entry
 #define XTAG 32
@@ -99,7 +100,7 @@ return &conf;
 static void modbus_master_task(void *pvParameters) {
 
     modbus_config *conf;
-    modbus_master_task_handle = xTaskGetCurrentTaskHandle();
+    ModbusTCPMaster modbusClient;
 
     static char server_type[32]; // rtu, tcp
     static char server_host[BUFTINY]; // serial,speed,sb,parity || server FQDN or IP
@@ -132,12 +133,13 @@ static void modbus_master_task(void *pvParameters) {
  
           // TCP Network call
           if(strcmp(server_type, "tcp") == 0) {
-              int sock = modbus_tcp_connect(server_host, server_port);
-              if (sock >= 0) {
+              modbusClient.connect(server_host, server_port);
+              if (modbusClient.isConnected()) {
                 for(int i=0;i<conf->ncalls;i++) {
-                  modbus_tcp_read_json(sock, server_unit_id, conf->fn, conf->calls[i].rs, conf->calls[i].rn);
+                  modbusClient.readJSON(server_unit_id, conf->fn, conf->calls[i].rs, conf->calls[i].rn);
                   }
-                modbus_tcp_disconnect(sock);
+                modbusClient.disconnect();
+
               } else {
                 jsonAddObject("ERROR", "Failed to connect to Modbus TCP server: %s:%d", server_host, server_port);
                 } 
@@ -164,3 +166,5 @@ static void modbus_master_task(void *pvParameters) {
 
     }
   }
+
+  #endif

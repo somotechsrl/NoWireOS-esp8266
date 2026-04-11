@@ -28,9 +28,8 @@
 #define MODBUS_CONFIGS 20
 #define GPIO_WIFI_RESET D3 // Flash Button
 #define BUFSIZE 1024
+#define BUFTINY 512
 #define BOARDID F("nodemcu")
-// RGB Status LED
-#define ESP8266
 #define ONBOARD_LED LED_BUILTIN
 #endif
 

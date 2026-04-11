@@ -1,10 +1,9 @@
 #include "main.h"
 #include "10-encoder.h"
-#include "10-mqtt.h"
+#include "20-mqtt.h"
 #include "20-rpc-utils.h"
-#include "mbedtls/base64.h"
-#include "driver/temperature_sensor.h"
 
+#ifdef RPC_MANAGER_TASK
 // Compiles data for GetInfo and Status
 // Don't intialize object!!!!
 void sysGetInfo(void) {
@@ -99,3 +98,5 @@ void logger_off() {
     //esp_log_set_vprintf(nolog_function); // Disable logging    
 }   
 
+
+#endif  

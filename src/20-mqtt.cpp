@@ -3,6 +3,7 @@
 #include "MQTT.h"
 #include <WiFiClientSecure.h>
 
+#ifdef MQTT_TASK
 
 #define TAG MQTT
 static WiFiClientSecure snet;
@@ -105,3 +106,4 @@ void mqttDebugUp(const char *json) {
 
 
 
+#endif

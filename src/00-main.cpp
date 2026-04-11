@@ -4,6 +4,7 @@
 
 #define TIME_INCREMENT 1000
 char mac[18], uuid[33];
+uint32_t timestep=10000; // 5 minutes
 
 void setup() {
     // Initialize serial communication
