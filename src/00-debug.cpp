@@ -27,7 +27,7 @@ void logger_off() {
 // default output formatter to serial -- can be extended to send logs to MQTT or other remote logging service
 static void log_serial(const char *type, const char *tag,const char *fmt, va_list args) {
 
-    char logmessage[BUFTINY],logfull[BUFTINY*2];
+    static char logmessage[BUFTINY],logfull[BUFTINY*2];
     vsnprintf(logmessage, sizeof(logmessage), fmt, args);
     snprintf(logfull,sizeof(logfull),"%s %s: %s", type, tag, logmessage);
 

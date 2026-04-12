@@ -35,6 +35,9 @@ void setup() {
     //mqttInit();
     ESP_LOGI(TAG, "System started!");
 
+    // Initialize pins, sensors, etc.
+    pinMode(LED_BUILTIN, OUTPUT);
+
     // Initialize MQTT client, connection is handled in loop()
     mqttInit();
 }
@@ -56,14 +59,17 @@ void loop() {
 
     if (WiFi.status() == WL_CONNECTED) {
         
+        delay(100);
         mqttPoll(); // Handle MQTT communication, will attempt reconnect if connection is lost
 
+        delay(100);
         if(millis()-cmillis > timestep) {
-            readModbusTcp();
+            modbus_master_k(); // Handle Modbus TCP communication, can be expanded later to include more detailed error handling, retries, etc. as needed for robustness in real-world 
             cmillis = millis(); // Reset timer after reading Modbus
             ESP_LOGI(TAG, "Modbus data read successfully, waiting %lu", timestep);
             }
 
+        delay(100);
         checkResetButton();
         // increents tiestep
         }

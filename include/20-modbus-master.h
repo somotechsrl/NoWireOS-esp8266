@@ -5,4 +5,5 @@
 // src/20-modbus-master.cpp prototypes
 // ****************************
 void addModbusAggregatedCall(char *params);
+void modbusMasterTask();
 #endif

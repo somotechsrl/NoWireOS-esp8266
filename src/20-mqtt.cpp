@@ -29,8 +29,8 @@ static char topic[TSIZE];
 
 struct RpcResponse {
     bool active=false;
-    String topic;
-    String message;
+    char topic[TSIZE] ;
+    char message[BUFSIZE];
 } rpcResp;
 
 // Uses Crypted NET (inseCure with unk certificate, but anyway crypted...)
@@ -51,8 +51,8 @@ static void messageReceived(String &topic, String &payload) {
   // sets response for RPC calls, then handled in loop to publish response, this is needed to avoid deadlocks in MQTT callback when trying to publish from within the callback itself, allows for more flexible handling of responses and avoids potential issues with MQTT client state during callback execution
   if(topic.indexOf("rpc") != -1) {
     rpcResp.active=true;
-    rpcResp.topic = topic;
-    rpcResp.message = payload;
+    strcpy(rpcResp.topic, topic.c_str());
+    strcpy(rpcResp.message, payload.c_str());
     return;
     }
 
@@ -104,8 +104,8 @@ void mqttPoll() {
   mqttReconnect();
   // RPC response handling, checks if there's an active RPC response to send, if so, publishes it to the appropriate topic and resets the response state, this allows for asynchronous handling of RPC responses without blocking the MQTT callback
   if(rpcResp.active) {
-    ESP_LOGI(TAG, "Handling RPC resquest %s %s", rpcResp.topic.c_str(), rpcResp.message.c_str());
-    rpcManage(rpcResp.message.c_str(), true);
+    ESP_LOGI(TAG, "Handling RPC resquest %s %s", rpcResp.topic, rpcResp.message);
+    rpcManage(rpcResp.message, true);
     rpcResp.active=false;
     }
   mqttClient.loop();

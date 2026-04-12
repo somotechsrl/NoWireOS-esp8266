@@ -15,7 +15,7 @@
 #define DIGITAL  {D0,D1,D2,D4,D8}
 #define ANALOGS  {A0}
 #define ARCH "ESP8266"
-#define BOARDID F("d1mini")
+#define BOARDID "d1mini"
 #define NEOPIXEL_PIN D2
 #define ONBOARD_LED LED_BUILTIN
 #endif

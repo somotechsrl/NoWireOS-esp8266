@@ -8,6 +8,7 @@
 #include "20-modbus-master.h"
 
 #define TAG "RPC"
+#define WIFIDISCONNECT_DELAY 10000 // delay before disconnecting WiFi as per RPC command, can be adjusted as needed for more immediate disconnection or longer delay for graceful shutdowns in real-world applications
 bool trigger = false;
 uint64_t timestep=10000; // default 10 secs, can be adjusted as needed for more frequent updates or lower network traffic
 
@@ -25,6 +26,7 @@ static int getCommandID(const char *rpcmd) {
 static char *p,rpcb[BUFTINY];
 void rpcManage(const char *payload, bool sync) {
 
+  bool wifiDisconnect=false; // flag to handle WiFi disconnection as per RPC command, can be expanded later to include more complex connection management as needed for robustness in real-world applications
   ESP_LOGI(TAG, "Received: %s", payload);
 
   // extracts ID and Command
@@ -125,7 +127,10 @@ void rpcManage(const char *payload, bool sync) {
       //identifyPixel();
       break;
     case Sys_WiFi_Disconnect:
-      Wifi.disconnect();
+
+      ESP_LOGI(TAG,"Disconnecting WiFi as per RPC command in %d ms", WIFIDISCONNECT_DELAY);
+      jsonAddObject("Info","WiFi Disconnection Scheduled in %d s", WIFIDISCONNECT_DELAY/1000);
+      wifiDisconnect=true;
       break;
     case CFG_Modbus_AddCall:
       addModbusAggregatedCall(rpc_params);
@@ -147,4 +152,11 @@ void rpcManage(const char *payload, bool sync) {
   ESP_LOGI(TAG, "MODE: %s", sync ? "SYNC:" : "ASYNC:");
   ESP_LOGI(TAG, "%s", jsonGetBuffer());
   if(sync) mqttRpcUp(respid);
+
+  // discnnect Wifi after response is sent to ensure we can send the response before disconnecting, can be expanded later to include more complex connection management as needed for robustness in real-world applications
+  if(wifiDisconnect) {
+    delay(WIFIDISCONNECT_DELAY); // delay to ensure response is sent before disconnecting, can be adjusted as needed for performance optimization in real-world applications
+    WiFi.disconnect(true);
+    ESP.restart(); // restart to ensure clean state after WiFi disconnection, can be expanded later to include more graceful shutdown procedures as needed for robustness in real-world applications
+    }
 }

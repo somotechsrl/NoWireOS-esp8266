@@ -101,7 +101,7 @@ return &conf;
 }
 
 // Modbus client task, will loop through calls in config and execute them, then send json result to mqtt
-static void modbus_master_task(void *pvParameters) {
+void modbusMasterTask() {
 
     modbus_config *conf;
 
