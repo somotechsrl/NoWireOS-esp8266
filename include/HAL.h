@@ -14,6 +14,7 @@
 #define GPIO_WIFI_RESET D3
 #define DIGITAL  {D0,D1,D2,D4,D8}
 #define ANALOGS  {A0}
+#define ARCH "ESP8266"
 #define BOARDID F("d1mini")
 #define BUFSIZE 1024
 #define BUFTINY 512
@@ -29,7 +30,9 @@
 #define GPIO_WIFI_RESET D3 // Flash Button
 #define BUFSIZE 1024
 #define BUFTINY 512
+#define ARCH "ESP8266"
 #define BOARDID "nodemcu"
+#define NEOPIXEL_PIN D2
 #define ONBOARD_LED LED_BUILTIN
 #endif
 
@@ -42,6 +45,7 @@
 #define MODBUS_CONFIGS 80
 #define BUFSIZE 4096
 #define GPIO_WIFI_RESET 4
+#define ARCH "ESP32"
 #define BOARDID F("esp32-dev")
 #define ONBOARD_LED LED_BUILTIN
 #endif// ESP32_DEV
@@ -54,6 +58,7 @@
 #define MODBUS_CONFIGS 80
 #define BUFSIZE 4096
 #define GPIO_WIFI_RESET 4
+#define ARCH "ESP32"
 #define BOARDID F("esp32-dev")
 #define ONBOARD_LED LED_BUILTIN
 #endif
@@ -67,6 +72,7 @@
 #define MODBUS_CONFIGS 80
 #define BUFSIZE 4096
 #define GPIO_WIFI_RESET 4
+#define ARCH "ESP32"
 #define BOARDID F("esp32-mini")
 #define ONBOARD_LED LED_BUILTIN
 #endif

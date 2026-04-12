@@ -10,11 +10,14 @@ void sysGetInfo(void) {
   IPAddress ip = WiFi.localIP();
   sprintf(ipbuf, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
 
-  jsonAddObject("hw", String(BOARDID).c_str());
-  jsonAddObject("sn", String(uuid).c_str());
+  float uptime=(millis() / 1000.0f);
+
+  jsonAddObject("ar", ARCH);
+  jsonAddObject("hw", BOARDID);
+  jsonAddObject("sn", uuid.c_str());
+  jsonAddObject("mac",mac.c_str());
   jsonAddObject("fw", REVISION);
-  jsonAddObject("mac", mac.c_str());
-  jsonAddObject("up", (uint32_t)(millis() / 1000));
+  jsonAddObject("up", uptime);
   jsonAddObject("ip", ipbuf);
 #ifdef __ESP32__
   String temp = String((temprature_sens_read() - 32) / 1.8);

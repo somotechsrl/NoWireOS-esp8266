@@ -1,6 +1,7 @@
 #include "main.h"
 #include "rBase64.h"
 #include "MQTT.h"
+#include <WiFiClient.h>
 #include <WiFiClientSecure.h>
 #include "20-mqtt.h"
 #include "10-encoder.h"
@@ -8,14 +9,24 @@
 #include "20-rpc-manager.h"
 
 // Default server and port, can be overridden by config or other means
+//static const char *broker = "rpc.somotech.it";
+//static uint16_t port=8893;
 static const char *broker = "rpc.somotech.it";
-static uint16_t port=8823;
+static uint16_t port=1883;
+
+static WiFiClient cnet;
 static WiFiClientSecure snet;
 
 
 #define TAG "MQTT"
 #define TSIZE 128
 static char topic[TSIZE];
+
+struct RpcResponse {
+    bool active=false;
+    String topic;
+    String message;
+} rpcResp;
 
 // Uses Crypted NET (inseCure with unk certificate, but anyway crypted...)
 static MQTTClient mqttClient(BUFSIZE);
@@ -32,12 +43,11 @@ static void messageReceived(String &topic, String &payload) {
   ESP_LOGI(TAG, "Received topic: %s", topic.c_str());
   ESP_LOGI(TAG, "Received message: %s", payload.c_str());
 
+  // sets response for RPC calls, then handled in loop to publish response, this is needed to avoid deadlocks in MQTT callback when trying to publish from within the callback itself, allows for more flexible handling of responses and avoids potential issues with MQTT client state during callback execution
   if(topic.indexOf("rpc") != -1) {
-    rpcManage(payload.c_str(),true); 
-    return;
-    }
-  if(topic.indexOf("asy") != -1) {
-    rpcManage(payload.c_str(),false); 
+    rpcResp.active=true;
+    rpcResp.topic = topic;
+    rpcResp.message = payload;
     return;
     }
 
@@ -49,22 +59,27 @@ static void mqttReconnect() {
   // already connected, no need to reconnect
   if(mqttClient.connected()) return;
 
-  LedOn(); 
-  uint32_t timeout=millis()+5000;
+  uint8_t attempt=0;
+  uint32_t timeout=millis()+2000;
   String clientId = String(BOARDID) + "_" + String(uuid);
   ESP_LOGI(TAG, "Connecting to MQTT broker at %s:%d with client ID: %s", broker, port, clientId.c_str());
   while (!mqttClient.connect(clientId.c_str()) && millis()<timeout) {
-    delay(1000);
+    ledToggle();
+    attempt++;
+    delay(200);
     }
 
   // check connection status 
   if (!mqttClient.connected()) {
-    ESP_LOGE(TAG, "Failed to connect to MQTT broker at %s:%d after multiple attempts", broker, port);
+    ESP_LOGE(TAG, "Failed to connect to MQTT broker at %s:%d after %d attempts", broker, port, attempt);
     return;
     }
 
   // subscribe to topics, can be extended later to include more topics or wildcard subscriptions as needed for more flexible communication patterns
   ESP_LOGI(TAG, "Connected to MQTT broker at %s:%d -- subscribing to topics", broker, port);
+  ESP_LOGI(TAG, "Subscribing to topic: nowireos/%s/%s/rpc", BOARDID, uuid.c_str());
+  ESP_LOGI(TAG, "Subscribing to topic: nowireos/%s/%s/asy", BOARDID, uuid.c_str());
+  ESP_LOGI(TAG, "Subscribing to topic: nowireos/%s/%s/down", BOARDID, uuid.c_str());
   snprintf(topic, TSIZE, "nowireos/%s/%s/rpc", BOARDID, uuid.c_str());
   mqttClient.subscribe(topic);
   snprintf(topic, TSIZE, "nowireos/%s/%s/asy", BOARDID, uuid.c_str());
@@ -76,12 +91,18 @@ static void mqttReconnect() {
 // initialize MQTT client and set callback, connection is handled in loop() to ensure it happens after WiFi is connected
 void mqttInit() {
   snet.setInsecure();
-  mqttClient.begin(broker,port,snet);
+  mqttClient.begin(broker,port,cnet);
   mqttClient.onMessage(messageReceived);
   }
 
 void mqttPoll() {
   mqttReconnect();
+  // RPC response handling, checks if there's an active RPC response to send, if so, publishes it to the appropriate topic and resets the response state, this allows for asynchronous handling of RPC responses without blocking the MQTT callback
+  if(rpcResp.active) {
+    ESP_LOGI(TAG, "Handling RPC resquest %s %s", rpcResp.topic.c_str(), rpcResp.message.c_str());
+    rpcManage(rpcResp.message.c_str(), true);
+    rpcResp.active=false;
+    }
   mqttClient.loop();
 }
 
