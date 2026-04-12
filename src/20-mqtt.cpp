@@ -4,10 +4,8 @@
 #include <WiFiClientSecure.h>
 #include "20-mqtt.h"
 #include "10-encoder.h"
-
-#define MQTT_TASK
-#ifdef MQTT_TASK
-
+#include "00-debug.h"
+#include "20-rpc-manager.h"
 
 // Default server and port, can be overridden by config or other means
 static const char *broker = "rpc.somotech.it";
@@ -44,19 +42,20 @@ static void messageReceived(String &topic, String &payload) {
   // must find a way to handle async calls, even if not necessary...
   //debug(DBG_MQTT,String("Received topic: ")+topic);
   //debug(DBG_MQTT,String("Received message: ")+payload);
-  
+  ESP_LOGI(TAG, "Received topic: %s", topic.c_str());
+  ESP_LOGI(TAG, "Received message: %s", payload.c_str());
+
   if(topic.indexOf("rpc") != -1) {
-    //rpcManage(payload,true); return;
+    rpcManage(payload.c_str(),true); 
+    return;
     }
   if(topic.indexOf("asy") != -1) {
-    //rpcManage(payload,false); return;
+    rpcManage(payload.c_str(),false); 
+    return;
     }
 
-  //debug(DBG_MQTT,String("Not Handled"));
-
+  ESP_LOGI(TAG, "No handler for topic: %s", topic.c_str());
 }
-
-
 
 static void mqttReconnect() {
 
@@ -118,5 +117,3 @@ void mqttRpcUp(String responseID) {
     snprintf(topic, TSIZE, "nowireos/%s/%s/rpc/%s", BOARDID, uuid.c_str(), responseID.c_str());
     mqttSend(topic,jsonGetBase64());
 }
-
-#endif

@@ -7,9 +7,6 @@
 #include "20-rpc-utils.h"
 #include "20-modbus-master.h"
 
-#define RPC_MANAGER_TASK
-#ifdef RPC_MANAGER_TASK
-
 #define TAG "RPC"
 bool trigger = false;
 uint64_t timestep=10000; // default 10 secs, can be adjusted as needed for more frequent updates or lower network traffic
@@ -147,6 +144,4 @@ void rpcManage(const char *payload, bool sync) {
   ESP_LOGI(TAG, "MODE: %s", sync ? "SYNC:" : "ASYNC:");
   ESP_LOGI(TAG, "%s", jsonGetBuffer());
   if(sync) mqttRpcUp(respid);
-  
-
-#endif
+}
