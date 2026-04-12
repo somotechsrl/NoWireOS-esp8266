@@ -85,7 +85,6 @@ const char *jsonGetBase64() {
   memset(b64,0,sizeof(b64));
 
   // simple encrypt before send and then 64 encode
-  uint16_t olen;
   for(int i=0;i<bsize;i++) eb[i]=r[i]^XKEY;
   rbase64_encode(b64, eb, bsize);
   

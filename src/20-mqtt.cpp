@@ -49,6 +49,7 @@ static void mqttReconnect() {
   // already connected, no need to reconnect
   if(mqttClient.connected()) return;
 
+  LedOn(); 
   uint32_t timeout=millis()+5000;
   String clientId = String(BOARDID) + "_" + String(uuid);
   ESP_LOGI(TAG, "Connecting to MQTT broker at %s:%d with client ID: %s", broker, port, clientId.c_str());

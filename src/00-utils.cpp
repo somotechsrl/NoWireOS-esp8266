@@ -3,6 +3,9 @@
 bool led_blink_enabled = true; // global variable to control LED blinking, can be set via RPC or other means as needed for more flexible behavior
 #define BLINK_DELAY 1000
 
+void ledToggle() {
+    digitalWrite(ONBOARD_LED, !digitalRead(ONBOARD_LED));
+}
 void LedOn() {
     digitalWrite(ONBOARD_LED, LOW);
     }

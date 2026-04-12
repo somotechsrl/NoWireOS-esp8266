@@ -4,6 +4,7 @@
 // ****************************
 // src/00-utils.cpp prototypes
 // ****************************
+void ledToggle();
 void LedOn();
 void LedOff();
 void ledBlink();
