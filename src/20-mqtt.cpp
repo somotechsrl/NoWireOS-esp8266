@@ -1,6 +1,11 @@
 #include "main.h"
 #include "rBase64.h"
 #include "MQTT.h"
+#ifdef ESP32
+#include "WiFi.h"
+#else
+#include <ESP8266WiFi.h>
+#endif
 #include <WiFiClient.h>
 #include <WiFiClientSecure.h>
 #include "20-mqtt.h"

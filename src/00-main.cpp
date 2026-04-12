@@ -35,9 +35,6 @@ void setup() {
     //mqttInit();
     ESP_LOGI(TAG, "System started!");
 
-    // Initialize pins, sensors, etc.
-    pinMode(LED_BUILTIN, OUTPUT);
-
     // Initialize MQTT client, connection is handled in loop()
     mqttInit();
 }

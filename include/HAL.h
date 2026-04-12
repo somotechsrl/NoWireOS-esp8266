@@ -16,8 +16,7 @@
 #define ANALOGS  {A0}
 #define ARCH "ESP8266"
 #define BOARDID F("d1mini")
-#define BUFSIZE 1024
-#define BUFTINY 512
+#define NEOPIXEL_PIN D2
 #define ONBOARD_LED LED_BUILTIN
 #endif
 
@@ -28,8 +27,6 @@
 #define __MODBUS_TCP__
 #define MODBUS_CONFIGS 20
 #define GPIO_WIFI_RESET D3 // Flash Button
-#define BUFSIZE 1024
-#define BUFTINY 512
 #define ARCH "ESP8266"
 #define BOARDID "nodemcu"
 #define NEOPIXEL_PIN D2
@@ -46,8 +43,9 @@
 #define BUFSIZE 4096
 #define GPIO_WIFI_RESET 4
 #define ARCH "ESP32"
-#define BOARDID F("esp32-dev")
-#define ONBOARD_LED LED_BUILTIN
+#define BOARDID esp32-dev
+#define NEOPIXEL_PIN 16
+#define ONBOARD_LED 
 #endif// ESP32_DEV
 
 #ifdef ARDUINO_ESP32_DEV
@@ -59,8 +57,9 @@
 #define BUFSIZE 4096
 #define GPIO_WIFI_RESET 4
 #define ARCH "ESP32"
-#define BOARDID F("esp32-dev")
-#define ONBOARD_LED LED_BUILTIN
+#define BOARDID "esp32-dev"
+#define NEOPIXEL_PIN 16
+#define ONBOARD_LED 2
 #endif
 
 // MINI_32
@@ -70,17 +69,21 @@
 #define __MODBUS_TCP__
 #define __ESP32__
 #define MODBUS_CONFIGS 80
-#define BUFSIZE 4096
 #define GPIO_WIFI_RESET 4
 #define ARCH "ESP32"
-#define BOARDID F("esp32-mini")
+#define BOARDID "esp32-mini"
+#define NEOPIXEL_PIN 16
 #define ONBOARD_LED LED_BUILTIN
 #endif
 
-
+    
 // Default buffer size
 #ifndef BUFSIZE
 #define BUFSIZE 1024
+#endif
+
+#ifndef BUFTINY
+#define BUFTINY 512
 #endif
 
 #ifndef MINTSTEP

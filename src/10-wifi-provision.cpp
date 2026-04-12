@@ -1,11 +1,20 @@
 #include "main.h"
+#ifdef ESP32
+#include "WiFi.h"
+#include "WebServer.h"
+#else
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#endif
 #include <EEPROM.h>
 
 #define TAG "WIFI_PROV"
 
+#ifdef ESP32
+WebServer server(80);
+#else
 ESP8266WebServer server(80);
+#endif
 bool provisionMode = false;
 WiFiConfig wifiConfig;
 

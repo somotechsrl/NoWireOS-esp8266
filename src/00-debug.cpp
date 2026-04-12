@@ -3,6 +3,8 @@
 
 #define TAG "DEBUG"
 
+#ifndef ESP32
+
 void logger_mqtt() {
     // Set up MQTT logging, can be extended to send logs to MQTT or other remote logging service
     // For simplicity, we will just print logs to serial in this example
@@ -59,4 +61,4 @@ void ESP_LOGE(const char *tag,const char* format, ...) {
     va_end(args);
     }   
     
-
+#endif
