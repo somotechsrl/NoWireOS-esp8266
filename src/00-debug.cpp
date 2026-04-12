@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "main.h"   
 
+#define TAG "DEBUG"
+
 void logger_mqtt() {
     // Set up MQTT logging, can be extended to send logs to MQTT or other remote logging service
     // For simplicity, we will just print logs to serial in this example
@@ -10,6 +12,10 @@ void logger_serial() {
     // Set up Serial logging, can be extended to send logs to MQTT or other remote logging service
     ESP_LOGI(TAG, "Serial Logger Enabled");
 }
+void logger_default() {
+    // Default logger, can be extended to send logs to MQTT or other remote logging service
+    ESP_LOGI(TAG, "Default Logger Enabled");
+}   
 void logger_off() {
     // Disable logging, can be extended to send logs to MQTT or other remote logging service
     ESP_LOGI(TAG, "Logging Disabled"); 
