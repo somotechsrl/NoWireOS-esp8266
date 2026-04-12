@@ -20,5 +20,6 @@ enum RPC_ids {
 ,Sys_Update_Cancel
 ,Sys_Update_Filesystem
 ,Sys_Update_Firmware
+,Sys_WiFi_Dsconnect
 };
 #endif

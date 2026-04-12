@@ -34,6 +34,7 @@ void pixelBlink(int r, int g, int b) {
         delay(200);
         // turns off  
         pixelShow(0, 0, 0); // Turn off pixel after blink
+        }
     }
 
 
@@ -68,7 +69,7 @@ void ledBlink() {
         lastBlink = millis();
         // turns off
         LedOn();
-        pixelShow(0, 10, 0);
+        pixelShow(0, 0, 10);
         delay(200);
         // turns off  
         LedOff();

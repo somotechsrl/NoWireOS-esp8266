@@ -45,6 +45,9 @@ void modbusTcpDisconnect() {
 static uint8_t modbus_error;
 static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAddr, uint16_t quantity) {
 
+    // modbus activities, including sending request, receiving response, and parsing response, can be expanded later to include more detailed error handling, retries, etc. as needed for robustness in real-world applications
+    pixelBlink(10,10,0);
+
     uint8_t request[12];
     uint16_t respLength;
     transactionId++;
@@ -66,6 +69,7 @@ static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAd
     sendRequest(request,sizeof(request));
  
     // read response, check for errors, extract register values into provided buffer, and add to json response for mqtt transmission, can be expanded later to include error handling, retries, etc. as needed for robustness in real-world applications
+    pixelBlink(10,10,0);
     static uint8_t buffer[MODBUS_TCP_BUFFER];
     respLength=receiveResponse(buffer, sizeof(buffer));
     if (respLength == 0) {
@@ -213,6 +217,8 @@ void readModbusTcp() {
     jsonAddObject("DRV",TAG);
     jsonAddObject("data");
 
+    // disconnect stale connection if any, then connect, read data, and disconnect again to ensure clean state for each call, can be expanded later to include connection pooling or persistent connections as needed for performance optimization in real-world applications
+    modbusTcpDisconnect();
     if (modbusTcpConnect(host, port, unit_id)) {
         modbusTcpReadJson(unit_id, func, start_address, quantity);
         modbusTcpDisconnect();
