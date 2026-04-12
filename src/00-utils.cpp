@@ -7,7 +7,7 @@
 // Cannot use 6 as output for ESP. Pins 6-11 are connected to SPI flash. Use 16 instead.
 #define LED_PIN    16
 #else
-#define LED_PIN    6
+#define LED_PIN    D4
 #endif
 
 #define BLINK_DELAY 1000
@@ -32,15 +32,17 @@ void ledBlink() {
     // Led blinking to indicate activity, can be adjusted or removed as needed
     if (now - lastBlink >= BLINK_DELAY) {
         lastBlink = now;
-        LedOn();
+        LedOn();    
+        pixelShow(255, 0, 0); // Red blink for activity, can be adjusted to indicate different statuses or events as needed
         delay(200);
         LedOff();
+        pixelShow(0, 0, 0); // Turn off pixel after blink
     }
 }
 
 // Neopixel control functions, can be extended to include more complex patterns or effects as needed for more advanced visual feedback
-bool pixelOk=false;
-Adafruit_NeoPixel leds(1, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
+static bool pixelOk=false;
+static Adafruit_NeoPixel leds(1, LED_PIN, NEO_GRB + NEO_KHZ800);
 static void pixelInit() {
     if(pixelOk) return;
     leds.begin();
@@ -55,12 +57,6 @@ static void pixelShow(int r, int g, int b) {
     leds.show();
     }
 
-void pixelBlink(int r, int g, int b) {
-  if(!led_blink_enabled) return;
-  pixelShow(r,g,b);
-  delay(BLINK_DELAY);
-  pixelShow(0,0,0);
-}
 
 
 

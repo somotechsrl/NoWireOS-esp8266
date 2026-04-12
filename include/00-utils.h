@@ -8,5 +8,4 @@ void ledToggle();
 void LedOn();
 void LedOff();
 void ledBlink();
-void pixelBlink(int r, int g, int b);
 #endif
