@@ -9,7 +9,7 @@
 
 // Default server and port, can be overridden by config or other means
 static const char *broker = "rpc.somotech.it";
-static uint16_t port=8893;
+static uint16_t port=8823;
 static WiFiClientSecure snet;
 
 
@@ -47,17 +47,23 @@ static void messageReceived(String &topic, String &payload) {
 static void mqttReconnect() {
 
   // already connected, no need to reconnect
-  if (mqttClient.connected()) return;
+  if(mqttClient.connected()) return;
 
-  uint32_t timeout=millis()+2000;
+  uint32_t timeout=millis()+5000;
+  String clientId = String(BOARDID) + "_" + String(uuid);
+  ESP_LOGI(TAG, "Connecting to MQTT broker at %s:%d with client ID: %s", broker, port, clientId.c_str());
+  while (!mqttClient.connect(clientId.c_str()) && millis()<timeout) {
+    delay(1000);
+    }
 
-  //debug(DBG_MQTT, "Connecting...");
-  while (!mqttClient.connect(broker,port) && millis()<timeout) {
-    ESP_LOGE(TAG, "Failed to connect to MQTT broker at %s:%d -- RC=%d", broker, port,mqttClient.lastError());
-    //debug(DBG_MQTT, "Failed: RC="+mqttClient.lastError());
-    delay(500);
-  }
+  // check connection status 
+  if (!mqttClient.connected()) {
+    ESP_LOGE(TAG, "Failed to connect to MQTT broker at %s:%d after multiple attempts", broker, port);
+    return;
+    }
 
+  // subscribe to topics, can be extended later to include more topics or wildcard subscriptions as needed for more flexible communication patterns
+  ESP_LOGI(TAG, "Connected to MQTT broker at %s:%d -- subscribing to topics", broker, port);
   snprintf(topic, TSIZE, "nowireos/%s/%s/rpc", BOARDID, uuid.c_str());
   mqttClient.subscribe(topic);
   snprintf(topic, TSIZE, "nowireos/%s/%s/asy", BOARDID, uuid.c_str());
@@ -66,22 +72,15 @@ static void mqttReconnect() {
   mqttClient.subscribe(topic);
 }
 
+// initialize MQTT client and set callback, connection is handled in loop() to ensure it happens after WiFi is connected
 void mqttInit() {
-
-  // already connected, no need to init
-  if (mqttClient.connected()) return;
-
   snet.setInsecure();
-
-  mqttClient.begin(broker,port, snet);
+  mqttClient.begin(broker,port,snet);
   mqttClient.onMessage(messageReceived);
-
-  // first connect...
-  mqttReconnect();
   }
 
 void mqttPoll() {
-  //mqttReconnect();
+  mqttReconnect();
   mqttClient.loop();
 }
 

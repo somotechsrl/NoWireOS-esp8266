@@ -47,6 +47,7 @@ void loop() {
     // time stepper
     static uint64_t cmillis=millis();
 
+ 
     if(millis()<cmillis) {
         cmillis=millis(); // reset timer if overflow
         }
@@ -58,18 +59,14 @@ void loop() {
 
     if (WiFi.status() == WL_CONNECTED) {
         
-        delay(100);
-        mqttInit(); // Ensure MQTT is connected, will return immediately if already connected
         mqttPoll(); // Handle MQTT communication, will attempt reconnect if connection is lost
 
-        delay(100);
         if(millis()-cmillis > timestep) {
             readModbusTcp();
             cmillis = millis(); // Reset timer after reading Modbus
             ESP_LOGI(TAG, "Modbus data read successfully, waiting %lu", timestep);
             }
 
-        delay(100);
         checkResetButton();
         // increents tiestep
         }
