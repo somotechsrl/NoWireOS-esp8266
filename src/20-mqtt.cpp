@@ -113,8 +113,9 @@ void mqttUp() {
   mqttSend(topic,jsonGetBase64());
 }
 
-void mqttRpcUp(String responseID)) {
-    snprintf(topic, TSIZE, "nowireos/%s/%s/%s/%s", BOARDID, uuid.c_str(), (sync ? "rpc" : "asy"), responseID.c_str());
+void mqttRpcUp(String responseID) {
+    ESP_LOGI(TAG, "Publishing RPC response with ID: %s", responseID.c_str());
+    snprintf(topic, TSIZE, "nowireos/%s/%s/rpc/%s", BOARDID, uuid.c_str(), responseID.c_str());
     mqttSend(topic,jsonGetBase64());
 }
 
