@@ -11,7 +11,7 @@ WiFiConfig wifiConfig;
 
 // uuid and mac
 String uuid, mac;
-static void netInit() {
+void netInit() {
 
   WiFi.begin();
   uuid = mac = WiFi.macAddress();

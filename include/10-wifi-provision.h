@@ -4,6 +4,7 @@
 // ****************************
 // src/10-wifi-provision.cpp prototypes
 // ****************************
+void netInit();
 void startProvisioningMode();
 void checkResetButton();
 #endif
