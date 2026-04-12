@@ -8,6 +8,18 @@ ESP8266WebServer server(80);
 bool provisionMode = false;
 WiFiConfig wifiConfig;
 
+// uuid and mac
+String uuid, mac;
+static void netInit() {
+
+  WiFi.begin();
+  uuid = mac = WiFi.macAddress();
+  ESP_LOGI(TAG, "MAC: %s", mac.c_str());
+  uuid.replace(":", "");
+  ESP_LOGI(TAG, "UUID: %s", uuid.c_str());
+
+}
+
 static void handleRoot() {
     String html = R"(
         <!DOCTYPE html>

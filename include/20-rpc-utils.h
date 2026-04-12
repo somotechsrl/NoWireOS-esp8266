@@ -5,7 +5,4 @@
 // src/20-rpc-utils.cpp prototypes
 // ****************************
 void sysGetInfo(void);
-void logger_mqtt();
-void logger_default();
-void logger_off();
 #endif

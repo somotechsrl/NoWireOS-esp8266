@@ -56,7 +56,7 @@ void loop() {
     if (WiFi.status() == WL_CONNECTED) {
         
         delay(100);
-        //mqttPoll();
+        mqttPoll();
 
         delay(100);
         if(millis()-cmillis > timestep) {

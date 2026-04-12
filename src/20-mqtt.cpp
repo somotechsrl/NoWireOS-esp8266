@@ -17,19 +17,6 @@ static WiFiClientSecure snet;
 #define TSIZE 128
 static char topic[TSIZE];
 
-// uuid and mac
-String uuid, mac;
-static void netInit() {
-
-  WiFi.begin();
-  uuid = mac = WiFi.macAddress();
-  ESP_LOGI(TAG, "MAC: %s", mac.c_str());
-  uuid.replace(":", "");
-  ESP_LOGI(TAG, "UUID: %s", uuid.c_str());
-
-}
-
-
 // Uses Crypted NET (inseCure with unk certificate, but anyway crypted...)
 static MQTTClient mqttClient(BUFSIZE);
 static void messageReceived(String &topic, String &payload) {
