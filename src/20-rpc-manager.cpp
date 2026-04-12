@@ -98,13 +98,15 @@ void rpcManage(const char *payload, bool sync) {
       break;
       
     case RPC_List:
+      {
       jsonAddArray("RPC.List");
       int size=sizeof(RPC_cmd)/sizeof(RPC_cmd[0]);
       for (int i = 0; i<size;i++) {
         jsonAddValue((const char *)RPC_cmd[i]);
-      }
+        }
       jsonClose();
       break;
+      }
 
     // ************ System Related Commands
     case Sys_GetInfo:
@@ -131,7 +133,7 @@ void rpcManage(const char *payload, bool sync) {
   
     // ************ Unknow management
     default:
-      rpcStatus = KO;
+      rpcStatus = (char *)"KO";
       snprintf(result, sizeof(result), "%s(%s): %s", rpccommand,rpc_params, "not implemented");
       jsonAddObject("value",result);
  
@@ -144,15 +146,7 @@ void rpcManage(const char *payload, bool sync) {
 
   ESP_LOGI(TAG, "MODE: %s", sync ? "SYNC:" : "ASYNC:");
   ESP_LOGI(TAG, "%s", jsonGetBuffer());
-  if(sync) mqtt_send_rpc_response(respid);
-
-  // After RPC calls evetal trigger
-  if(trigger_task_handle) {
-    vTaskDelay(100);
-    ESP_LOGI(TAG, "Triggering task handle: %p", trigger_task_handle);
-    xTaskAbortDelay(trigger_task_handle);
-    }
- }
+  if(sync) mqttRpcUp(respid);
   
 
 #endif

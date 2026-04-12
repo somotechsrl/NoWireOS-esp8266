@@ -7,5 +7,4 @@
 void mqttInit();
 void mqttPoll();
 void mqttUp();
-void mqttRpcUp(String responseID,bool sync);
 #endif

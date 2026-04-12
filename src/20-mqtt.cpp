@@ -113,7 +113,7 @@ void mqttUp() {
   mqttSend(topic,jsonGetBase64());
 }
 
-void mqttRpcUp(String responseID,bool sync) {
+void mqttRpcUp(String responseID)) {
     snprintf(topic, TSIZE, "nowireos/%s/%s/%s/%s", BOARDID, uuid.c_str(), (sync ? "rpc" : "asy"), responseID.c_str());
     mqttSend(topic,jsonGetBase64());
 }
