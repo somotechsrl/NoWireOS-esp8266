@@ -124,6 +124,9 @@ void rpcManage(const char *payload, bool sync) {
     case Sys_Identify:
       //identifyPixel();
       break;
+    case Sys_WiFi_Disconnect:
+      Wifi.disconnect();
+      break;
     case CFG_Modbus_AddCall:
       addModbusAggregatedCall(rpc_params);
       break;
