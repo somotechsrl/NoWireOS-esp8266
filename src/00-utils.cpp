@@ -11,6 +11,24 @@
 #define LED_PIN    D4
 #endif
 
+// Neopixel control functions, can be extended to include more complex patterns or effects as needed for more advanced visual feedback
+static bool pixelOk=false;
+static Adafruit_NeoPixel leds(1, LED_PIN, NEO_GRB + NEO_KHZ800);
+static void pixelInit() {
+    if(pixelOk) return;
+    leds.begin();
+    leds.clear();
+    leds.show(); // Initialize all pixels to 'off'
+    pixelOk=true;
+    }
+
+static void pixelShow(int r, int g, int b) {
+    pixelInit();
+    leds.setPixelColor(0, leds.Color(r, g, b));
+    leds.show();
+    }
+
+
 #define BLINK_DELAY 1000
 bool led_blink_enabled = true; // global variable to control LED blinking, can be set via RPC or other means as needed for more flexible behavior
 
@@ -40,23 +58,6 @@ void ledBlink() {
         pixelShow(0, 0, 0); // Turn off pixel after blink
     }
 }
-
-// Neopixel control functions, can be extended to include more complex patterns or effects as needed for more advanced visual feedback
-static bool pixelOk=false;
-static Adafruit_NeoPixel leds(1, LED_PIN, NEO_GRB + NEO_KHZ800);
-static void pixelInit() {
-    if(pixelOk) return;
-    leds.begin();
-    leds.clear();
-    leds.show(); // Initialize all pixels to 'off'
-    pixelOk=true;
-    }
-
-static void pixelShow(int r, int g, int b) {
-    pixelInit();
-    leds.setPixelColor(0, leds.Color(r, g, b));
-    leds.show();
-    }
 
 
 
