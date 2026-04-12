@@ -5,8 +5,6 @@
 // src/10-wifi-provision.cpp prototypes
 // ****************************
 void netInit();
-static void handleRoot();
-static void handleProvision();
 void startProvisioningMode();
 void checkResetButton();
 #endif

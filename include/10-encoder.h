@@ -5,12 +5,9 @@
 // src/10-encoder.cpp prototypes
 // ****************************
 void jsonInit();
-static const char *jsonComma();
 const char *jsonGetBuffer();
 uint16_t jsonGetBufferSize();
 const char *jsonGetBase64();
-static void bpAddValue(const char vtype, const void *vvalue, const uint8_t vsize);
-static void jsonOpen(const char *oname, char bracket, char cbracket);
 void jsonClose();
 void jsonCloseAll();
 void jsonAddValue(int8_t value);

@@ -4,6 +4,5 @@
 // ****************************
 // src/20-rpc-manager.cpp prototypes
 // ****************************
-static int getCommandID(const char *rpcmd);
 void rpcManage(const char *payload, bool sync);
 #endif
