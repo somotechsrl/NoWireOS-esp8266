@@ -62,11 +62,13 @@ static void mqttReconnect() {
 
   if (mqttClient.connected()) return;
 
+  uint32_t timeout=millis()+2000;
+
   //debug(DBG_MQTT, "Connecting...");
-  while (!mqttClient.connect(broker,port)) {
-    ESP_LOGE(TAG, "Failed to connect to MQTT broker at %s:%d -- %s", broker, port,mqttClient.lastError());
+  while (!mqttClient.connect(broker,port) && millis()<timeout) {
+    ESP_LOGE(TAG, "Failed to connect to MQTT broker at %s:%d -- RC=%d", broker, port,mqttClient.lastError());
     //debug(DBG_MQTT, "Failed: RC="+mqttClient.lastError());
-    delay(1000);
+    delay(500);
   }
 
   snprintf(topic, TSIZE, "nowireos/%s/%s/rpc", BOARDID, uuid.c_str());
@@ -87,7 +89,7 @@ void mqttInit() {
   mqttClient.onMessage(messageReceived);
 
   // first connect...
-  mqttReconnect();
+  // mqttReconnect();
   }
 
 void mqttPoll() {

@@ -1,12 +1,10 @@
 #include "main.h"
 #include "10-modbus-tcp.h"
 #include "10-wifi-provision.h"
-
+#include "20-mqtt.h"
 // 10 msecs time step, can be adjusted as needed for more responsive behavior or lower power consumption
 #define TIME_INCREMENT 10
 
-// timestep for modbus polling, can be adjusted as needed for more frequent updates or lower network traffic
-uint64_t timestep=10000; // 10 secs
 
 // TAG for logging
 #define TAG "MAIN"
@@ -31,19 +29,20 @@ void setup() {
         startProvisioningMode();
     }
 
-    mqttInit();
+    //mqttInit();
     ESP_LOGI(TAG, "System started!");
 
     // Initialize pins, sensors, etc.
     pinMode(LED_BUILTIN, OUTPUT);
+
+    // Initialize MQTT client, connection is handled in loop()
+    mqttInit();
 }
 
 void loop() {
 
     // time stepper
     static uint64_t cmillis=millis();
-
-    mqttPoll();
 
     if(millis()<cmillis) {
         cmillis=millis(); // reset timer if overflow
@@ -55,11 +54,18 @@ void loop() {
         }
 
     if (WiFi.status() == WL_CONNECTED) {
+        
+        delay(100);
+        //mqttPoll();
+
+        delay(100);
         if(millis()-cmillis > timestep) {
             readModbusTcp();
             cmillis = millis(); // Reset timer after reading Modbus
             ESP_LOGI(TAG, "Modbus data read successfully, waiting %lu", timestep);
             }
+
+        delay(100);
         checkResetButton();
         // increents tiestep
         }

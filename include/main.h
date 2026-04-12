@@ -20,5 +20,6 @@ typedef struct WiFiConfig {
 extern WiFiConfig wifiConfig;
 extern String uuid, mac;
 extern uint64_t timestep;
+extern bool led_blink_enabled;
 
 #endif

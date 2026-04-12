@@ -19,7 +19,6 @@ void jsonAddValue(uint16_t value);
 void jsonAddValue(uint32_t value);
 void jsonAddValue(float value);
 void jsonAddValue(double value);
-void jsonAddValue(const char *value);
 void jsonAddValue(const char *format, ...);
 void jsonAddArray(const char *oname);
 void jsonAddObject(const char *oname);

@@ -7,11 +7,12 @@
 #include "20-rpc-utils.h"
 #include "20-modbus-master.h"
 
+#define RPC_MANAGER_TASK
 #ifdef RPC_MANAGER_TASK
 
 #define TAG "RPC"
 bool trigger = false;
-uint32_t timestep=300000;
+uint64_t timestep=10000; // default 10 secs, can be adjusted as needed for more frequent updates or lower network traffic
 
 
 // retrives command sequence if for switch/case
@@ -29,16 +30,13 @@ void rpcManage(const char *payload, bool sync) {
 
   ESP_LOGI(TAG, "Received: %s", payload);
 
-  // trigger task handle to call AFTER RPC execution, to allow sync/async response management
-  TaskHandle_t trigger_task_handle = NULL;
-
   // extracts ID and Command
   char *st;
   strcpy(rpcb, payload);
 
-  char *request_id = (p=strtok_r(rpcb,"|",&st))!=NULL ? p : "";
-  char *rpccommand = (p=strtok_r(NULL,"|",&st))!=NULL ? p : "";
-  char *rpc_params = (p=strtok_r(NULL,"|",&st))!=NULL ? p : "";
+  char *request_id = (char *)((p=strtok_r(rpcb,"|",&st))!=NULL ? p : "");
+  char *rpccommand = (char *)((p=strtok_r(NULL,"|",&st))!=NULL ? p : "");
+  char *rpc_params = (char *)((p=strtok_r(NULL,"|",&st))!=NULL ? p : "");
 
   char respid[BUFTINY];
   snprintf(respid, sizeof(respid), "R%s", request_id);
@@ -52,10 +50,10 @@ void rpcManage(const char *payload, bool sync) {
   // submodule MUST NOT call jsonInit/jsonCloseAll for respnses!!!
   jsonInit();
   jsonAddObject(respid);
-  jsonAddObject(RESULT);
+  jsonAddObject("result");
   
   // rpcStatus default is 'OK'
-  char *rpcStatus = OK;
+  char *rpcStatus = (char *)"OK";
   char result[BUFSIZE] = "Executed successfully";
 
   switch (cmdid) {
@@ -73,7 +71,7 @@ void rpcManage(const char *payload, bool sync) {
        case CFG_Timestep:
       // timestep is received in s, converted in ms
       if (*rpc_params) timestep = atoi(rpc_params)*1000;
-      jsonAddObject_uint32_t("value", (uint32_t)timestep/1000);
+      jsonAddObject("value", (uint32_t)timestep/1000);
       break;
       case CFG_LOG_Mqtt:
         logger_mqtt();
@@ -92,7 +90,7 @@ void rpcManage(const char *payload, bool sync) {
     case RPC_Trigger:
       if(!strcmp(rpc_params,"modbus")) {
         jsonAddObject("value","OK: Modbus Triggered");
-        trigger_task_handle = modbus_master_task_handle;
+        //trigger_task_handle = modbus_master_task_handle;
         }
       else {
         jsonAddObject("value","ERROR:Unknown Trigger");
@@ -103,18 +101,23 @@ void rpcManage(const char *payload, bool sync) {
       jsonAddArray("RPC.List");
       int size=sizeof(RPC_cmd)/sizeof(RPC_cmd[0]);
       for (int i = 0; i<size;i++) {
-        jsonAddValue(RPC_cmd[i]);
+        jsonAddValue((const char *)RPC_cmd[i]);
       }
       jsonClose();
       break;
 
     // ************ System Related Commands
     case Sys_GetInfo:
+      sysGetInfo();
+      break;
     case Sys_GetStatus:
       sysGetInfo();
       break;
     case Sys_Reboot:
       //enableReboot();
+      break;
+    case Sys_Update_Cancel:
+      //cancelUpdate(); 
       break;
     case Sys_Cancel_Reboot:
       //cancelReboot();

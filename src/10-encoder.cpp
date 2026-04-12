@@ -170,13 +170,7 @@ void jsonAddValue(double value) {
   bpAddValue(value==0 ? 'z' : 'f', &value, sizeof(value));
   sprintf(s + strlen(s), "%s%f", jsonComma(), value);
 }
-// adds a string
-void jsonAddValue(const char *value) {
-  uint8_t l=strlen(value);
-  bpAddValue(l ? 's' : 'n', value, strlen(value) + 1);
-  sprintf(s + strlen(s), "%s\"%s\"", jsonComma(), value);
-}
-// adds a string
+// adds a string with formatter (or only a string)
 void jsonAddValue(const char *format, ...) {
  
   char out[BUFTINY];
