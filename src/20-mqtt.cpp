@@ -46,6 +46,7 @@ static void messageReceived(String &topic, String &payload) {
 
 static void mqttReconnect() {
 
+  // already connected, no need to reconnect
   if (mqttClient.connected()) return;
 
   uint32_t timeout=millis()+2000;
@@ -67,7 +68,8 @@ static void mqttReconnect() {
 
 void mqttInit() {
 
-  netInit();
+  // already connected, no need to init
+  if (mqttClient.connected()) return;
 
   snet.setInsecure();
 
@@ -75,11 +77,11 @@ void mqttInit() {
   mqttClient.onMessage(messageReceived);
 
   // first connect...
-  // mqttReconnect();
+  mqttReconnect();
   }
 
 void mqttPoll() {
-  mqttReconnect();
+  //mqttReconnect();
   mqttClient.loop();
 }
 

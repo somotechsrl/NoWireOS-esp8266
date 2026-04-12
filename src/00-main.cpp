@@ -2,6 +2,7 @@
 #include "10-modbus-tcp.h"
 #include "10-wifi-provision.h"
 #include "20-mqtt.h"
+
 // 10 msecs time step, can be adjusted as needed for more responsive behavior or lower power consumption
 #define TIME_INCREMENT 10
 
@@ -21,6 +22,8 @@ void setup() {
     pinMode(RESET_BUTTON_PIN, INPUT_PULLUP);
     EEPROM.get(0, wifiConfig);
     
+    netInit(); // Initialize network, can be extended to include Ethernet or other interfaces as needed for more flexible connectivity options
+
     if (strlen(wifiConfig.ssid) > 0) {
         WiFi.mode(WIFI_STA);
         WiFi.begin(wifiConfig.ssid, wifiConfig.password);
@@ -56,7 +59,8 @@ void loop() {
     if (WiFi.status() == WL_CONNECTED) {
         
         delay(100);
-        mqttPoll();
+        mqttInit(); // Ensure MQTT is connected, will return immediately if already connected
+        mqttPoll(); // Handle MQTT communication, will attempt reconnect if connection is lost
 
         delay(100);
         if(millis()-cmillis > timestep) {

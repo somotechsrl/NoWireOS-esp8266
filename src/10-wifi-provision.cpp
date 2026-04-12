@@ -3,6 +3,7 @@
 #include <ESP8266WebServer.h>
 #include <EEPROM.h>
 
+#define TAG "WIFI_PROV"
 
 ESP8266WebServer server(80);
 bool provisionMode = false;
