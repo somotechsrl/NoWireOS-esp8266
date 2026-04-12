@@ -136,7 +136,7 @@ void jsonAddValue(int16_t value) {
 }// adds an unsigned integer object
 void jsonAddValue(int32_t value) {
   bpAddValue(value==0 ? 'z' : 'L', &value, sizeof(value));
-  sprintf(s + strlen(s), "%s%ld", jsonComma(), value);
+  sprintf(s + strlen(s), "%s%d", jsonComma(), value);
 }
 // adds a char (char)
 void jsonAddValue(char value) {
@@ -158,7 +158,7 @@ void jsonAddValue(uint16_t value) {
 void jsonAddValue(uint32_t value) {
   //if(value<=UINT_MAX) return jsonAddValue((uint16_t)value);
   bpAddValue(value==0 ? 'z' : 'L', &value, sizeof(value));
-  sprintf(s + strlen(s), "%s%lu", jsonComma(), value);
+  sprintf(s + strlen(s), "%s%u", jsonComma(), value);
 }
 // adds a float
 void jsonAddValue(float value) {
@@ -235,7 +235,7 @@ void jsonAddObject(const char *oname, uint16_t value) {
 void jsonAddObject(const char *oname, uint32_t value) {
   bpAddValue('o', oname, strlen(oname) + 1);
   bpAddValue('l', &value, sizeof(value));
-  sprintf(s + strlen(s), "%s\"%s\":%lu", jsonComma(), oname, value);
+  sprintf(s + strlen(s), "%s\"%s\":%u", jsonComma(), oname, value);
 }
 
 // adds a float
