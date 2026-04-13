@@ -5,5 +5,5 @@
 // src/10-wifi-provision.cpp prototypes
 // ****************************
 void netInit();
-void wifiCheck();
+bool wifiCheck();
 #endif

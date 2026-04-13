@@ -97,14 +97,13 @@ void netInit() {
 
 }
 
-void wifiCheck() {
+bool wifiCheck() {
 
     // Checks if Wifi is connected and reset button
     if(WiFi.status() == WL_CONNECTED) {
         checkResetButton();
-        return;
+        return true;
         }
-    }
 
     // tries to ceonnect to wifi, if fails after timeout, enters provisioning mode
     ESP_LOGI(TAG, "Connecting to WiFi '%s'...", wifiConfig.ssid);
@@ -121,8 +120,10 @@ void wifiCheck() {
     if(WiFi.status() != WL_CONNECTED) {
         ESP_LOGW(TAG, "WiFi not connected, entering provisioning mode");
         startProvisioningMode();
-    } else {
-        ESP_LOGI(TAG, "WiFi connected with IP: %s", WiFi.localIP().toString().c_str());
+        return false;
+        }
+    
+    ESP_LOGI(TAG, "WiFi connected with IP: %s", WiFi.localIP().toString().c_str());
+    return true;
     }
 
-}

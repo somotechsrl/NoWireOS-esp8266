@@ -41,38 +41,18 @@ void loop() {
         cmillis=millis(); // reset timer if overflow
         }
 
-        
-
-    if (provisionMode) {
-        server.handleClient();
-        return;
-        }
-
-    if (WiFi.status() == WL_CONNECTED) {
-        
+    if(wifiCheck()) {
+               
         delay(100);
-        mqttPoll(); // Handle MQTT communication, will attempt reconnect if connection is lost
-
-        delay(100);
-        if(millis()-cmillis > timestep) {
+        // mqtt active and time step reached, can be adjusted as needed for more responsive behavior or lower power consumption
+        if(mqttPoll() && millis()-cmillis > timestep) {
             // calls modbus master yask, rads congif and esxecute
             modbusMasterTask();
             cmillis = millis(); // Reset timer after reading Modbus
             ESP_LOGI(TAG, "Modbus data read successfully, waiting %lu", timestep);
             }
 
-        delay(100);
-        checkResetButton();
-        // increents tiestep
         }
 
-    if (WiFi.status() != WL_CONNECTED) {
-        ESP_LOGW(TAG, "WiFi not connected. Attempting to reconnect...");
-        WiFi.reconnect();
-        delay(5000); // Wait before retrying
-        }
-
-    //ESP_LOGI(TAG, "Current timestep: %llu, %llu", timestep, cmillis);
-    
     ledBlink();
 }
