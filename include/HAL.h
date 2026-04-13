@@ -27,7 +27,7 @@ void logger_off();
 #define ARCH "ESP32"
 #define BUFSIZE 2048
 #define BUFTINY 512
-#define MODBUS_CONFIGS 80
+#define MODBUS_CONFIGS 80 // maximum number of Modbus configurations, can be adjusted as needed
 #define GPIO_WIFI_RESET 4
 #define NEOPIXEL_PIN 16
 #define ONBOARD_LED 2
@@ -40,7 +40,7 @@ void logger_off();
 #define ARCH "ESP8266"
 #define BUFSIZE 1536
 #define BUFTINY 256
-#define MODBUS_CONFIGS 80
+#define MODBUS_CONFIGS 80 // maximum number of Modbus configurations, can be adjusted as needed
 #define GPIO_WIFI_RESET D3
 #define NEOPIXEL_PIN D2
 #define ONBOARD_LED LED_BUILTIN

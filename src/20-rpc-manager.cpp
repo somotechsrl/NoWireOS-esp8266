@@ -66,8 +66,15 @@ void rpcManage(const char *payload, bool sync) {
     case CFG_Leds_Disable:
       led_blink_enabled = false;
       jsonAddObject("value","HB LED Disabled");
-    break;
-       case CFG_Timestep:
+      break;
+    case CFG_Modbus_AddCall:
+      addModbusAggregatedCall(rpc_params);
+      break;
+    case CFG_Modbus_Timeout:
+      setModbusTimeout(atoi(rpc_params));
+      jsonAddObject("value", modbus_timeout_ms);
+      break;
+    case CFG_Timestep:
       // timestep is received in s, converted in ms
       if (*rpc_params) timestep = atoi(rpc_params)*1000;
       jsonAddObject("value", (uint32_t)timestep/1000);
@@ -106,8 +113,6 @@ void rpcManage(const char *payload, bool sync) {
       jsonClose();
       break;
       }
-
-    // ************ System Related Commands
     case Sys_GetInfo:
       sysGetInfo();
       break;
@@ -127,13 +132,9 @@ void rpcManage(const char *payload, bool sync) {
       //identifyPixel();
       break;
     case Sys_WiFi_Disconnect:
-
       ESP_LOGI(TAG,"Disconnecting WiFi as per RPC command in %d ms", WIFIDISCONNECT_DELAY);
       jsonAddObject("Info","WiFi Disconnection Scheduled in %d s", WIFIDISCONNECT_DELAY/1000);
       wifiDisconnect=true;
-      break;
-    case CFG_Modbus_AddCall:
-      addModbusAggregatedCall(rpc_params);
       break;
   
     // ************ Unknow management
