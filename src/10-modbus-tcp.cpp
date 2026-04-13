@@ -8,11 +8,14 @@ static uint16_t modbus_timeout_ms=2000;
 #define TAG "MBTCP"
 #define MODBUS_TCP_BUFFER  256
 
-
 void setModbusTimeout(uint16_t timeout_ms) {
     // sets socket timeout for Modbus TCP client, can be used to adjust responsiveness and error handling in real-world applications
     modbus_timeout_ms = timeout_ms;
     ESP_LOGI(TAG, "Modbus TCP timeout set to %u ms", modbus_timeout_ms);
+    }
+uint16_t getModbusTimeout() {
+    // retrieves the current socket timeout for Modbus TCP client, can be used to adjust responsiveness and error handling in real-world applications
+    return modbus_timeout_ms;
     }
 
 static void sendRequest(uint8_t* request, uint16_t length) {

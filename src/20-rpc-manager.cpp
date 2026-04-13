@@ -3,6 +3,7 @@
 #include "30-rpc-cmd.h"
 #include "30-rpc-ids.h"
 #include "10-encoder.h"
+#include "10-modbus-tcp.h"
 #include "20-mqtt.h"
 #include "20-rpc-utils.h"
 #include "20-modbus-master.h"
@@ -72,7 +73,7 @@ void rpcManage(const char *payload, bool sync) {
       break;
     case CFG_Modbus_Timeout:
       setModbusTimeout(atoi(rpc_params));
-      jsonAddObject("value", modbus_timeout_ms);
+      jsonAddObject("value", getModbusTimeout());
       break;
     case CFG_Timestep:
       // timestep is received in s, converted in ms
