@@ -36,6 +36,7 @@ void sysGetInfo(void) {
   jsonAddObject("ut", buffer);
   jsonAddObject("ip", ipbuf);
   jsonAddObject("gw", rutbuf);
+  jsonAddObject("heap", ESP.getFreeHeap());
 #ifdef __ESP32__
   String temp = String(temperatureRead());
   jsonAddObject("te", temp.c_str());

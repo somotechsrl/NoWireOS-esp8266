@@ -14,16 +14,11 @@ void setup() {
    
     //init serial speed
     Serial.begin(115200);
-
     logger_serial(); 
+
     ESP_LOGI(TAG, "Booting up...");
-    
-    // sets net params
-    ESP_LOGI(TAG, "Initializing network...");
+
     netInit(); 
-    
-    // Initialize MQTT client, connection is handled in loop()
-    ESP_LOGI(TAG, "Initializing MQTT client...");
     mqttInit();
 }
 

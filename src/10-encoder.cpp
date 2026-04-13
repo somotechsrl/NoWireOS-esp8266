@@ -2,11 +2,13 @@
 #include "10-encoder.h"
 #include "rBase64.h"
 
+#define JBUFSIZE (BUFSIZE*2)
+
 // Json formatting utilities
 #define TAG "JSON"
 #define JLEVELS 10
-static char r[BUFSIZE], *rp;
-static char s[BUFSIZE];
+static char r[JBUFSIZE], *rp;
+static char s[JBUFSIZE];
 static char jclose[JLEVELS];
 uint16_t comma[JLEVELS], level;
 
@@ -74,8 +76,8 @@ uint16_t jsonGetBufferSize() {
   return strlen(s);
 }
 
-static char eb[BUFSIZE];
-static char b64[BUFSIZE];
+static char eb[JBUFSIZE];
+static char b64[JBUFSIZE];
 const char *jsonGetBase64() {
 
   int bsize=rp-r;

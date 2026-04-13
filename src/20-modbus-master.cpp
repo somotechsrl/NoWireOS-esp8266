@@ -23,13 +23,8 @@ typedef struct {
 
 
 #define TAG "MBMAS"
-static int amodbus_cnt;
+static int amodbus_cnt=0;
 static char *amodbus_cfg[MODBUS_CONFIGS];
-
-void initModbusMaster() {
-  amodbus_cnt=0;
-  memset(amodbus_cfg,0,sizeof(amodbus_cfg));
-  }
 
 void addModbusAggregatedCall(char *params) {
 
@@ -97,6 +92,16 @@ static modbus_config *parse_modbus_cfg(char *params) {
   char *token = strtok_r((char *)rs_str, ",",&st);
   while (token != NULL) {
     if (sscanf(token, "%hu:%hhu", &conf.calls[i].rs, &conf.calls[i].rn) == 2) {
+      if(i>=MODBUS_CONFIGS) {
+        ESP_LOGE(TAG, "Maximum number of calls per configuration reached: %d", MODBUS_CONFIGS);
+        jsonAddObject("CFG_RESULT","ERROR: Maximum number of calls per config reached: %d", MODBUS_CONFIGS);
+        break;
+        }
+      if(conf.calls[i].rn == 0) {
+        ESP_LOGE(TAG, "Invalid number of registers to read (rn) in config: %s", token);
+        jsonAddObject("CFG_RESULT","ERROR: Invalid number of registers to read (rn) in config: %s", token);
+        continue;
+        }
       i++;
     } else {
       jsonAddObject("CFG_RESULT","Invalid register set: %s", token);
@@ -126,6 +131,8 @@ void modbusMasterTask() {
     static char server_host[BUFTINY]; // serial,speed,sb,parity || server FQDN or IP
     static uint16_t server_port,server_unit_id; 
 
+    ESP_LOGI(TAG, "Starting Modbus Master Task -- active configurations: %d", amodbus_cnt);
+
     // replace loop with connector loop RTU/TCP
     for(int i=0;i<amodbus_cnt;i++) {
       
@@ -137,6 +144,9 @@ void modbusMasterTask() {
         ESP_LOGE(TAG, "Failed to get modbus config for params: %s", amodbus_cfg[i]);
         continue;
         }
+
+      // starta read time
+      uint32_t startTime = millis();
 
       // init json block for new server, if same server as previous call, will aggregate into same block
       jsonAddObject("DEV",conf->tag);
@@ -180,17 +190,17 @@ void modbusMasterTask() {
           jsonAddObject("ERROR", "Unknown server type: %s", server_type);
           continue;
         }
-      } 
+
+      jsonClose();
+
+      //end read time and add to json response
+      uint32_t endTime = millis();
+      jsonAddObject("read_time_ms", endTime - startTime);
 
       // block opened in loop, should be called after processing all calls to ensure json is properly closed for mqtt transmission
       jsonCloseAll(); // ensure all blocks are closed, in case of config errors that may cause block structure issues
-
-      // don't log -- too much ram required
-  
-      // logs json, and base 64 encrypted json
-      //ESP_LOGI(TAG,"%s",jsonGetBase64());
-
       mqttUp();
+    } 
 
   }
 

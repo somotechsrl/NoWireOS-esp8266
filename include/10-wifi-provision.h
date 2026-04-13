@@ -4,6 +4,7 @@
 // ****************************
 // src/10-wifi-provision.cpp prototypes
 // ****************************
+const time_t *getTime();
 void netInit();
 bool wifiCheck();
 #endif

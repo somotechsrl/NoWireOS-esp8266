@@ -21,6 +21,7 @@ static uint16_t receiveResponse(uint8_t* response, uint16_t maxLength) {
             length += client.read(response + length, maxLength - length);
             }
         }
+    ESP_LOGI(TAG,"Received %u of %u bytes from Modbus TCP server", length, maxLength);
     return length;
     }
 
@@ -62,8 +63,9 @@ static uint16_t *modbusTcpRead(uint8_t unitId,uint8_t function, uint16_t startAd
  
     // read response, check for errors, extract register values into provided buffer, and add to json response for mqtt transmission, can be expanded later to include error handling, retries, etc. as needed for robustness in real-world applications
     pixelBlink(10,10,0);
+    uint16_t respsize=9+quantity*2; // expected response size based on quantity of registers requested, can be used for validation of response length as needed for robustness in real-world applications
     static uint8_t buffer[MODBUS_TCP_BUFFER];
-    respLength=receiveResponse(buffer, sizeof(buffer));
+    respLength=receiveResponse(buffer,respsize);
     if (respLength == 0) {
         modbus_error=0xe0; // custom error code for no response
         ESP_LOGE(TAG, "No Data received from Modbus TCP server");

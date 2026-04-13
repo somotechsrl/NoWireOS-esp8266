@@ -6,6 +6,11 @@
 #define MINTSTEP 300
 #endif
 
+// Define NTP server and timezone (e.g., CET/CEST)
+#include <time.h>
+#define NTP_SERVER "pool.ntp.org"
+#define TZ "GMT +1"
+
 // Include other necessary headers for the project, can be extended as needed for additional functionality
 #ifdef ESP32
 // logger functions for log redirections
@@ -35,7 +40,7 @@ void logger_off();
 #define ARCH "ESP8266"
 #define BUFSIZE 1536
 #define BUFTINY 256
-#define MODBUS_CONFIGS 10
+#define MODBUS_CONFIGS 80
 #define GPIO_WIFI_RESET D3
 #define NEOPIXEL_PIN D2
 #define ONBOARD_LED LED_BUILTIN

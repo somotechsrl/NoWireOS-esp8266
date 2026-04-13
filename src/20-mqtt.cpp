@@ -94,6 +94,7 @@ static bool mqttReconnect() {
 
 // initialize MQTT client and set callback, connection is handled in loop() to ensure it happens after WiFi is connected
 void mqttInit() {
+  ESP_LOGI(TAG, "Initializing MQTT client...");
   snet.setInsecure();
   mqttClient.begin(broker,port,cnet);
   mqttClient.onMessage(messageReceived);

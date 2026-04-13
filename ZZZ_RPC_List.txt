@@ -4,6 +4,7 @@ CFG.Leds.Disable
 CFG.Debug
 
 CFG.Modbus.AddCall
+CFG.Modbus.Timeout
 
 CFG.Timestep
 

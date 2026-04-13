@@ -18,6 +18,12 @@ static struct  {
 } wifiConfig;
 
 
+static time_t datetime;
+const time_t *getTime() {
+    time(&datetime);
+    return &datetime;
+}
+
 static void handleRoot() {
     String html = R"(
         <!DOCTYPE html>
@@ -95,16 +101,18 @@ static void checkResetButton() {
 String uuid, mac;
 void netInit() {
 
-  WiFi.begin();
-  uuid = mac = WiFi.macAddress();
-  ESP_LOGI(TAG, "MAC: %s", mac.c_str());
-  uuid.replace(":", "");
-  ESP_LOGI(TAG, "UUID: %s", uuid.c_str());
+    ESP_LOGI(TAG, "Initializing network...");
 
-  // sets wifi reset button
-  pinMode(RESET_BUTTON_PIN, INPUT_PULLUP);
+    WiFi.begin();
+    uuid = mac = WiFi.macAddress();
+    ESP_LOGI(TAG, "MAC: %s", mac.c_str());
+    uuid.replace(":", "");
+    ESP_LOGI(TAG, "UUID: %s", uuid.c_str());
 
-}
+    // sets wifi reset button
+    pinMode(RESET_BUTTON_PIN, INPUT_PULLUP);
+
+    }
 
 bool wifiCheck() {
 

@@ -9,6 +9,7 @@ static const char *RPC_cmd[] = {
 ,"CFG.LOG.None"
 ,"CFG.LOG.Off"
 ,"CFG.Modbus.AddCall"
+,"CFG.Modbus.Timeout"
 ,"CFG.Timestep"
 ,"RPC.List"
 ,"RPC.Trigger"
