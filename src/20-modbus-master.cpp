@@ -119,6 +119,12 @@ return &conf;
 // Modbus client task, will loop through calls in config and execute them, then send json result to mqtt
 void modbusMasterTask() {
 
+    // check if Dataloggin is remotely enabled
+    if(!rpcIsEnabled(RPC_Modbus)) {
+        ESP_LOGW(TAG, "Modbus Master Task is disabled, skipping execution");
+        return;
+        }
+
     // Needs MQTT to work
     if(!mqttPoll()) {
         ESP_LOGW(TAG, "MQTT not connected, skipping Modbus Master Task");

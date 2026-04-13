@@ -19,6 +19,10 @@ void rpcDisable(const char *key) {
   jsonAddObject("result","System Disabled");
   } 
   
+bool rpcIsEnabled() {
+  return systemEnabled;
+  } 
+
 void sysGetInfo(void) {
 
   char ipbuf[20],rutbuf[20];
