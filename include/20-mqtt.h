@@ -5,7 +5,7 @@
 // src/20-mqtt.cpp prototypes
 // ****************************
 void mqttInit();
-void mqttPoll();
+bool mqttPoll();
 void mqttUp();
 void mqttRpcUp(String responseID);
 #endif

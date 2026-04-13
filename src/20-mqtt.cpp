@@ -50,10 +50,10 @@ static void messageReceived(String &topic, String &payload) {
   ESP_LOGI(TAG, "No handler for topic: %s", topic.c_str());
 }
 
-static void mqttReconnect() {
+static bool mqttReconnect() {
 
   // already connected, no need to reconnect
-  if(mqttClient.connected()) return;
+  if(mqttClient.connected()) return true;
 
   uint8_t attempt=0;
   uint32_t timeout=millis()+2000;
@@ -68,7 +68,7 @@ static void mqttReconnect() {
   // check connection status 
   if (!mqttClient.connected()) {
     ESP_LOGE(TAG, "Failed to connect to MQTT broker at %s:%d after %d attempts", broker, port, attempt);
-    return;
+    return false;
     }
 
   // subscribe to topics, can be extended later to include more topics or wildcard subscriptions as needed for more flexible communication patterns
@@ -82,6 +82,10 @@ static void mqttReconnect() {
   mqttClient.subscribe(topic);
   snprintf(topic, TSIZE, "nowireos/%s/%s/down", BOARDID, uuid.c_str());
   mqttClient.subscribe(topic);
+
+  // connected and subscribed successfully
+  ESP_LOGI(TAG, "Successfully connected and subscribed to MQTT broker at %s:%d", broker, port);
+  return true;
 }
 
 // initialize MQTT client and set callback, connection is handled in loop() to ensure it happens after WiFi is connected
@@ -91,8 +95,8 @@ void mqttInit() {
   mqttClient.onMessage(messageReceived);
   }
 
-void mqttPoll() {
-  mqttReconnect();
+bool mqttPoll() {
+  if(!mqttReconnect()) return false;
   // RPC response handling, checks if there's an active RPC response to send, if so, publishes it to the appropriate topic and resets the response state, this allows for asynchronous handling of RPC responses without blocking the MQTT callback
   if(rpcResp.active) {
     ESP_LOGI(TAG, "Handling RPC resquest %s %s", rpcResp.topic, rpcResp.message);
@@ -100,6 +104,7 @@ void mqttPoll() {
     rpcResp.active=false;
     }
   mqttClient.loop();
+  return true;
 }
 
 // commond publish function
