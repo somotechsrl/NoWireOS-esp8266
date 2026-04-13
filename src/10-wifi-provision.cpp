@@ -3,13 +3,20 @@
 
 #define TAG "WIFI_PROV"
 
+// Wifi stuff platform specific
 #ifdef ESP32
-WebServer server(80);
+#include "WebServer.h"
+static WebServer server(80);
 #else
-ESP8266WebServer server(80);
+#include <ESP8266WebServer.h>
+static ESP8266WebServer server(80);
 #endif
-bool provisionMode = false;
-WiFiConfig wifiConfig;
+
+static struct  {
+    char ssid[32];
+    char password[64];
+} wifiConfig;
+
 
 static void handleRoot() {
     String html = R"(
@@ -56,7 +63,6 @@ static void handleProvision() {
 }
 
 static void startProvisioningMode() {
-    provisionMode = true;
     WiFi.mode(WIFI_AP);
     WiFi.softAP("NoWireOS-Setup", "12345678");
     
@@ -100,10 +106,15 @@ void netInit() {
 bool wifiCheck() {
 
     // Checks if Wifi is connected and reset button
-    if(WiFi.status() == WL_CONNECTED) {
+    if(false && WiFi.status() == WL_CONNECTED) {
         checkResetButton();
         return true;
         }
+
+    // gets wifi config from EEPROM, if ssid is empty, enters provisioning mode
+    memset(&wifiConfig,0,sizeof(wifiConfig));
+    EEPROM.begin(512);
+    EEPROM.get(0, wifiConfig);
 
     // tries to ceonnect to wifi, if fails after timeout, enters provisioning mode
     ESP_LOGI(TAG, "Connecting to WiFi '%s'...", wifiConfig.ssid);

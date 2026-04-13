@@ -1,10 +1,5 @@
-#include <Arduino.h>
-
-#include "HAL.h"
-#include "00-main.h"
-#include "00-utils.h"
+#include "main.h"
 #include "10-encoder.h"
-#include "WiFiClient.h"
 
 static WiFiClient client;
 static uint16_t transactionId;

@@ -4,16 +4,15 @@
 #include <Arduino.h>
 #include "HAL.h"
 
+// Wifi stuff platform specific
 #ifdef ESP32
 #include "WiFi.h"
 #include "WebServer.h"
-extern WebServer server;
 #else
+// port of ESP_LOGx to ESP8266
 #include "00-debug.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include "00-debug.h"
-extern ESP8266WebServer server;
 #endif
 
 // for ssl client, can be extended to include certificate handling as needed for more secure communication with MQTT broker or other services
@@ -26,6 +25,8 @@ void logger_mqtt();
 void logger_serial();
 void logger_default();
 void logger_off();
+#else
+#include "00-debug.h"
 #endif
 
 #include <EEPROM.h>
@@ -34,11 +35,7 @@ void logger_off();
 
 extern bool provisionMode;
 #define RESET_BUTTON_PIN 3
-typedef struct WiFiConfig {
-    char ssid[32];
-    char password[64];
-} WiFiConfig;   
-extern WiFiConfig wifiConfig;
+
 extern String uuid, mac;
 extern uint64_t timestep;
 extern bool led_blink_enabled;

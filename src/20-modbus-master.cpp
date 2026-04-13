@@ -136,7 +136,6 @@ void modbusMasterTask() {
 
       // TCP Network call
       if(strcmp(server_type, "tcp") == 0) {
-          modbusTcpDisconnect();
           if (modbusTcpConnect(server_host, server_port, server_unit_id)) {
             for(int i=0;i<conf->ncalls;i++) {
               // gest response buffer and sets respLength

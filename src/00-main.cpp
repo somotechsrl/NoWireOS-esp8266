@@ -17,13 +17,11 @@ void setup() {
     delay(100);
    
     ESP_LOGI(TAG, "Booting up...");
-
-    EEPROM.begin(512);
     pinMode(RESET_BUTTON_PIN, INPUT_PULLUP);
-    EEPROM.get(0, wifiConfig);
     
-    netInit(); // Initialize network, can be extended to include Ethernet or other interfaces as needed for more flexible connectivity options
-
+    // sets net params
+    netInit(); 
+    
     //mqttInit();
     ESP_LOGI(TAG, "System started!");
 
