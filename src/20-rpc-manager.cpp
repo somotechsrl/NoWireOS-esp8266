@@ -101,12 +101,18 @@ void rpcManage(const char *payload, bool sync) {
         logger_off();
         jsonAddObject("value","Logging Disabled");
         break;
-
-    case RPC_Trigger:
-      if(!strcmp(rpc_params,"modbus")) {
-        jsonAddObject("value","OK: Modbus Triggered");
-        //trigger_task_handle = modbus_master_task_handle;
-        }
+      case RPC_Enable:
+        rpcEnable(rpc_params);
+        break;
+      case RPC_Disable:
+        rpcDisable(rpc_params);
+        break;
+      case RPC_Trigger:
+        if(!strcmp(rpc_params,"modbus")) {
+          jsonAddObject("value","OK: Modbus Triggered");
+          //trigger_task_handle = modbus_master_task_handle;
+          //trigger_modbus=true;
+          }
       else {
         jsonAddObject("value","ERROR:Unknown Trigger");
         }

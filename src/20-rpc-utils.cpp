@@ -7,13 +7,13 @@
 
 static int systemEnabled=false;
 
-void rpcEnable() {
+void rpcEnable(const char *key) {
   systemEnabled=true;
   ESP_LOGI(TAG, "System Enabled");
   jsonAddObject("result","System Enabled");
   } 
 
-void rpcDisable() {
+void rpcDisable(const char *key) {
   systemEnabled=false;
   ESP_LOGI(TAG, "System Disabled");
   jsonAddObject("result","System Disabled");
