@@ -11,21 +11,19 @@
 #define TAG "MAIN"
 
 void setup() {
-
-    // Initialize serial communication
-    Serial.begin(115200);
-    delay(100);
    
+    //init serial speed
+    Serial.begin(115200);
+
+    logger_serial(); 
     ESP_LOGI(TAG, "Booting up...");
-    pinMode(RESET_BUTTON_PIN, INPUT_PULLUP);
     
     // sets net params
+    ESP_LOGI(TAG, "Initializing network...");
     netInit(); 
     
-    //mqttInit();
-    ESP_LOGI(TAG, "System started!");
-
     // Initialize MQTT client, connection is handled in loop()
+    ESP_LOGI(TAG, "Initializing MQTT client...");
     mqttInit();
 }
 
@@ -39,12 +37,17 @@ void loop() {
         cmillis=millis(); // reset timer if overflow
         }
 
+    //ESP_LOGI(TAG, "Checking WiFi and MQTT status...");
+    // wifi connected, mqtt active, and time step reached, can be adjusted as needed for more responsive behavior or lower power consumption
     if(wifiCheck()) {
-               
+        
+        // checks mqtt status
+        mqttPoll();
         delay(100);
+
         // mqtt active and time step reached, can be adjusted as needed for more responsive behavior or lower power consumption
-        if(mqttPoll() && millis()-cmillis > timestep) {
-            // calls modbus master yask, rads congif and esxecute
+        if(millis()-cmillis > timestep) {
+            // calls modbus master task, reads config and executes
             modbusMasterTask();
             cmillis = millis(); // Reset timer after reading Modbus
             ESP_LOGI(TAG, "Modbus data read successfully, waiting %lu", timestep);

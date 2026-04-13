@@ -22,8 +22,6 @@ void logger_off() {
     // Disable logging, can be extended to send logs to MQTT or other remote logging service
     ESP_LOGI(TAG, "Logging Disabled"); 
 }
-
-
 // default output formatter to serial -- can be extended to send logs to MQTT or other remote logging service
 static void log_serial(const char *type, const char *tag,const char *fmt, va_list args) {
 
@@ -74,7 +72,7 @@ void logger_serial() {
 void logger_default() {
     // Default logger, can be extended to send logs to MQTT or other remote logging service
     ESP_LOGI(TAG, "Default Logger Enabled");
-}
+    esp_log_set_vsprintf(log_serial); // Set custom log function to send logs to MQTT
 void logger_off() {
     // Disable logging, can be extended to send logs to MQTT or other remote logging service
     ESP_LOGI(TAG, "Logging Disabled");

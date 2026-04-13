@@ -3,6 +3,7 @@
 #include "MQTT.h"
 #include "10-encoder.h"
 #include "20-rpc-manager.h"
+#include "10-wifi-provision.h"
 
 // Default server and port, can be overridden by config or other means
 //static const char *broker = "rpc.somotech.it";
@@ -52,8 +53,11 @@ static void messageReceived(String &topic, String &payload) {
 
 static bool mqttReconnect() {
 
-  // already connected, no need to reconnect
+   // already connected, no need to reconnect
   if(mqttClient.connected()) return true;
+
+   // no wifi...
+  if(!wifiCheck()) return false;
 
   uint8_t attempt=0;
   uint32_t timeout=millis()+2000;
@@ -109,8 +113,7 @@ bool mqttPoll() {
 
 // commond publish function
 static void mqttSend(const char * topic, const char *data) {
-  //mttReconnect();
-  // flashes yellow /(send)
+  mqttReconnect();
   mqttClient.publish(topic,data,strlen(data));
 }
 
@@ -124,7 +127,7 @@ void mqttUp() {
 }
 
 void mqttRpcUp(String responseID) {
-    ESP_LOGI(TAG, "Publishing RPC response with ID: %s", responseID.c_str());
-    snprintf(topic, TSIZE, "nowireos/%s/%s/rpc/%s", BOARDID, uuid.c_str(), responseID.c_str());
-    mqttSend(topic,jsonGetBase64());
+  ESP_LOGI(TAG, "Publishing RPC response with ID: %s", responseID.c_str());
+  snprintf(topic, TSIZE, "nowireos/%s/%s/rpc/%s", BOARDID, uuid.c_str(), responseID.c_str());
+  mqttSend(topic,jsonGetBase64());
 }

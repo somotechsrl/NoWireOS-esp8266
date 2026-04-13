@@ -22,9 +22,14 @@ typedef struct {
 } modbus_config;
 
 
-#define TAG "MODBUS_CFG"
+#define TAG "MBMAS"
 static int amodbus_cnt;
-static char amodbus_cfg[MODBUS_CONFIGS][BUFTINY];
+static char *amodbus_cfg[MODBUS_CONFIGS];
+
+void initModbusMaster() {
+  amodbus_cnt=0;
+  memset(amodbus_cfg,0,sizeof(amodbus_cfg));
+  }
 
 void addModbusAggregatedCall(char *params) {
 
@@ -62,7 +67,13 @@ void addModbusAggregatedCall(char *params) {
     }
   }
 
-  strcpy(amodbus_cfg[amodbus_cnt++],params);
+  amodbus_cfg[amodbus_cnt] = strdup(params);
+  if (amodbus_cfg[amodbus_cnt] == NULL) {
+    ESP_LOGE(TAG, "Failed to allocate memory for Modbus configuration: %s", params);
+    jsonAddObject("CFG_RESULT","ERROR: Memory allocation failed for params: %s", params);
+    return;
+  }
+  amodbus_cnt++;
   ESP_LOGI(TAG, "Added Modbus configuration: %s", params);
   jsonAddObject("CFG_RESULT","Added configuration: %s", params);
   }
@@ -103,6 +114,12 @@ return &conf;
 // Modbus client task, will loop through calls in config and execute them, then send json result to mqtt
 void modbusMasterTask() {
 
+    // Needs MQTT to work
+    if(!mqttPoll()) {
+        ESP_LOGW(TAG, "MQTT not connected, skipping Modbus Master Task");
+        return;
+        }
+
     modbus_config *conf;
 
     static char server_type[32]; // rtu, tcp
@@ -136,13 +153,15 @@ void modbusMasterTask() {
 
       // TCP Network call
       if(strcmp(server_type, "tcp") == 0) {
+          // pings server to check if it's reachable before attempting connection, can help avoid long timeouts in case of unreachable server
           if (modbusTcpConnect(server_host, server_port, server_unit_id)) {
             for(int i=0;i<conf->ncalls;i++) {
               // gest response buffer and sets respLength
               modbusTcpReadJson(server_unit_id,conf->fn, conf->calls[i].rs, conf->calls[i].rn); 
+              // polls mqtt as we d't have a rtx system
+              mqttPoll();
               }
             modbusTcpDisconnect();
-
           } else {
             ESP_LOGE(TAG, "Failed to connect to Modbus TCP server: %s:%d", server_host, server_port);
             jsonAddObject("ERROR", "Failed to connect to Modbus TCP server: %s:%d", server_host, server_port);
@@ -166,10 +185,12 @@ void modbusMasterTask() {
       // block opened in loop, should be called after processing all calls to ensure json is properly closed for mqtt transmission
       jsonCloseAll(); // ensure all blocks are closed, in case of config errors that may cause block structure issues
 
+      // don't log -- too much ram required
+  
       // logs json, and base 64 encrypted json
       //ESP_LOGI(TAG,"%s",jsonGetBase64());
 
-      //mqtt_send_up_data(jsonGetBase64());
+      mqttUp();
 
   }
 

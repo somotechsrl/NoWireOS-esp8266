@@ -1,0 +1,2 @@
+source /zpool/localuser/PlatformIO/Projects/NoWireOS-Arduino/build/gdbinit/symbols
+source /zpool/localuser/PlatformIO/Projects/NoWireOS-Arduino/build/gdbinit/connect

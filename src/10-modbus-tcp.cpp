@@ -18,7 +18,7 @@ static uint16_t receiveResponse(uint8_t* response, uint16_t maxLength) {
         
     while (millis() < timeout && length < maxLength) {
         if (client.available()) {
-            response[length++] = client.read();
+            length += client.read(response + length, maxLength - length);
             }
         }
     return length;
@@ -194,32 +194,3 @@ uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_addres
     return response;
 }
 
-// just for testing, will be removed later, can be called from loop or modbus client task loop for testing connectivity and response parsing, can be expanded later to include more detailed testing and error handling as needed for robustness in real-world applications
-void readModbusTcp() {
-    const char *host="192.168.43.169"; // replace with actual Modbus TCP server IP or hostname
-    uint16_t port=502;
-    uint8_t unit_id=1;
-    uint8_t func=3; // read holding registers
-    uint16_t start_address=4096;
-    uint16_t quantity=10;
-
-    jsonInit();
-    jsonAddObject("DEV","test_device");
-    jsonAddObject("BUS","test_bus");
-    jsonAddObject("DRV",TAG);
-    jsonAddObject("data");
-
-    // disconnect stale connection if any, then connect, read data, and disconnect again to ensure clean state for each call, can be expanded later to include connection pooling or persistent connections as needed for performance optimization in real-world applications
-    modbusTcpDisconnect();
-    if (modbusTcpConnect(host, port, unit_id)) {
-        modbusTcpReadJson(unit_id, func, start_address, quantity);
-        modbusTcpDisconnect();
-        } else {
-        ESP_LOGE(TAG, "Failed to connect to Modbus TCP server: %s:%d", host, port);
-        } 
-
-    jsonCloseAll();
-
-    ESP_LOGI(TAG,"JSON: %s",jsonGetBuffer());
-
-}

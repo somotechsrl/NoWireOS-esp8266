@@ -101,12 +101,15 @@ void netInit() {
   uuid.replace(":", "");
   ESP_LOGI(TAG, "UUID: %s", uuid.c_str());
 
+  // sets wifi reset button
+  pinMode(RESET_BUTTON_PIN, INPUT_PULLUP);
+
 }
 
 bool wifiCheck() {
 
     // Checks if Wifi is connected and reset button
-    if(false && WiFi.status() == WL_CONNECTED) {
+    if(WiFi.status() == WL_CONNECTED) {
         checkResetButton();
         return true;
         }
@@ -116,25 +119,28 @@ bool wifiCheck() {
     EEPROM.begin(512);
     EEPROM.get(0, wifiConfig);
 
-    // tries to ceonnect to wifi, if fails after timeout, enters provisioning mode
+    // tries to connect to wifi, if fails after timeout, enters provisioning mode
     ESP_LOGI(TAG, "Connecting to WiFi '%s'...", wifiConfig.ssid);
     WiFi.mode(WIFI_STA);
     WiFi.begin(wifiConfig.ssid, wifiConfig.password);
     //WiFi.begin("DeepBlue","!eralottoluglio");
+
+    Serial.println();
     uint32_t startAttemptTime = millis();
     const uint32_t wifiTimeout = 20000;
     while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < wifiTimeout) {
         delay(500);
         Serial.print(".");
     }
+    Serial.println();
 
-    if(WiFi.status() != WL_CONNECTED) {
-        ESP_LOGW(TAG, "WiFi not connected, entering provisioning mode");
-        startProvisioningMode();
-        return false;
+    if(WiFi.status() == WL_CONNECTED) {
+        ESP_LOGI(TAG, "WiFi connected with IP: %s", WiFi.localIP().toString().c_str());
+        return true;
         }
-    
-    ESP_LOGI(TAG, "WiFi connected with IP: %s", WiFi.localIP().toString().c_str());
-    return true;
+
+    ESP_LOGW(TAG, "WiFi not connected, entering provisioning mode");
+    startProvisioningMode();
+    return false;
     }
 

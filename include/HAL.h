@@ -2,72 +2,64 @@
 #define __ZZZ_HAL_H__
 
 // Default debug modes
-#define DBG_SPEED 115200L
-#define DBG_MODES "8N1"
-
-// D1 MINI
-#ifdef ARDUINO_ESP8266_WEMOS_D1MINI
-#define MODBUS_CONFIGS 20
-#define GPIO_WIFI_RESET D3
-#define ARCH "ESP8266"
-#define BOARDID "d1mini"
-#define NEOPIXEL_PIN D2
-#define ONBOARD_LED LED_BUILTIN
-#endif
-
-// NodeMCU12E
-#ifdef ARDUINO_ESP8266_NODEMCU_ESP12E
-#define MODBUS_CONFIGS 20
-#define GPIO_WIFI_RESET D3 // Flash Button
-#define ARCH "ESP8266"
-#define BOARDID "nodemcu"
-#define NEOPIXEL_PIN D2
-#define ONBOARD_LED LED_BUILTIN
-#endif
-
-// ESP32_WROOM_32
-#ifdef ARDUINO_ESP32_WROOM_DA
-#define MODBUS_CONFIGS 80
-#define GPIO_WIFI_RESET 4
-#define ARCH "ESP32"
-#define BOARDID "esp32-dev"
-#define NEOPIXEL_PIN 16
-#define ONBOARD_LED 2
-#endif
-
-#ifdef ARDUINO_ESP32_DEV
-#define MODBUS_CONFIGS 80
-#define GPIO_WIFI_RESET 4
-#define ARCH "ESP32"
-#define BOARDID "esp32-dev"
-#define NEOPIXEL_PIN 16
-#define ONBOARD_LED 2
-#endif
-
-// MINI_32
-#ifdef ARDUINO_D1_MINI32
-#define MODBUS_CONFIGS 80
-#define GPIO_WIFI_RESET 4
-#define ARCH "ESP32"
-#define BOARDID "esp32-mini"
-#define NEOPIXEL_PIN 16
-#define ONBOARD_LED 2
-#endif
-
-
-#ifdef ESP32
-#define BUFSIZE 4096
-#define BUFTINY 512
-#else
-#define BUFSIZE 1024
-#define BUFTINY 512
-#endif
-
 #ifndef MINTSTEP
 #define MINTSTEP 300
 #endif
 
-// Default Serial data lines
-#define DEBUG_SERIAL Serial
+// Include other necessary headers for the project, can be extended as needed for additional functionality
+#ifdef ESP32
+// logger functions for log redirections
+// esp32 has ESP_LOGx macros
+void logger_mqtt();
+void logger_serial();
+void logger_default();
+void logger_off();
+// wifi and web server for provisioning
+#include "WiFi.h"
+#include "WebServer.h"
+#include "esp_log.h"
+// other macros
+#define ARCH "ESP32"
+#define BUFSIZE 2048
+#define BUFTINY 512
+#define MODBUS_CONFIGS 80
+#define GPIO_WIFI_RESET 4
+#define NEOPIXEL_PIN 16
+#define ONBOARD_LED 2
+#else
+#include "00-debug.h"
+// wifi and web server for provisioning
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+// other macros
+#define ARCH "ESP8266"
+#define BUFSIZE 1536
+#define BUFTINY 256
+#define MODBUS_CONFIGS 10
+#define GPIO_WIFI_RESET D3
+#define NEOPIXEL_PIN D2
+#define ONBOARD_LED LED_BUILTIN
+#endif
+
+
+// Simgle machine string, will be surpassed by auto enumaraton of machine type in future, for now can be used for logging and debugging purposes
+#ifdef ARDUINO_ESP8266_WEMOS_D1MINI
+#define BOARDID "d1mini"
+#endif
+#ifdef ARDUINO_ESP8266_NODEMCU
+#define BOARDID "nodemcu"
+#endif
+#ifdef ARDUINO_ESP8266_NODEMCU_ESP12E
+#define BOARDID "nodemcu"
+#endif
+#ifdef ARDUINO_ESP32_WROOM_DA
+#define BOARDID "esp32-dev"
+#endif
+#ifdef ARDUINO_ESP32_DEV
+#define BOARDID "esp32-dev"
+#endif
+#ifdef ARDUINO_D1_MINI32
+#define BOARDID "esp32-mini"
+#endif
 
 #endif
