@@ -113,7 +113,7 @@ void mqttPoll() {
 
 // commond publish function
 static void mqttSend(const char * topic, const char *data) {
-  mqttReconnect();
+  //mttReconnect();
   // flashes yellow /(send)
   mqttClient.publish(topic,data,strlen(data));
 }

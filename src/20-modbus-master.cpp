@@ -110,60 +110,59 @@ void modbusMasterTask() {
     static uint16_t server_port,server_unit_id; 
 
     // replace loop with connector loop RTU/TCP
-    while (true) {
+    for(int i=0;i<amodbus_cnt;i++) {
+      
+      jsonInit();
 
-        for(int i=0;i<amodbus_cnt;i++) {
-          
-          jsonInit();
- 
-          // explodes in modbus_cfg
-          if((conf=parse_modbus_cfg(amodbus_cfg[i])) == NULL) {
-            jsonAddObject("ERROR", "Failed to get modbus config");
-            ESP_LOGE(TAG, "Failed to get modbus config for params: %s", amodbus_cfg[i]);
-            continue;
-            }
- 
-          // init json block for new server, if same server as previous call, will aggregate into same block
-          jsonAddObject("DEV",conf->tag);
-          jsonAddObject("BUS",conf->ad);
-          jsonAddObject("DRV","modbus");
-          jsonAddObject("data");
-
-          // extract modbus call parameters from call->ad 
-          if(sscanf(conf->ad, "%31[^':']:%31[^':']:%hu:%hu", server_type, server_host, &server_port, &server_unit_id) != 4) {
-              jsonAddObject("CFG_Error", "Failed to parse Modbus TCP call address: %s", conf->ad);
-              ESP_LOGE(TAG, "Failed to parse Modbus TCP call address: %s", conf->ad);
-              continue;
-              }
- 
-          // TCP Network call
-          if(strcmp(server_type, "tcp") == 0) {
-              if (modbusTcpConnect(server_host, server_port, server_unit_id)) {
-                for(int i=0;i<conf->ncalls;i++) {
-                  // gest response buffer and sets respLength
-                  modbusTcpReadJson(server_unit_id,conf->fn, conf->calls[i].rs, conf->calls[i].rn); 
-                  }
-                modbusTcpDisconnect();
-
-              } else {
-                ESP_LOGE(TAG, "Failed to connect to Modbus TCP server: %s:%d", server_host, server_port);
-                jsonAddObject("ERROR", "Failed to connect to Modbus TCP server: %s:%d", server_host, server_port);
-                } 
-            }
-          // RTU Serial call - not implemented yet, placeholder for future expansion 
-          else if(strcmp(server_type, "rtu") == 0) {
-              // RTU client call - not implemented yet, placeholder for future expansion
-              ESP_LOGE(TAG, "RTU client call not implemented yet: %s", conf->ad);
-              jsonAddObject("ERROR", "RTU client call not implemented yet: %s", conf->ad);
-              continue; 
-            } 
-       // Unknown server type
-          else {
-              ESP_LOGE(TAG, "Unknown server type in Modbus call address: %s", conf->ad);
-              jsonAddObject("ERROR", "Unknown server type: %s", server_type);
-              continue;
-            }
+      // explodes in modbus_cfg
+      if((conf=parse_modbus_cfg(amodbus_cfg[i])) == NULL) {
+        jsonAddObject("ERROR", "Failed to get modbus config");
+        ESP_LOGE(TAG, "Failed to get modbus config for params: %s", amodbus_cfg[i]);
+        continue;
         }
+
+      // init json block for new server, if same server as previous call, will aggregate into same block
+      jsonAddObject("DEV",conf->tag);
+      jsonAddObject("BUS",conf->ad);
+      jsonAddObject("DRV","modbus");
+      jsonAddObject("data");
+
+      // extract modbus call parameters from call->ad 
+      if(sscanf(conf->ad, "%31[^':']:%31[^':']:%hu:%hu", server_type, server_host, &server_port, &server_unit_id) != 4) {
+          jsonAddObject("CFG_Error", "Failed to parse Modbus TCP call address: %s", conf->ad);
+          ESP_LOGE(TAG, "Failed to parse Modbus TCP call address: %s", conf->ad);
+          continue;
+          }
+
+      // TCP Network call
+      if(strcmp(server_type, "tcp") == 0) {
+          modbusTcpDisconnect();
+          if (modbusTcpConnect(server_host, server_port, server_unit_id)) {
+            for(int i=0;i<conf->ncalls;i++) {
+              // gest response buffer and sets respLength
+              modbusTcpReadJson(server_unit_id,conf->fn, conf->calls[i].rs, conf->calls[i].rn); 
+              }
+            modbusTcpDisconnect();
+
+          } else {
+            ESP_LOGE(TAG, "Failed to connect to Modbus TCP server: %s:%d", server_host, server_port);
+            jsonAddObject("ERROR", "Failed to connect to Modbus TCP server: %s:%d", server_host, server_port);
+            } 
+        }
+      // RTU Serial call - not implemented yet, placeholder for future expansion 
+      else if(strcmp(server_type, "rtu") == 0) {
+          // RTU client call - not implemented yet, placeholder for future expansion
+          ESP_LOGE(TAG, "RTU client call not implemented yet: %s", conf->ad);
+          jsonAddObject("ERROR", "RTU client call not implemented yet: %s", conf->ad);
+          continue; 
+        } 
+      // Unknown server type
+      else {
+          ESP_LOGE(TAG, "Unknown server type in Modbus call address: %s", conf->ad);
+          jsonAddObject("ERROR", "Unknown server type: %s", server_type);
+          continue;
+        }
+      } 
 
       // block opened in loop, should be called after processing all calls to ensure json is properly closed for mqtt transmission
       jsonCloseAll(); // ensure all blocks are closed, in case of config errors that may cause block structure issues
@@ -173,6 +172,5 @@ void modbusMasterTask() {
 
       //mqtt_send_up_data(jsonGetBase64());
 
-    }
   }
 

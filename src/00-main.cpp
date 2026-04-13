@@ -1,5 +1,6 @@
 #include "main.h"
 #include "10-modbus-tcp.h"
+#include "20-modbus-master.h"
 #include "10-wifi-provision.h"
 #include "20-mqtt.h"
 
@@ -35,9 +36,6 @@ void setup() {
     //mqttInit();
     ESP_LOGI(TAG, "System started!");
 
-    // Initialize pins, sensors, etc.
-    pinMode(LED_BUILTIN, OUTPUT);
-
     // Initialize MQTT client, connection is handled in loop()
     mqttInit();
 }
@@ -64,7 +62,8 @@ void loop() {
 
         delay(100);
         if(millis()-cmillis > timestep) {
-            modbus_master_k(); // Handle Modbus TCP communication, can be expanded later to include more detailed error handling, retries, etc. as needed for robustness in real-world 
+            // calls modbus master yask, rads congif and esxecute
+            modbusMasterTask();
             cmillis = millis(); // Reset timer after reading Modbus
             ESP_LOGI(TAG, "Modbus data read successfully, waiting %lu", timestep);
             }
