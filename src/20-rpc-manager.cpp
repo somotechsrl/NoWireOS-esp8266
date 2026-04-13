@@ -72,7 +72,13 @@ void rpcManage(const char *payload, bool sync) {
       addModbusAggregatedCall(rpc_params);
       break;
     case CFG_Modbus_Timeout:
-      setModbusTimeout(atoi(rpc_params));
+      uint16_t mbto=atoi(rpc_params);
+      if(mbto<100 || mbto>2000) {
+        jsonAddObject("value","ERROR: Invalid Modbus timeout value, must be between 100 and 2000 ms");
+        ESP_LOGE(TAG, "Invalid Modbus timeout value received: %u ms", mbto);
+        break;
+        }
+      setModbusTimeout(mbto);
       jsonAddObject("value", getModbusTimeout());
       break;
     case CFG_Timestep:
