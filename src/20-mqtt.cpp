@@ -1,16 +1,7 @@
 #include "main.h"
 #include "rBase64.h"
 #include "MQTT.h"
-#ifdef ESP32
-#include "WiFi.h"
-#else
-#include <ESP8266WiFi.h>
-#endif
-#include <WiFiClient.h>
-#include <WiFiClientSecure.h>
-#include "20-mqtt.h"
 #include "10-encoder.h"
-#include "00-debug.h"
 #include "20-rpc-manager.h"
 
 // Default server and port, can be overridden by config or other means

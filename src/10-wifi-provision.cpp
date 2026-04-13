@@ -1,11 +1,4 @@
 #include "main.h"
-#ifdef ESP32
-#include "WiFi.h"
-#include "WebServer.h"
-#else
-#include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
-#endif
 #include <EEPROM.h>
 
 #define TAG "WIFI_PROV"
@@ -17,18 +10,6 @@ ESP8266WebServer server(80);
 #endif
 bool provisionMode = false;
 WiFiConfig wifiConfig;
-
-// uuid and mac
-String uuid, mac;
-void netInit() {
-
-  WiFi.begin();
-  uuid = mac = WiFi.macAddress();
-  ESP_LOGI(TAG, "MAC: %s", mac.c_str());
-  uuid.replace(":", "");
-  ESP_LOGI(TAG, "UUID: %s", uuid.c_str());
-
-}
 
 static void handleRoot() {
     String html = R"(
@@ -74,7 +55,7 @@ static void handleProvision() {
     }
 }
 
-void startProvisioningMode() {
+static void startProvisioningMode() {
     provisionMode = true;
     WiFi.mode(WIFI_AP);
     WiFi.softAP("NoWireOS-Setup", "12345678");
@@ -88,7 +69,7 @@ void startProvisioningMode() {
     Serial.println(WiFi.softAPIP());
 }
 
-void checkResetButton() {
+static void checkResetButton() {
     if (digitalRead(RESET_BUTTON_PIN) == LOW) {
         delay(50);
         if (digitalRead(RESET_BUTTON_PIN) == LOW) {
@@ -102,4 +83,46 @@ void checkResetButton() {
             }
         }
     }
+}
+
+// uuid and mac
+String uuid, mac;
+void netInit() {
+
+  WiFi.begin();
+  uuid = mac = WiFi.macAddress();
+  ESP_LOGI(TAG, "MAC: %s", mac.c_str());
+  uuid.replace(":", "");
+  ESP_LOGI(TAG, "UUID: %s", uuid.c_str());
+
+}
+
+void wifiCheck() {
+
+    // Checks if Wifi is connected and reset button
+    if(WiFi.status() == WL_CONNECTED) {
+        checkResetButton();
+        return;
+        }
+    }
+
+    // tries to ceonnect to wifi, if fails after timeout, enters provisioning mode
+    ESP_LOGI(TAG, "Connecting to WiFi '%s'...", wifiConfig.ssid);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(wifiConfig.ssid, wifiConfig.password);
+    //WiFi.begin("DeepBlue","!eralottoluglio");
+    uint32_t startAttemptTime = millis();
+    const uint32_t wifiTimeout = 20000;
+    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < wifiTimeout) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    if(WiFi.status() != WL_CONNECTED) {
+        ESP_LOGW(TAG, "WiFi not connected, entering provisioning mode");
+        startProvisioningMode();
+    } else {
+        ESP_LOGI(TAG, "WiFi connected with IP: %s", WiFi.localIP().toString().c_str());
+    }
+
 }

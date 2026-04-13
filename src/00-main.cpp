@@ -1,5 +1,4 @@
 #include "main.h"
-#include "10-modbus-tcp.h"
 #include "20-modbus-master.h"
 #include "10-wifi-provision.h"
 #include "20-mqtt.h"
@@ -25,14 +24,6 @@ void setup() {
     
     netInit(); // Initialize network, can be extended to include Ethernet or other interfaces as needed for more flexible connectivity options
 
-    if (strlen(wifiConfig.ssid) > 0) {
-        WiFi.mode(WIFI_STA);
-        WiFi.begin(wifiConfig.ssid, wifiConfig.password);
-        ESP_LOGI(TAG, "Connecting to WiFi...");
-    } else {
-        startProvisioningMode();
-    }
-
     //mqttInit();
     ESP_LOGI(TAG, "System started!");
 
@@ -49,7 +40,9 @@ void loop() {
     if(millis()<cmillis) {
         cmillis=millis(); // reset timer if overflow
         }
-    
+
+        
+
     if (provisionMode) {
         server.handleClient();
         return;

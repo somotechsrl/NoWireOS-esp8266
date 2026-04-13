@@ -1,13 +1,10 @@
 #include <Arduino.h>
-#include "00-debug.h"
-#include "00-utils.h"
-#ifdef ESP32
-#include "WiFi.h"
-#else
-#include <ESP8266WiFi.h>
-#endif
-#include "10-encoder.h"
+
 #include "HAL.h"
+#include "00-main.h"
+#include "00-utils.h"
+#include "10-encoder.h"
+#include "WiFiClient.h"
 
 static WiFiClient client;
 static uint16_t transactionId;

@@ -3,6 +3,7 @@
 #include "20-mqtt.h"
 #include "20-rpc-utils.h"
 #include "revision.h"
+#include "HAL.h"
 
 void sysGetInfo(void) {
 
@@ -36,7 +37,7 @@ void sysGetInfo(void) {
   jsonAddObject("ip", ipbuf);
   jsonAddObject("gw", rutbuf);
 #ifdef __ESP32__
-  String temp = String((temprature_sens_read() - 32) / 1.8);
+  String temp = String(temperatureRead());
   jsonAddObject("te", temp.c_str());
   jsonAddObject("mf",ESP.getFreeHeap());
 #endif

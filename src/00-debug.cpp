@@ -61,4 +61,23 @@ void ESP_LOGE(const char *tag,const char* format, ...) {
     va_end(args);
     }   
     
+#else
+
+void logger_mqtt() {
+    // Set up MQTT logging, can be extended to send logs to MQTT or other remote logging service
+    ESP_LOGI(TAG, "MQTT Logger Enabled");
+}
+void logger_serial() {
+    // Set up Serial logging, can be extended to send logs to MQTT or other remote logging service
+    ESP_LOGI(TAG, "Serial Logger Enabled");
+}
+void logger_default() {
+    // Default logger, can be extended to send logs to MQTT or other remote logging service
+    ESP_LOGI(TAG, "Default Logger Enabled");
+}
+void logger_off() {
+    // Disable logging, can be extended to send logs to MQTT or other remote logging service
+    ESP_LOGI(TAG, "Logging Disabled");
+    }
+
 #endif
