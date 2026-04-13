@@ -5,6 +5,20 @@
 #include "revision.h"
 #include "HAL.h"
 
+static int systemEnabled=false;
+
+void rpcEnable() {
+  systemEnabled=true;
+  ESP_LOGI(TAG, "System Enabled");
+  jsonAddObject("result","System Enabled");
+  } 
+
+void rpcDisable() {
+  systemEnabled=false;
+  ESP_LOGI(TAG, "System Disabled");
+  jsonAddObject("result","System Disabled");
+  } 
+  
 void sysGetInfo(void) {
 
   char ipbuf[20],rutbuf[20];

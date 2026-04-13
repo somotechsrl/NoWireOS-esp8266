@@ -4,5 +4,7 @@
 // ****************************
 // src/20-rpc-utils.cpp prototypes
 // ****************************
+void rpcEnable();
+void rpcDisable();
 void sysGetInfo(void);
 #endif
