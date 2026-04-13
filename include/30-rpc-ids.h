@@ -11,6 +11,8 @@ enum RPC_ids {
 ,CFG_Modbus_AddCall
 ,CFG_Modbus_Timeout
 ,CFG_Timestep
+,RPC_Disable
+,RPC_Enable
 ,RPC_List
 ,RPC_Trigger
 ,Sys_Cancel_Reboot

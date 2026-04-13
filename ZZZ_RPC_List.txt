@@ -10,6 +10,8 @@ CFG.Timestep
 
 RPC.List
 RPC.Trigger
+RPC.Enable
+RPC.Disable
 
 CFG.LOG.Mqtt
 CFG.LOG.Local

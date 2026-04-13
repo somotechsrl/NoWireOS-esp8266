@@ -196,6 +196,7 @@ void modbusMasterTask() {
       //end read time and add to json response
       uint32_t endTime = millis();
       jsonAddObject("read_time_ms", endTime - startTime);
+      ESP_LOGI(TAG, "Completed Modbus Master Task for config: %s, read time: %lu ms", conf->tag, endTime - startTime);
 
       // block opened in loop, should be called after processing all calls to ensure json is properly closed for mqtt transmission
       jsonCloseAll(); // ensure all blocks are closed, in case of config errors that may cause block structure issues
