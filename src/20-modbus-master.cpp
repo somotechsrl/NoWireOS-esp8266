@@ -121,7 +121,7 @@ return &conf;
 void modbusMasterTask() {
 
     // check if Dataloggin is remotely enabled
-    if(!modbusIsEnabled()) {
+    if(!rpcIsEnabled("modbus")) {
         ESP_LOGW(TAG, "Modbus Master Task is disabled, skipping execution");
         return;
         }

@@ -11,5 +11,5 @@ uint8_t getDigitalPin(uint8_t sequence);
 uint8_t getAnalogPin(uint8_t sequence);
 uint8_t getPinNumber(String pinid);
 uint8_t getPinUsage(String pinid);
-void sendGPIO();
+void gpioMasterTask();
 #endif

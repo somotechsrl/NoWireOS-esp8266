@@ -1,5 +1,7 @@
 #include "main.h"
 #include "10-encoder.h"
+#include "20-rpc-utils.h"
+#include "20-mqtt.h"
 
 // DIO and AIO maps and configs
 static uint8_t adc[] = ANALOGS, dio[] = DIGITAL;
@@ -12,15 +14,15 @@ void gpioJsonStatus() {
 
   // Digital
   jsonAddArray("DIO");
-  for (int pin = 0; pin < sizeof(dio); pin++) {
+  for (uint8_t pin = 0; pin < sizeof(dio); pin++) {
     jsonAddValue(digitalRead(dio[pin]));
-    //digital |= digitalRead(dio[pin]) << pin;
+    digital |= digitalRead(dio[pin]) << pin;
   }
   jsonClose();
 
   // Analogs
   jsonAddArray("ADC");
-  for (int pin = 0; pin < sizeof(adc); pin++) {
+  for (uint8_t pin = 0; pin < sizeof(adc); pin++) {
     jsonAddValue((uint16_t)analogRead(adc[pin]));
   }
   jsonClose();
@@ -30,19 +32,20 @@ void gpioJsonStatus() {
 // return formatted json string from gpio
 // digiatl pins are returned as bitwise int
 void gpioJsonModes() {
-
+    
   uint32_t digital = 0;
 
   // calculates json string ase registers
   jsonAddArray("DIO");
-  for (int pin = 0; pin < sizeof(dio); pin++) {
-    jsonAddValue(getPinMode(dio[pin]));
+  for (uint8_t pin = 0; pin < sizeof(dio); pin++) {
+    jsonAddValue(digitalRead(dio[pin]));
+    digital |= digitalRead(dio[pin]) << pin;
   }
   jsonClose();
 
   jsonAddArray("ADC");
-  for (int pin = 0; pin < sizeof(adc); pin++) {
-    jsonAddValue(getPinMode(dio[pin]));
+  for (uint8_t pin = 0; pin < sizeof(adc); pin++) {
+    jsonAddValue(analogRead(adc[pin]));
   }
   jsonClose();
 }
@@ -52,12 +55,12 @@ void gpioConfig() {
 
   // calculates json string ase registers
   jsonAddArray("DIO");
-  for (int pin = 0; pin < sizeof(dio); pin++) {
+  for (uint8_t pin = 0; pin < sizeof(dio); pin++) {
     jsonAddValue(dio[pin]);
   }
   jsonClose();
   jsonAddArray("ADC");
-  for (int pin = 0; pin < sizeof(adc); pin++) {
+  for (uint8_t pin = 0; pin < sizeof(adc); pin++) {
     jsonAddValue(adc[pin]);
   }
   jsonClose();
@@ -92,8 +95,8 @@ uint8_t getPinUsage(String pinid) {
 }
 
 // sends GPIO data
-void sendGPIO() {
-  if (configGetBit("GPIO")) {
+void gpioMasterTask() {
+  if (rpcIsEnabled("gpio")) {
     jsonInit();
     gpioJsonStatus();
     jsonCloseAll();

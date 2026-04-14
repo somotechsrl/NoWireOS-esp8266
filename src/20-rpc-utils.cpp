@@ -7,7 +7,7 @@
 
 #define TAG "RPCU"
 static int modbusEnabled=false,gpioEnable=false,sysInfoEnable=false;
-
+ 
 void rpcEnable(const char *type) {
   if(strcmp(type, "modbus") == 0) {
     modbusEnabled=true;
@@ -31,7 +31,6 @@ void rpcEnable(const char *type) {
   ESP_LOGW(TAG, "Unknown type for Enable: %s", type);
   jsonAddObject("result","ERROR: Unknown type for Enable: %s", type);
   }
-}
 
 void rpcDisable(const char *type) {
   if(strcmp(type, "modbus") == 0) {
