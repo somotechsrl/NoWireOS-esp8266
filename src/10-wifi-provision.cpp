@@ -13,8 +13,8 @@ static ESP8266WebServer server(80);
 #endif
 
 static struct  {
-    char ssid[32];
-    char password[64];
+    char ssid[64];
+    char password[128];
 } wifiConfig;
 
 
@@ -56,8 +56,8 @@ static void handleProvision() {
         String ssid = server.arg("ssid");
         String password = server.arg("password");
         
-        ssid.toCharArray(wifiConfig.ssid, 32);
-        password.toCharArray(wifiConfig.password, 64);
+        ssid.toCharArray(wifiConfig.ssid, 64);
+        password.toCharArray(wifiConfig.password, 128);
         
         EEPROM.put(0, wifiConfig);
         EEPROM.commit();
@@ -76,10 +76,21 @@ static void startProvisioningMode() {
     server.on("/provision", handleProvision);
     server.begin();
     
-    Serial.println("Provisioning Mode Started");
-    Serial.print("AP IP: ");
-    Serial.println(WiFi.softAPIP());
+    ESP_LOGI(TAG, "Provisioning Mode Started");
+    ESP_LOGI(TAG, "AP IP: %s", WiFi.softAPIP().toString().c_str());
+
+    ESP_LOGI(TAG, "Connect to 'NoWireOS-Setup' with password '12345678' to configure WiFi");
 }
+
+bool WiFiReset() {
+    memset(&wifiConfig, 0, sizeof(wifiConfig));
+    EEPROM.put(0, wifiConfig);
+    EEPROM.commit();
+    ESP_LOGI(TAG, "WiFi credentials cleared, restarting...");
+    ESP_LOGI(TAG, "Entering provisioning mode...");
+    startProvisioningMode();
+    return true;
+    }
 
 static void checkResetButton() {
     if (digitalRead(RESET_BUTTON_PIN) == LOW) {
@@ -87,11 +98,8 @@ static void checkResetButton() {
         if (digitalRead(RESET_BUTTON_PIN) == LOW) {
             delay(3000);
             if (digitalRead(RESET_BUTTON_PIN) == LOW) {
-                Serial.println("Reset button pressed - entering provisioning mode");
-                memset(&wifiConfig, 0, sizeof(wifiConfig));
-                EEPROM.put(0, wifiConfig);
-                EEPROM.commit();
-                startProvisioningMode();
+                ESP_LOGI(TAG, "Reset button pressed - entering provisioning mode");
+                WiFiReset();
             }
         }
     }
@@ -114,7 +122,14 @@ void netInit() {
 
     }
 
+
 bool wifiCheck() {
+
+    // Provisonig mode, not STA, handle provisioning server
+    if(WiFi.getMode() == WIFI_AP) {
+        server.handleClient();
+        return false;
+    }
 
     // Checks if Wifi is connected and reset button
     if(WiFi.status() == WL_CONNECTED) {
@@ -123,9 +138,21 @@ bool wifiCheck() {
         }
 
     // gets wifi config from EEPROM, if ssid is empty, enters provisioning mode
+    if(!EEPROM.begin(512)) {
+        ESP_LOGE(TAG, "Failed to initialize EEPROM");
+        startProvisioningMode();
+        server.handleClient();
+        return false;
+    }
+
+    // reads config from EEPROM, if ssid is empty, enters provisioning mode
     memset(&wifiConfig,0,sizeof(wifiConfig));
-    EEPROM.begin(512);
     EEPROM.get(0, wifiConfig);
+    if(strlen(wifiConfig.ssid) == 0 || strlen(wifiConfig.ssid) > 31) {
+        ESP_LOGW(TAG, "No WiFi or wrong credentials found, entering provisioning mode");
+        startProvisioningMode();
+        return false;
+    }
 
     // tries to connect to wifi, if fails after timeout, enters provisioning mode
     ESP_LOGI(TAG, "Connecting to WiFi '%s'...", wifiConfig.ssid);

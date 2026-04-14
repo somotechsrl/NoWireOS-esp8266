@@ -5,6 +5,7 @@
 // src/10-wifi-provision.cpp prototypes
 // ****************************
 const time_t *getTime();
+bool WiFiReset();
 void netInit();
 bool wifiCheck();
 #endif

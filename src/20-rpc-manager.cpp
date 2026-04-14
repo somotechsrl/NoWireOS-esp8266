@@ -152,7 +152,7 @@ void rpcManage(const char *payload, bool sync) {
     case Sys_WiFi_Disconnect:
       ESP_LOGI(TAG,"Disconnecting WiFi as per RPC command in %d ms", WIFIDISCONNECT_DELAY);
       jsonAddObject("Info","WiFi Disconnection Scheduled in %d s", WIFIDISCONNECT_DELAY/1000);
-      wifiDisconnect=true;
+      wifiRe
       break;
   
     // ************ Unknow management

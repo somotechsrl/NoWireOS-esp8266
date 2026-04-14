@@ -2,5 +2,6 @@
     "idf.currentSetup": "/home/localuser/.espressif/v6.0/esp-idf",
     "idf.customExtraVars": {
         "IDF_TARGET": "esp32"
-    }
+    },
+    "idf.port": "/dev/ttyUSB4"
 }
