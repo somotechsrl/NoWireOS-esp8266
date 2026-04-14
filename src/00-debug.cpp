@@ -33,7 +33,7 @@ static void log_serial(const char *type, const char *tag,const char *fmt, va_lis
 }
 
 // Custom debug function to send logs to MQTT
-void fESP_LOGI(const char *tag,const char* format, ...) {
+void ESP_LOGI(const char *tag,const char* format, ...) {
 
     va_list args;
     va_start(args, format);
@@ -42,7 +42,7 @@ void fESP_LOGI(const char *tag,const char* format, ...) {
     }   
 
 // Custom debug function to send logs to MQTT
-void fESP_LOGW(const char *tag,const char* format, ...) {
+void ESP_LOGW(const char *tag,const char* format, ...) {
 
     va_list args;
     va_start(args, format);
@@ -51,7 +51,7 @@ void fESP_LOGW(const char *tag,const char* format, ...) {
     }   
     
 // Custom debug function to send logs to MQTT
-void fESP_LOGE(const char *tag,const char* format, ...) {
+void ESP_LOGE(const char *tag,const char* format, ...) {
 
     va_list args;
     va_start(args, format);
