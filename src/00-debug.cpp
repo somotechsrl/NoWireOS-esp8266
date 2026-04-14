@@ -29,11 +29,11 @@ static void log_serial(const char *type, const char *tag,const char *fmt, va_lis
     vsnprintf(logmessage, sizeof(logmessage), fmt, args);
     snprintf(logfull,sizeof(logfull),"%s %s: %s", type, tag, logmessage);
 
-    Serial.printf("%s\n", logfull); // Print to serial for local debugging
+    Serial.println(logfull); // Print to serial for local debugging
 }
 
 // Custom debug function to send logs to MQTT
-void ESP_LOGI(const char *tag,const char* format, ...) {
+void fESP_LOGI(const char *tag,const char* format, ...) {
 
     va_list args;
     va_start(args, format);
@@ -42,7 +42,7 @@ void ESP_LOGI(const char *tag,const char* format, ...) {
     }   
 
 // Custom debug function to send logs to MQTT
-void ESP_LOGW(const char *tag,const char* format, ...) {
+void fESP_LOGW(const char *tag,const char* format, ...) {
 
     va_list args;
     va_start(args, format);
@@ -51,7 +51,7 @@ void ESP_LOGW(const char *tag,const char* format, ...) {
     }   
     
 // Custom debug function to send logs to MQTT
-void ESP_LOGE(const char *tag,const char* format, ...) {
+void fESP_LOGE(const char *tag,const char* format, ...) {
 
     va_list args;
     va_start(args, format);
@@ -72,7 +72,8 @@ void logger_serial() {
 void logger_default() {
     // Default logger, can be extended to send logs to MQTT or other remote logging service
     ESP_LOGI(TAG, "Default Logger Enabled");
-    esp_log_set_vsprintf(log_serial); // Set custom log function to send logs to MQTT
+    //esp_log_set_vsprintf(log_serial); // Set custom log function to send logs to MQTT
+    }
 void logger_off() {
     // Disable logging, can be extended to send logs to MQTT or other remote logging service
     ESP_LOGI(TAG, "Logging Disabled");

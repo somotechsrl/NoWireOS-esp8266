@@ -71,5 +71,9 @@ void logger_off();
 #ifdef ARDUINO_D1_MINI32
 #define BOARDID "esp32-mini"
 #endif
+#ifdef CONFIG_IDF_TARGET_ESP32S3
+#define BOARDID "esp32-s3-devkitc-1"
+
+#endif
 
 #endif

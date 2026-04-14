@@ -3,6 +3,7 @@
 #include "10-GPIO.h"
 #include "10-wifi-provision.h"
 #include "20-mqtt.h"
+#include "20-rpc-utils.h"
 
 // 10 msecs time step, can be adjusted as needed for more responsive behavior or lower power consumption
 #define TIME_INCREMENT 10

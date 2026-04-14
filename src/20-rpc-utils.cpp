@@ -91,6 +91,9 @@ bool rpcIsEnabled(const char *type) {
   if(strcmp(type, "gpio") == 0) {
     return gpioEnable;
   }
+  if(strcmp(type, "sysinfo") == 0) {
+    return sysInfoEnable;
+  } 
   ESP_LOGW(TAG, "Unknown type for IsEnabled: %s", type);
   return false;
 }
