@@ -1,4 +1,5 @@
 #include "main.h"
+#include "10-encoder.h"
 
 // DIO and AIO maps and configs
 static uint8_t adc[] = ANALOGS, dio[] = DIGITAL;

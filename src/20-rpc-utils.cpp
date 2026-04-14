@@ -6,9 +6,9 @@
 #include "HAL.h"
 
 #define TAG "RPCU"
-static int modbusEnabled=false,gpioEnable=false;
+static int modbusEnabled=false,gpioEnable=false,sysInfoEnable=false;
 
-void Enable(const char *type) {
+void rpcEnable(const char *type) {
   if(strcmp(type, "modbus") == 0) {
     modbusEnabled=true;
     ESP_LOGI(TAG, "Modbus Enabled");
@@ -17,8 +17,14 @@ void Enable(const char *type) {
   }
   if(strcmp(type, "gpio") == 0) {
     gpioEnable=true;
-    ESP_LOGI(TAG, "RPC Enabled");
-    jsonAddObject("result","RPC Enabled");
+    ESP_LOGI(TAG, "GPIO Enabled");
+    jsonAddObject("result","GPIO Enabled");
+    return;
+  }
+  if(strcmp(type, "sysinfo") == 0) {
+    sysInfoEnable=true;
+    ESP_LOGI(TAG, "Sysinfo Enabled");
+    jsonAddObject("result","Sysinfo Enabled");
     return;
   }
   
@@ -40,10 +46,45 @@ void rpcDisable(const char *type) {
     jsonAddObject("result","GPIO Disabled");
     return;
     }
+  if(strcmp(type, "sysinfo") == 0) {
+    sysInfoEnable=false;
+    ESP_LOGI(TAG, "Sysinfo Disabled");
+    jsonAddObject("result","Sysinfo Disabled");
+    return;
+    }
   ESP_LOGW(TAG, "Unknown type for Enable: %s", type);
   jsonAddObject("result","ERROR: Unknown type for Enable: %s", type);  
   } 
-  
+
+void rpcEnabled(const char *type) {
+  if(strcmp(type, "modbus") == 0) {
+    ESP_LOGI(TAG, "Modbus Enabled: %s", modbusEnabled ? "true" : "false");
+    jsonAddObject("result",modbusEnabled ? "true" : "false");
+    return;
+    }
+  if(strcmp(type, "gpio") == 0) {
+    ESP_LOGI(TAG, "GPIO Enabled: %s", gpioEnable ? "true" : "false");
+    jsonAddObject("result",gpioEnable ? "true" : "false");
+    return;
+    }
+  if(strcmp(type, "sysinfo") == 0) {
+    ESP_LOGI(TAG, "Sysinfo Enabled: %s", sysInfoEnable ? "true" : "false");
+    jsonAddObject("result",sysInfoEnable ? "true" : "false");
+    return;
+    } 
+  if(strcmp(type, "all") == 0) {
+    ESP_LOGI(TAG, "Modbus Enabled: %s", modbusEnabled ? "true" : "false");
+    ESP_LOGI(TAG, "GPIO Enabled: %s", gpioEnable ? "true" : "false");
+    ESP_LOGI(TAG, "Sysinfo Enabled: %s", sysInfoEnable ? "true" : "false");
+    jsonAddObject("modbus", modbusEnabled ? "true" : "false");
+    jsonAddObject("gpio", gpioEnable ? "true" : "false");
+    jsonAddObject("sysinfo", sysInfoEnable ? "true" : "false");
+    return;
+    }
+  ESP_LOGW(TAG, "Unknown type for Enabled: %s", type);
+  jsonAddObject("result","ERROR: Unknown type for Enabled: %s", type);  
+  }
+
 bool rpcIsEnabled(const char *type) {
   if(strcmp(type, "modbus") == 0) {
     return modbusEnabled;
