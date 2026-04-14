@@ -135,7 +135,7 @@ void sysGetInfo(void) {
 
 }
 
-void getInfoTask() {
+void sysGetInfoTask() {
     if(!rpcIsEnabled("sysinfo")) {
         ESP_LOGW(TAG, "Sysinfo Task is disabled, skipping execution");
         return;

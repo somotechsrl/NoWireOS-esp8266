@@ -9,5 +9,5 @@ void rpcDisable(const char *type);
 void rpcEnabled(const char *type);
 bool rpcIsEnabled(const char *type);
 void sysGetInfo(void);
-void getInfoTask();
+void sysGetInfoTask();
 #endif

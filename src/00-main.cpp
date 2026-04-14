@@ -47,6 +47,7 @@ void loop() {
             // TO DO ... different timings for each task
             modbusMasterTask();
             gpioMasterTask();
+            sysInfoMasterTask();
             cmillis = millis(); // Reset timer after reading Modbus
             }
 
