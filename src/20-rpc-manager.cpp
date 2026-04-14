@@ -153,7 +153,7 @@ void rpcManage(const char *payload, bool sync) {
     case Sys_WiFi_Disconnect:
       ESP_LOGI(TAG,"Disconnecting WiFi as per RPC command in %d ms", WIFIDISCONNECT_DELAY);
       jsonAddObject("Info","WiFi Disconnection Scheduled in %d s", WIFIDISCONNECT_DELAY/1000);
-      wifiReset();
+      wifiDisconnect=true;
       break;
   
     // ************ Unknow management
@@ -173,10 +173,12 @@ void rpcManage(const char *payload, bool sync) {
   ESP_LOGI(TAG, "%s", jsonGetBuffer());
   if(sync) mqttRpcUp(respid);
 
+  // Delayed actions based on RPC command, can be expanded later to include more complex actions as needed for robustness in real-world applications
+  // allow to send response before performing actions that may disrupt connectivity or require a delay for graceful shutdowns, such as WiFi disconnection or system reboot, can be adjusted as needed for more immediate actions or longer delays for graceful shutdowns in real-world applications
+
   // discnnect Wifi after response is sent to ensure we can send the response before disconnecting, can be expanded later to include more complex connection management as needed for robustness in real-world applications
   if(wifiDisconnect) {
     delay(WIFIDISCONNECT_DELAY); // delay to ensure response is sent before disconnecting, can be adjusted as needed for performance optimization in real-world applications
-    WiFi.disconnect(true);
-    ESP.restart(); // restart to ensure clean state after WiFi disconnection, can be expanded later to include more graceful shutdown procedures as needed for robustness in real-world applications
+    wifiReset(); // reset WiFi credentials and restart to ensure clean state, can be expanded later to include more graceful shutdown procedures as needed for robustness in real-world applications
     }
 }

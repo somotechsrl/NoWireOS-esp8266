@@ -82,7 +82,7 @@ static void startProvisioningMode() {
     ESP_LOGI(TAG, "Connect to 'NoWireOS-Setup' with password '12345678' to configure WiFi");
 }
 
-bool WiFiReset() {
+void wifiReset() {
     memset(&wifiConfig, 0, sizeof(wifiConfig));
     EEPROM.put(0, wifiConfig);
     EEPROM.commit();
