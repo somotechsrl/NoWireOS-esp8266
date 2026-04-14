@@ -5,6 +5,7 @@
 #include "revision.h"
 #include "HAL.h"
 
+#define TAG "RPCU"
 static int systemEnabled=false;
 
 void rpcEnable(const char *key) {

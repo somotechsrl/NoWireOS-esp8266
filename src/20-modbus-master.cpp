@@ -2,6 +2,7 @@
 #include "10-encoder.h"
 #include "10-modbus-tcp.h"
 #include "20-mqtt.h"
+#include "20-rpc-utils.h"
 #include "20-modbus-master.h"
 
 // Modbus configuration entry
@@ -120,7 +121,7 @@ return &conf;
 void modbusMasterTask() {
 
     // check if Dataloggin is remotely enabled
-    if(!rpcIsEnabled(RPC_Modbus)) {
+    if(!rpcIsEnabled()) {
         ESP_LOGW(TAG, "Modbus Master Task is disabled, skipping execution");
         return;
         }

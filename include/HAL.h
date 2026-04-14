@@ -31,6 +31,8 @@ void logger_off();
 #define GPIO_WIFI_RESET 4
 #define NEOPIXEL_PIN 16
 #define ONBOARD_LED 2
+#define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}
+#define ANALOGS  {A0,A3,A4,A5,A6,A7}
 #else
 #include "00-debug.h"
 // wifi and web server for provisioning
@@ -44,12 +46,15 @@ void logger_off();
 #define GPIO_WIFI_RESET D3
 #define NEOPIXEL_PIN D2
 #define ONBOARD_LED LED_BUILTIN
+#define DIGITAL  {D0,D1,D2,D4,D8}
+#define ANALOGS  {A0}
 #endif
 
 
 // Simgle machine string, will be surpassed by auto enumaraton of machine type in future, for now can be used for logging and debugging purposes
 #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
 #define BOARDID "d1mini"
+
 #endif
 #ifdef ARDUINO_ESP8266_NODEMCU
 #define BOARDID "nodemcu"
