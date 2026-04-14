@@ -44,10 +44,10 @@ void loop() {
         // mqtt active and time step reached, can be adjusted as needed for more responsive behavior or lower power consumption
         if(millis()-cmillis > timestep) {
             // calls modbus master task, reads config and executes
+            // TO DO ... different timings for each task
             modbusMasterTask();
             gpioMasterTask();
             cmillis = millis(); // Reset timer after reading Modbus
-            ESP_LOGI(TAG, "Modbus data read successfully, waiting %lu", timestep);
             }
 
         }

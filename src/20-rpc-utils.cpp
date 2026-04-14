@@ -135,3 +135,18 @@ void sysGetInfo(void) {
 
 }
 
+void getInfoTask() {
+    if(!rpcIsEnabled("sysinfo")) {
+        ESP_LOGW(TAG, "Sysinfo Task is disabled, skipping execution");
+        return;
+        }
+    jsonInit(); 
+    jsonAddObject("DEV","sysinfo"); 
+    jsonAddObject("BUS","internal");
+    jsonAddObject("DRV","sysinfo"); 
+    jsonAddObject("data");
+    sysGetInfo();
+    jsonCloseAll();
+    mqttUp();
+    ESP_LOGI(TAG, "System info sent successfully");
+    } 

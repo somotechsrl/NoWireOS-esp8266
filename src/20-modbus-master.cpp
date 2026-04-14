@@ -210,5 +210,6 @@ void modbusMasterTask() {
       mqttUp();
     } 
 
+  ESP_LOGI(TAG, "Completed Modbus Master Task for all configurations");
   }
 

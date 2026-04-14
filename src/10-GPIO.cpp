@@ -8,41 +8,18 @@
 static uint8_t adc[] = ANALOGS, dio[] = DIGITAL;
 
 // return formatted json string from gpio
-// digiatl pins are returned as bitwise int
-static void gpioJsonStatus() {
-
-  uint32_t digital = 0;
-
-  // Digital
-  jsonAddArray("DIO");
-  for (uint8_t pin = 0; pin < sizeof(dio); pin++) {
-    jsonAddValue(digitalRead(dio[pin]));
-    digital |= digitalRead(dio[pin]) << pin;
-  }
-  jsonClose();
-
-  // Analogs
-  jsonAddArray("ADC");
-  for (uint8_t pin = 0; pin < sizeof(adc); pin++) {
-    jsonAddValue((uint16_t)analogRead(adc[pin]));
-  }
-  jsonClose();
-
-}
-
-// return formatted json string from gpio
 static void gpioGetJsonData() {
     
     char name[BUFTINY]; 
 
     // calculates json string ase registers
     for (uint8_t pin = 0; pin < sizeof(dio); pin++) {
-        snprintf(name, sizeof(name), "D%02d", pin);
-        jsonAddObject(name,(digitalRead(dio[pin]);
+        snprintf(name, sizeof(name), "D%02d", dio[pin]);
+        jsonAddObject(name,(uint8_t)digitalRead(dio[pin]));
         }
     for (uint8_t pin = 0; pin < sizeof(adc); pin++) {
-        snprintf(name, sizeof(name), "A%02d", pin);
-        jsonAddObject(name,(uint16_t)analogRead(adc[pin]);
+        snprintf(name, sizeof(name), "A%02d", adc[pin]);
+        jsonAddObject(name,(uint16_t)analogRead(adc[pin]));
         }
 }   
 
@@ -50,19 +27,16 @@ static void gpioGetJsonData() {
 // digiatl pins are returned as bitwise int
 void gpioJsonModes() {
     
-  uint32_t digital = 0;
-
   // calculates json string ase registers
   jsonAddArray("DIO");
   for (uint8_t pin = 0; pin < sizeof(dio); pin++) {
-    jsonAdd(digitalRead(dio[pin]));
-    digital |= digitalRead(dio[pin]) << pin;
+    jsonAddValue((uint8_t)digitalRead(dio[pin]));
   }
   jsonClose();
 
   jsonAddArray("ADC");
   for (uint8_t pin = 0; pin < sizeof(adc); pin++) {
-    jsonAddValue(analogRead(adc[pin]));
+    jsonAddValue((uint16_t)analogRead(adc[pin]));
   }
   jsonClose();
 }
@@ -129,4 +103,5 @@ void gpioMasterTask() {
     gpioGetJsonData();
     jsonCloseAll();
     mqttUp();
+    ESP_LOGI(TAG, "Completed GPIO Master Task");
 }
