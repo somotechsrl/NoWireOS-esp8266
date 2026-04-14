@@ -7,6 +7,7 @@
 #include "20-mqtt.h"
 #include "20-rpc-utils.h"
 #include "20-modbus-master.h"
+#include "10-wifi-provision.h"
 
 #define TAG "RPC"
 #define WIFIDISCONNECT_DELAY 10000 // delay before disconnecting WiFi as per RPC command, can be adjusted as needed for more immediate disconnection or longer delay for graceful shutdowns in real-world applications
@@ -152,7 +153,7 @@ void rpcManage(const char *payload, bool sync) {
     case Sys_WiFi_Disconnect:
       ESP_LOGI(TAG,"Disconnecting WiFi as per RPC command in %d ms", WIFIDISCONNECT_DELAY);
       jsonAddObject("Info","WiFi Disconnection Scheduled in %d s", WIFIDISCONNECT_DELAY/1000);
-      wifiRe
+      wifiReset();
       break;
   
     // ************ Unknow management
