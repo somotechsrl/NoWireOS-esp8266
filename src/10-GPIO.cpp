@@ -4,11 +4,12 @@
 #include "20-mqtt.h"
 
 // DIO and AIO maps and configs
+#define TAG "GPIO"
 static uint8_t adc[] = ANALOGS, dio[] = DIGITAL;
 
 // return formatted json string from gpio
 // digiatl pins are returned as bitwise int
-void gpioJsonStatus() {
+static void gpioJsonStatus() {
 
   uint32_t digital = 0;
 
@@ -30,6 +31,22 @@ void gpioJsonStatus() {
 }
 
 // return formatted json string from gpio
+static void gpioGetJsonData() {
+    
+    char name[BUFTINY]; 
+
+    // calculates json string ase registers
+    for (uint8_t pin = 0; pin < sizeof(dio); pin++) {
+        snprintf(name, sizeof(name), "D%02d", pin);
+        jsonAddObject(name,(digitalRead(dio[pin]);
+        }
+    for (uint8_t pin = 0; pin < sizeof(adc); pin++) {
+        snprintf(name, sizeof(name), "A%02d", pin);
+        jsonAddObject(name,(uint16_t)analogRead(adc[pin]);
+        }
+}   
+
+// return formatted json string from gpio
 // digiatl pins are returned as bitwise int
 void gpioJsonModes() {
     
@@ -38,7 +55,7 @@ void gpioJsonModes() {
   // calculates json string ase registers
   jsonAddArray("DIO");
   for (uint8_t pin = 0; pin < sizeof(dio); pin++) {
-    jsonAddValue(digitalRead(dio[pin]));
+    jsonAdd(digitalRead(dio[pin]));
     digital |= digitalRead(dio[pin]) << pin;
   }
   jsonClose();
@@ -96,10 +113,20 @@ uint8_t getPinUsage(String pinid) {
 
 // sends GPIO data
 void gpioMasterTask() {
-  if (rpcIsEnabled("gpio")) {
+
+    // check if Dataloggin is remotely enabled
+    if(!rpcIsEnabled("gpio")) {
+        ESP_LOGW(TAG, "GPIO Master Task is disabled, skipping execution");
+        return;
+        }
+
     jsonInit();
-    gpioJsonStatus();
+    // init json block for new server, if same server as previous call, will aggregate into same block
+    jsonAddObject("DEV","gpio");
+    jsonAddObject("BUS","local");
+    jsonAddObject("DRV","gpio");
+    jsonAddObject("data");
+    gpioGetJsonData();
     jsonCloseAll();
     mqttUp();
-  }
 }

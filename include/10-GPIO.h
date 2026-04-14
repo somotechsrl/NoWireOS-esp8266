@@ -4,7 +4,6 @@
 // ****************************
 // src/10-GPIO.cpp prototypes
 // ****************************
-void gpioJsonStatus();
 void gpioJsonModes();
 void gpioConfig();
 uint8_t getDigitalPin(uint8_t sequence);

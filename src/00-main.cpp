@@ -1,5 +1,6 @@
 #include "main.h"
 #include "20-modbus-master.h"
+#include "10-GPIO.h"
 #include "10-wifi-provision.h"
 #include "20-mqtt.h"
 
@@ -44,6 +45,7 @@ void loop() {
         if(millis()-cmillis > timestep) {
             // calls modbus master task, reads config and executes
             modbusMasterTask();
+            gpioMasterTask();
             cmillis = millis(); // Reset timer after reading Modbus
             ESP_LOGI(TAG, "Modbus data read successfully, waiting %lu", timestep);
             }
