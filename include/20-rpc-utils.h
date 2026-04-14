@@ -6,5 +6,6 @@
 // ****************************
 void Enable(const char *type);
 void rpcDisable(const char *type);
+bool rpcIsEnabled(const char *type);
 void sysGetInfo(void);
 #endif

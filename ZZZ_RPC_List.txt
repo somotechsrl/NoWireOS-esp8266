@@ -12,6 +12,7 @@ RPC.List
 RPC.Trigger
 RPC.Enable
 RPC.Disable
+RPC.Enabled
 
 CFG.LOG.Mqtt
 CFG.LOG.Local

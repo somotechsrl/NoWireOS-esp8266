@@ -13,6 +13,7 @@ enum RPC_ids {
 ,CFG_Timestep
 ,RPC_Disable
 ,RPC_Enable
+,RPC_Enabled
 ,RPC_List
 ,RPC_Trigger
 ,Sys_Cancel_Reboot

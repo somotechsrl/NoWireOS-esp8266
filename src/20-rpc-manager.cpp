@@ -107,6 +107,9 @@ void rpcManage(const char *payload, bool sync) {
       case RPC_Disable:
         rpcDisable(rpc_params);
         break;
+      case RPC_Enabled:
+        rpcIsEnabled(rpc_params);
+        break;
       case RPC_Trigger:
         if(!strcmp(rpc_params,"modbus")) {
           jsonAddObject("value","OK: Modbus Triggered");

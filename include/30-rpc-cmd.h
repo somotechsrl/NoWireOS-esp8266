@@ -13,6 +13,7 @@ static const char *RPC_cmd[] = {
 ,"CFG.Timestep"
 ,"RPC.Disable"
 ,"RPC.Enable"
+,"RPC.Enabled"
 ,"RPC.List"
 ,"RPC.Trigger"
 ,"Sys.Cancel.Reboot"

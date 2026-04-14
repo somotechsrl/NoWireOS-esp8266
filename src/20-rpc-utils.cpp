@@ -44,6 +44,17 @@ void rpcDisable(const char *type) {
   jsonAddObject("result","ERROR: Unknown type for Enable: %s", type);  
   } 
   
+bool rpcIsEnabled(const char *type) {
+  if(strcmp(type, "modbus") == 0) {
+    return modbusEnabled;
+  }
+  if(strcmp(type, "gpio") == 0) {
+    return gpioEnable;
+  }
+  ESP_LOGW(TAG, "Unknown type for IsEnabled: %s", type);
+  return false;
+}
+
 void sysGetInfo(void) {
 
   char ipbuf[20],rutbuf[20];
