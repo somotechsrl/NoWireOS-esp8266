@@ -2,6 +2,7 @@
 #include <EEPROM.h>
 
 #define TAG "WIFI_PROV"
+#ifdef USEWIFI
 
 // Wifi stuff platform specific
 #ifdef ESP32
@@ -122,7 +123,7 @@ void netInit() {
     }
 
 
-bool wifiCheck() {
+bool netCheck() {
 
     // Provisonig mode, not STA, handle provisioning server
     if(WiFi.getMode() == WIFI_AP) {
@@ -171,3 +172,4 @@ bool wifiCheck() {
     return false;
     }
 
+#endif

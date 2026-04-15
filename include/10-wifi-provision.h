@@ -7,5 +7,5 @@
 const time_t *getTime();
 void wifiReset();
 void netInit();
-bool wifiCheck();
+bool netCheck();
 #endif

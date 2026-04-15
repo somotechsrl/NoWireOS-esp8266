@@ -96,6 +96,7 @@ void gpioMasterTask() {
 
     jsonInit();
     // init json block for new server, if same server as previous call, will aggregate into same block
+    jsonAddObject("SEQ",(uint8_t)0);
     jsonAddObject("DEV","gpio");
     jsonAddObject("BUS","local");
     jsonAddObject("DRV","gpio");

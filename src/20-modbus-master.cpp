@@ -4,7 +4,6 @@
 #include "20-mqtt.h"
 #include "20-rpc-utils.h"
 #include "20-modbus-master.h"
-#include "time.h"
 
 // Modbus configuration entry
 #define XTAG 32
@@ -145,7 +144,7 @@ void modbusMasterTask() {
     ESP_LOGI(TAG, "Starting Modbus Master Task -- active configurations: %d", amodbus_cnt);
 
     // replace loop with connector loop RTU/TCP
-    for(int i=0;i<amodbus_cnt;i++) {
+    for(uint8_t i=0;i<amodbus_cnt;i++) {
       
       jsonInit();
 
@@ -160,6 +159,7 @@ void modbusMasterTask() {
       uint32_t startTime = millis();
 
       // init json block for new server, if same server as previous call, will aggregate into same block
+      jsonAddObject("SEQ",i);
       jsonAddObject("DEV",conf->tag);
       jsonAddObject("BUS",conf->ad);
       jsonAddObject("DRV","modbus");

@@ -5,6 +5,8 @@
 #include "20-rpc-manager.h"
 #include "10-wifi-provision.h"
 
+#ifdef USEWIFI
+
 // Default server and port, can be overridden by config or other means
 //static const char *broker = "rpc.somotech.it";
 //static uint16_t port=8893;
@@ -132,3 +134,5 @@ void mqttRpcUp(String responseID) {
   snprintf(topic, TSIZE, "nowireos/%s/%s/rpc/%s", BOARDID, uuid.c_str(), responseID.c_str());
   mqttSend(topic,jsonGetBase64());
 }
+
+#endif

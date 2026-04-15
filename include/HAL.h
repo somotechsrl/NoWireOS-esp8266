@@ -24,6 +24,7 @@ void logger_off();
 #include "WebServer.h"
 #include "esp_log.h"
 // other macros
+#define USEWIFI 1   
 #define ARCH "ESP32"
 #define BUFSIZE 2048
 #define BUFTINY 512
@@ -39,6 +40,7 @@ void logger_off();
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 // other macros
+#define USEWIFI 1
 #define ARCH "ESP8266"
 #define BUFSIZE 1536
 #define BUFTINY 256
