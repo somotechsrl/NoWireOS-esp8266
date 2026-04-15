@@ -159,11 +159,11 @@ void modbusMasterTask() {
       uint32_t startTime = millis();
 
       // init json block for new server, if same server as previous call, will aggregate into same block
-      jsonAddObject("SEQ",i);
-      jsonAddObject("DEV",conf->tag);
-      jsonAddObject("BUS",conf->ad);
-      jsonAddObject("DRV","modbus");
-      jsonAddObject("data");
+      jsonAddObject("SEQ",i); // sequence 0 means start of payloads. Used by receiver for sync timekeeping      
+      jsonAddObject("DEV",conf->tag);   // dev_id
+      jsonAddObject("BUS",conf->ad);    // device address (tcp|rtu:host:port:unit)
+      jsonAddObject("DRV","modbus");    // always 'modbus' for this task
+      jsonAddObject("data");            // data section for calls results
 
       // extract modbus call parameters from call->ad 
       if(sscanf(conf->ad, "%31[^':']:%31[^':']:%hu:%hu", server_type, server_host, &server_port, &server_unit_id) != 4) {

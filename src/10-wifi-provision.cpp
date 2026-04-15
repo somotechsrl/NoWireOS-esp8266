@@ -2,6 +2,8 @@
 #include <EEPROM.h>
 
 #define TAG "WIFI_PROV"
+
+// Standard WiFi provisioning code for ESP8266, can be extended to include additional features such as multiple network support, captive portal, or integration with external services for more advanced provisioning options
 #ifdef USEWIFI
 
 // Wifi stuff platform specific

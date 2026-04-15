@@ -5,6 +5,22 @@
 #include "20-rpc-manager.h"
 #include "10-wifi-provision.h"
 
+/*
+
+Notes on this module:
+
+  Entry point is mqttInit() called in setup(), which initializes the MQTT client and sets the message callback. The actual connection to the MQTT broker is handled in mqttPoll(), which is called in the main loop after checking for WiFi connectivity. This ensures that the MQTT connection is established only after WiFi is connected, and allows for automatic reconnection if the connection drops.
+  send/receive functions are implemented as mqttUp() for sending data to the broker, and messageReceived() as the callback for handling incoming messages. The messageReceived() function checks the topic of incoming messages and sets a flag if it's an RPC request, which is then handled in the main loop to avoid potential deadlocks from trying to publish from within the MQTT callback. This allows for asynchronous handling of RPC requests and responses without blocking the MQTT client.
+  The mqttReconnect() function is responsible for establishing a connection to the MQTT broker, and includes retry logic with a timeout to prevent infinite blocking if the broker is unreachable. It also handles subscribing to the necessary topics once a
+  connection is established. This function is called from mqttPoll() to ensure that the MQTT client is always connected when trying to publish or handle messages.  
+
+  Working on a Lora version with work almost same way, but using lora instead of wifi, and a different MQTT client library that supports Lora communication, this will allow for more flexible deployment options in environments where WiFi is not available or reliable, while still maintaining the same MQTT-based communication pattern for consistency across different network types.
+
+  #define USEWIFI is used to conditionally compile the MQTT-related code, allowing for easy exclusion of this functionality in builds where WiFi is not needed or available, such as in a Lora-only version of the firmware. This helps to keep the codebase clean and efficient by only including the necessary components for each specific deployment scenario.
+
+*/
+
+// Standard WiFi MQTT client implementation, can be extended later to include Lora MQTT client or other types of clients as needed for more flexible communication options in different deployment scenarios
 #ifdef USEWIFI
 
 // Default server and port, can be overridden by config or other means
@@ -59,7 +75,7 @@ static bool mqttReconnect() {
   if(mqttClient.connected()) return true;
 
    // no wifi...
-  if(!wifiCheck()) return false;
+  if(!netCheck()) return false;
 
   uint8_t attempt=0;
   uint32_t timeout=millis()+2000;
