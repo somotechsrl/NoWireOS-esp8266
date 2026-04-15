@@ -4,16 +4,20 @@
 #include "10-wifi-provision.h"
 #include "20-mqtt.h"
 #include "20-rpc-utils.h"
+#include "time.h"
+
 
 // 10 msecs time step, can be adjusted as needed for more responsive behavior or lower power consumption
 #define TIME_INCREMENT 10
 
+#define NTP_UPDATE_INTERVAL 3600000 // 1 hour in milliseconds, can be adjusted as needed for more frequent updates or lower network traffic in real-world applications
 
 // TAG for logging
 #define TAG "MAIN"
 
 void setup() {
    
+
     //init serial speed
     Serial.begin(115200);
     logger_serial(); 
@@ -27,11 +31,13 @@ void setup() {
 void loop() {
 
     // time stepper
-    static uint64_t cmillis=millis();
+    static uint64_t mbumillis=millis();
+    static uint64_t sysmillis=millis();
+    static uint64_t ntpmillis=millis();
 
  
-    if(millis()<cmillis) {
-        cmillis=millis(); // reset timer if overflow
+    if(millis()<mbumillis) {
+        mbumillis=millis(); // reset timer if overflow
         }
 
     //ESP_LOGI(TAG, "Checking WiFi and MQTT status...");
@@ -42,14 +48,33 @@ void loop() {
         mqttPoll();
         delay(100);
 
+        // ntp update, can be adjusted as needed for more frequent updates or lower network traffic in real-world applications
+        if(millis()-ntpmillis > NTP_UPDATE_INTERVAL) {
+             ntpmillis = millis(); // Reset timer after NTP update 
+            }
+
         // mqtt active and time step reached, can be adjusted as needed for more responsive behavior or lower power consumption
-        if(millis()-cmillis > timestep) {
+        if(millis()-mbumillis > mbutimestep) {
             // calls modbus master task, reads config and executes
             // TO DO ... different timings for each task
             modbusMasterTask();
+            }
+
+        // default system timestep is 5min, will be changed 
+        // see rpcmanager module for dynamic configuration via RPC, can be adjusted as needed for more frequent updates or lower network traffic in real-world applications        
+        if(millis()-sysmillis > systimestep) {
             gpioMasterTask();
             sysGetInfoTask();
-            cmillis = millis(); // Reset timer after reading Modbus
+            sysmillis  = millis(); // Reset timer after reading Modbus
+            }
+
+        // mqtt active and time step reached, can be adjusted as needed for more responsive behavior or lower power consumption
+        // see rpcmanager module for dynamic configuration via RPC, can be adjusted as needed for more frequent updates or lower network traffic in real-world applications
+        if(millis()-mbumillis > mbutimestep) {
+            // calls modbus master task, reads config and executes
+            // TO DO ... different timings for each task
+            modbusMasterTask();
+            mbumillis = millis(); // Reset timer after reading Modbus
             }
 
         }

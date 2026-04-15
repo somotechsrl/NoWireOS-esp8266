@@ -10,4 +10,5 @@ void ledToggle();
 void LedOn();
 void LedOff();
 void ledBlink();
+bool ntpSet();
 #endif

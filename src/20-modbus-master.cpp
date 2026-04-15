@@ -4,6 +4,7 @@
 #include "20-mqtt.h"
 #include "20-rpc-utils.h"
 #include "20-modbus-master.h"
+#include "time.h"
 
 // Modbus configuration entry
 #define XTAG 32
@@ -131,6 +132,9 @@ void modbusMasterTask() {
         ESP_LOGW(TAG, "MQTT not connected, skipping Modbus Master Task");
         return;
         }
+
+    // gets reference timestamp
+    
 
     modbus_config *conf;
 

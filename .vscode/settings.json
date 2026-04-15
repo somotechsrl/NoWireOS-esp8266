@@ -3,5 +3,5 @@
     "idf.customExtraVars": {
         "IDF_TARGET": "esp32"
     },
-    "idf.port": "/dev/ttyUSB4"
+    "idf.port": "/dev/ttyUSB1"
 }

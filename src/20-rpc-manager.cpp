@@ -8,12 +8,13 @@
 #include "20-rpc-utils.h"
 #include "20-modbus-master.h"
 #include "10-wifi-provision.h"
+#include "time.h"
 
 #define TAG "RPC"
 #define WIFIDISCONNECT_DELAY 10000 // delay before disconnecting WiFi as per RPC command, can be adjusted as needed for more immediate disconnection or longer delay for graceful shutdowns in real-world applications
 bool trigger = false;
-uint64_t timestep=10000; // default 10 secs, can be adjusted as needed for more frequent updates or lower network traffic
-
+uint64_t mbutimestep=10000; // Modbus timestep
+uint64_t systimestep=300000; // System info timestep
 
 // retrives command sequence if for switch/case
 static int getCommandID(const char *rpcmd) {
@@ -86,11 +87,11 @@ void rpcManage(const char *payload, bool sync) {
       break;
     case CFG_Timestep:
       // timestep is received in s, converted in ms
-      if (*rpc_params) timestep = atoi(rpc_params)*1000;
-      jsonAddObject("value", (uint32_t)timestep/1000);
+      if (*rpc_params) mbutimestep = atoi(rpc_params)*1000;
+      jsonAddObject("value", (uint32_t)mbutimestep/1000);
       break;
-      case CFG_LOG_Mqtt:
-        logger_mqtt();
+    case CFG_LOG_Mqtt:
+      logger_mqtt();
         jsonAddObject("value","MQTT Logger Enabled");
         break;
       case CFG_LOG_Local:

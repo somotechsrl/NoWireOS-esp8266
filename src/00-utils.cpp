@@ -77,7 +77,23 @@ void ledBlink() {
     }
 }
 
+// updates time and return time value
+#define NTP_CHECK_TIME 8*3600*2 // 2 days in seconds, used to check if time is set before 1970, can be adjusted as needed for more accurate checks in real-world applications
+bool ntpSet() {
+    ESP_LOGI(TAG, "Updating NTP time...");      
+    time_t now = time(nullptr);
+    if (now < NTP_CHECK_TIME) { // if time is before 1970, update time
+        configTime(0, 0, NTP_SERVER);
+        time_t now = time(nullptr);
+        while (now < NTP_CHECK_TIME) {
+            delay(500);
+            now = time(nullptr);
+            ESP_LOGI(TAG, "Waiting for NTP time sync...");
+        }
 
+    time_t now = time(nullptr);
+    return now >= NTP_CHECK_TIME; // checks if time is set before 1970, can be adjusted as needed for more accurate checks in real-world applications
+    }
 
-
+    
     

@@ -5,7 +5,7 @@
 #define JBUFSIZE (BUFSIZE*2)
 
 // Json formatting utilities
-#define TAG "JSON"
+#define TAG "JSONENC"
 #define JLEVELS 10
 static char r[JBUFSIZE], *rp;
 static char s[JBUFSIZE];

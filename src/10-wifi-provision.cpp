@@ -89,7 +89,6 @@ void wifiReset() {
     ESP_LOGI(TAG, "WiFi credentials cleared, restarting...");
     ESP_LOGI(TAG, "Entering provisioning mode...");
     startProvisioningMode();
-    return true;
     }
 
 static void checkResetButton() {
@@ -99,7 +98,7 @@ static void checkResetButton() {
             delay(3000);
             if (digitalRead(RESET_BUTTON_PIN) == LOW) {
                 ESP_LOGI(TAG, "Reset button pressed - entering provisioning mode");
-                WiFiReset();
+                wifiReset();
             }
         }
     }
@@ -137,16 +136,9 @@ bool wifiCheck() {
         return true;
         }
 
-    // gets wifi config from EEPROM, if ssid is empty, enters provisioning mode
-    if(!EEPROM.begin(512)) {
-        ESP_LOGE(TAG, "Failed to initialize EEPROM");
-        startProvisioningMode();
-        server.handleClient();
-        return false;
-    }
-
     // reads config from EEPROM, if ssid is empty, enters provisioning mode
     memset(&wifiConfig,0,sizeof(wifiConfig));
+    EEPROM.begin(512);
     EEPROM.get(0, wifiConfig);
     if(strlen(wifiConfig.ssid) == 0 || strlen(wifiConfig.ssid) > 31) {
         ESP_LOGW(TAG, "No WiFi or wrong credentials found, entering provisioning mode");
