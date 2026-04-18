@@ -21,7 +21,7 @@ Notes on this module:
 */
 
 // Standard WiFi MQTT client implementation, can be extended later to include Lora MQTT client or other types of clients as needed for more flexible communication options in different deployment scenarios
-#ifdef USEWIFI
+#if defined(ESP32) || defined(ESP8266)
 
 // Default server and port, can be overridden by config or other means
 //static const char *broker = "rpc.somotech.it";
@@ -150,5 +150,16 @@ void mqttRpcUp(String responseID) {
   snprintf(topic, TSIZE, "nowireos/%s/%s/rpc/%s", BOARDID, uuid.c_str(), responseID.c_str());
   mqttSend(topic,jsonGetBase64());
 }
+
+#elif defined(CUBE_CELL)  
+
+// commond publish function
+void mqttUp() {
+}
+
+void mqttRpcUp(String responseID) {
+}
+
+
 
 #endif

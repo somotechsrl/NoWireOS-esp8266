@@ -4,11 +4,6 @@
 #include <Arduino.h>
 #include "HAL.h"
 
-
-// for ssl client, can be extended to include certificate handling as needed for more secure communication with MQTT broker or other services
-#include <WiFiClient.h>
-#include <WiFiClientSecure.h>
-
 #include <EEPROM.h>
 #include "HAL.h" 
 #include "00-utils.h"

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "00-debug.h"
 #include "main.h"   
 
 #define TAG "DEBUG"
