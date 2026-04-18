@@ -39,7 +39,7 @@ void mkDevKeys() {
   }
 }
 
-void downLinkDataHandle(McpsIndication_t *mcpsIndication) {
+static void downLinkDataHandle(McpsIndication_t *mcpsIndication) {
   ll.onDownlinkReceived(mcpsIndication);
   deviceState = DEVICE_STATE_SEND;
 }
