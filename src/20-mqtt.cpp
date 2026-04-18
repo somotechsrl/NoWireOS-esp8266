@@ -1,3 +1,6 @@
+// Cube Cell uses only LoRa, no wif, no mqtt, so this module is only compiled if CUBE_CELL is not defined, allowing for a clean separation of WiFi/MQTT functionality and LoRa functionality in the codebase, and ensuring that the appropriate code is included based on the target platform and its capabilities.
+#ifndef CUBE_CELL
+
 #include "main.h"
 #include "rBase64.h"
 #include "MQTT.h"
@@ -19,9 +22,6 @@ Notes on this module:
   #define USEWIFI is used to conditionally compile the MQTT-related code, allowing for easy exclusion of this functionality in builds where WiFi is not needed or available, such as in a Lora-only version of the firmware. This helps to keep the codebase clean and efficient by only including the necessary components for each specific deployment scenario.
 
 */
-
-// Standard WiFi MQTT client implementation, can be extended later to include Lora MQTT client or other types of clients as needed for more flexible communication options in different deployment scenarios
-#if defined(ESP32) || defined(ESP8266)
 
 // Default server and port, can be overridden by config or other means
 //static const char *broker = "rpc.somotech.it";

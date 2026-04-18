@@ -1,10 +1,10 @@
+// Thi module is used only for ESP8266 and ESP32, Cube Cell uses only LoRa, so this module is not compiled for Cube Cell builds, allowing for a clean separation of WiFi/MQTT functionality and LoRa functionality in the codebase, and ensuring that the appropriate code is included based on the target platform and its capabilities.
+#ifndef CUBE_CELL
+
 #include "main.h"
 #include <EEPROM.h>
 
 #define TAG "WIFI_PROV"
-
-// Standard WiFi provisioning code for ESP8266, can be extended to include additional features such as multiple network support, captive portal, or integration with external services for more advanced provisioning options
-#ifdef USEWIFI
 
 // Wifi stuff platform specific
 #ifdef ESP32

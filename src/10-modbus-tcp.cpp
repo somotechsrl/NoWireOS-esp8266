@@ -1,3 +1,6 @@
+// Modbus TCP client implementation for ESP32 and ESP8266, can be extended later to include additional features such as write functionality, support for more function codes, or more detailed error handling as needed for robustness in real-world applications --- IGNORE ---
+#ifndef CUBE_CELL
+
 #include "main.h"
 #include "10-encoder.h"
 
@@ -207,3 +210,4 @@ uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_addres
     return response;
 }
 
+#endif

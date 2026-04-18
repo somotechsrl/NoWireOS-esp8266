@@ -47,7 +47,7 @@
 #define TZ "GMT +1"
 
 // Include other necessary headers for the project, can be extended as needed for additional functionality
-#if defined(ESP32)
+#ifdef ESP32
 #include <Adafruit_NeoPixel.h>
 // for ssl client, can be extended to include certificate handling as needed for more secure communication with MQTT broker or other services
 #include <WiFiClient.h>
@@ -73,7 +73,9 @@ void logger_off();
 #define ONBOARD_LED 2
 #define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}
 #define ANALOGS  {A0,A3,A4,A5,A6,A7}
-#elif defined(ESP8266)
+#endif
+
+#ifdef ESP8266
 #include "00-debug.h"
 #include <Adafruit_NeoPixel.h>
 // wifi and web server for provisioning
@@ -93,15 +95,22 @@ void logger_off();
 #define ONBOARD_LED LED_BUILTIN
 #define DIGITAL  {D0,D1,D2,D4,D8}
 #define ANALOGS  {A0}
-#elif defined(CUBE_CELL)
-#include "LualtekCubecell.h"
+#endif
+
+#ifdef CUBE_CELL
+#include "00-debug.h"
+#include <Adafruit_NeoPixel.h>
+#include "20-mqtt-ttn.h"
+//#define USEWIFI 1
 #define ARCH "CUBE_CELL"
-#define BUFSIZE 512
-#define BUFTINY 128
+#define BUFSIZE 1536
+#define BUFTINY 256
+#define MODBUS_CONFIGS 10 // maximum number of Modbus configurations, can be adjusted as needed
+//#define GPIO_WIFI_RESET D3
+#define NEOPIXEL_PIN 2
 #define ONBOARD_LED 2
-#define MODBUS_CONFIGS 20 // maximum number of Modbus configurations, can be adjusted as  needed
-#define DIGITAL  {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}
-#define ANALOGS  {0}
+#define DIGITAL  {}
+#define ANALOGS  {}
 #endif
 
 #endif

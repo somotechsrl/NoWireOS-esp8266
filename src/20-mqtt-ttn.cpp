@@ -1,5 +1,6 @@
-#if defined(CUBE_CELL)
+#ifdef CUBE_CELL
 
+#include "00-debug.h"
 #include "LualtekCubecell.h"
 // #include <Seeed_BME280.h>
 #include <Wire.h>
@@ -25,7 +26,7 @@ int temperature, humidity, batteryVoltage, batteryLevel;
 long pressure;
 
 // Generates Device LoraWan OTAA Keys from chip Serial
-static void mkDevKeys() {
+void mkDevKeys() {
   uint64_t chipID = getID() << 16;
   uint8_t dk = 0x70, ak1 = 0x81, ak2 = 0x83, ck1 = 0x91, ck2 = 0x93, ak2offs = sizeof(devEui);
   memcpy(devEui, &chipID, sizeof(devEui));
@@ -38,13 +39,13 @@ static void mkDevKeys() {
   }
 }
 
-static void downLinkDataHandle(McpsIndication_t *mcpsIndication) {
+void downLinkDataHandle(McpsIndication_t *mcpsIndication) {
   ll.onDownlinkReceived(mcpsIndication);
   deviceState = DEVICE_STATE_SEND;
 }
 
 /* Prepares the payload of the frame */
-static void onSendUplink(uint8_t port) {
+void mqttUp(uint8_t port) {
   pinMode(Vext, OUTPUT);
   digitalWrite(Vext, LOW);
   delay(500);
@@ -99,7 +100,19 @@ static void onSendUplink(uint8_t port) {
   }
 }
 
-void cubecell_setup() {
+void mqttRpcUp(String responseID) {
+  // This function can be used to send RPC responses back to the server via LoRaWAN, can be extended later to include more detailed handling of different types of RPC responses, error handling, etc. as needed for robustness in real-world applications
+  appDataSize = payload.length() + responseID.length() + 2; // +2 for separator and null terminator
+  snprintf((char*)appData, appDataSize, "%s|%s", responseID.c_str(), payload.c_str());
+  if (DEBUG_SERIAL_ENABLED) {
+    debugSerial.print("Sending RPC response with ID: ");
+    debugSerial.print(resposeID);
+    debugSerial.print(" and payload: ");
+    debugSerial.println(payload);
+  }
+}
+
+void mqttInit() {
   if (DEBUG_SERIAL_ENABLED) {
     debugSerial.begin(9600);
   }
@@ -111,7 +124,7 @@ void cubecell_setup() {
   ll.join();
 }
 
-void cubecell_loop() {
+void mqttLoop() {
   ll.loop();
 }
 
