@@ -4,7 +4,6 @@
 // ****************************
 // src/20-mqtt-ttn.cpp prototypes
 // ****************************
-void mkDevKeys();
 void downLinkDataHandle(McpsIndication_t *mcpsIndication);
 void mqttUp();
 void mqttRpcUp(String responseID);

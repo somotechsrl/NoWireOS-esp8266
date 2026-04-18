@@ -25,9 +25,10 @@ int temperature, humidity, batteryVoltage, batteryLevel;
 long pressure;
 
 // Generates Device LoraWan OTAA Keys from chip Serial
-void mkDevKeys() {
+static void mkDevKeys() {
   uuid=mac="" + getID();
   uint64_t chipID = getID() << 16;
+  ESP_LOGI(TAG, "Generating LoRaWAN keys from chip ID: %016llX", chipID);
   uint8_t dk = 0x70, ak1 = 0x81, ak2 = 0x83, ck1 = 0x91, ck2 = 0x93, ak2offs = sizeof(devEui);
   memcpy(devEui, &chipID, sizeof(devEui));
   for (uint8_t i = 0; i < sizeof(devEui); i++) {
@@ -56,9 +57,8 @@ void mqttRpcUp(String responseID) {
   }
 
 void netInit() {
-  ESP_LOGI(TAG, "Initializing LoRaWAN Keys...");
+  ESP_LOGI(TAG, "Initializing Board Mcu...");
   boardInitMcu();
-  ESP_LOGI(TAG, "Generating device keys from chip ID...");
   mkDevKeys();
   ESP_LOGI(TAG, "Initializing LoRaWAN stack...");
   ll.setup();
