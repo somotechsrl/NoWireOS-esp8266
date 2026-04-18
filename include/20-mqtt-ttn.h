@@ -5,10 +5,10 @@
 // src/20-mqtt-ttn.cpp prototypes
 // ****************************
 void downLinkDataHandle(McpsIndication_t *mcpsIndication);
-void mqttUp();
-void mqttRpcUp(String responseID);
 void netInit();
 void mqttInit();
 bool netCheck();
 bool mqttPoll();
+void mqttUp();
+void mqttRpcUp(String responseID);
 #endif

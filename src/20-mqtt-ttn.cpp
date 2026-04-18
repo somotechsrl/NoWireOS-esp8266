@@ -15,14 +15,8 @@ uint8_t appKey[16];
 #define DEBUG_SERIAL_ENABLED 1
 /* Data transmission duty cycle.  value in [ms].*/
 #define DEFAULT_DUTY_CYCLE_MINUTES MINUTES_20_IN_MILLISECONDS
-/* Application port (BME280) */
-uint8_t appPort = 3;
 
 LualtekCubecell ll(CLASS_A, LORAMAC_REGION_EU868, MINUTES_20_COMMAND_INDEX);
-// BME280 bme280;
-
-int temperature, humidity, batteryVoltage, batteryLevel;
-long pressure;
 
 // Generates Device LoraWan OTAA Keys from chip Serial
 static void mkDevKeys() {
@@ -44,17 +38,6 @@ void downLinkDataHandle(McpsIndication_t *mcpsIndication) {
   ll.onDownlinkReceived(mcpsIndication);
   deviceState = DEVICE_STATE_SEND;
 }
-
-void mqttUp() {
-  // NOt yet implemented send Buffer64 to standard LoRa Port
-  ESP_LOGW(TAG,"Not Yet Implemented");
-  }
-
-void mqttRpcUp(String responseID) {
-    ESP_LOGI(TAG, "Publishing RPC response with ID: %s",responseID.c_str());
-    ESP_LOGI(TAG, "RPC response payload size: %d bytes", appDataSize);
-    ESP_LOGW(TAG, "Not Yet Implemented!!!");
-  }
 
 void netInit() {
   ESP_LOGI(TAG, "Initializing Board Mcu...");
@@ -78,5 +61,19 @@ bool mqttPoll() {
   ll.loop();
   return true;
 }
+
+void mqttUp() {
+  int appPort=1; // default application port for uplink, can be adjusted as needed for different applications or use cases
+  ESP_LOGW(TAG,"Not Yet Implemented");
+  }
+
+void mqttRpcUp(String responseID) {
+  int rpcPort=2; // default application port for RPC responses, can be adjusted as needed for different applications or use cases
+  ESP_LOGW(TAG,"Not Yet Implemented");
+  ESP_LOGI(TAG, "Publishing RPC response with ID: %s",responseID.c_str());
+  ESP_LOGI(TAG, "RPC response payload size: %d bytes", appDataSize);
+  ESP_LOGW(TAG, "Not Yet Implemented!!!");
+  }
+
 
 #endif
