@@ -114,8 +114,16 @@ void mqttRpcUp(String responseID) {
   }
 
 void netInit() {
+  ESP_LOGI(TAG, "Initializing LoRaWAN network...");
+  mkDevKeys();
+  ll.setup();
+  ll.join();
+}
+
+void mqttInit() {
   if (DEBUG_SERIAL_ENABLED) {
-    debugSerial.begin(9600);
+    ESP_LOGI(TAG, "Initializing serial debug...");
+    ESP_LOGI(TAG, "Serial debug started at 9600 baud");
   }
 
   boardInitMcu();

@@ -211,6 +211,14 @@ uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_addres
 }
 
 #else
+bool modbusTcpConnect(const char *host, int port, uint8_t unitId) {
+    ESP_LOGW(TAG, "Modbus TCP client functionality is not available on this platform");
+    return false;
+    }
+
+void modbusTcpDisconnect() {
+    ESP_LOGW(TAG, "Modbus TCP client functionality is not available on this platform");
+    }
 
 uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
     ESP_LOGW(TAG, "Modbus TCP client functionality is not available on this platform");

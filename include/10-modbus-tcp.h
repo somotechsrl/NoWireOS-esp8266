@@ -9,5 +9,7 @@ uint16_t getModbusTimeout();
 bool modbusTcpConnect(const char *host, int port, uint8_t unitId);
 void modbusTcpDisconnect();
 uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_address, uint16_t quantity);
+bool modbusTcpConnect(const char *host, int port, uint8_t unitId);
+void modbusTcpDisconnect();
 uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_address, uint16_t quantity);
 #endif
