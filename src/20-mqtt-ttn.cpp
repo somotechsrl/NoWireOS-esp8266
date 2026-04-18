@@ -126,6 +126,11 @@ void netInit() {
 }
 
 bool netCheck() {
+  // In LoRaWAN, the device is always "connected" after joining the network, so we can return true here. The actual communication status will be handled in the mqttUp function and the downlink handler.
+  return true;
+}
+
+bool mqttPoll() {
   ll.loop();
   return true;
 }

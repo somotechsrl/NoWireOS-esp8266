@@ -11,4 +11,5 @@ void mqttUp();
 void mqttRpcUp(String responseID);
 void netInit();
 bool netCheck();
+bool mqttPoll();
 #endif
