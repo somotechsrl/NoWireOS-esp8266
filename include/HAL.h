@@ -32,7 +32,7 @@
 #define ARCH "ESP32"
 #endif
 #ifdef CUBE_CELL
-#define BOARDID "cubecell"
+#define BOARDID "cubecell-board"
 #define ARCH "CUBE_CELL"
 #endif  
 
@@ -106,14 +106,19 @@ void logger_off();
 #include "20-mqtt-ttn.h"
 //#define USEWIFI 1
 #define ARCH "CUBE_CELL"
-#define BUFSIZE 1536
-#define BUFTINY 256
-#define MODBUS_CONFIGS 10 // maximum number of Modbus configurations, can be adjusted as needed
+#define SERIAL_SPEED 9600
+#define BUFSIZE 256
+#define BUFTINY 128
+#define MODBUS_CONFIGS 1 // maximum number of Modbus configurations, can be adjusted as needed
 //#define GPIO_WIFI_RESET D3
 #define NEOPIXEL_PIN 2
 #define ONBOARD_LED 2
-#define DIGITAL  {}
-#define ANALOGS  {}
+#define DIGITAL  {6,7,8,16,30,33,34}
+#define ANALOGS  {2}
+#endif
+
+#ifndef SERIAL_SPEED
+#define SERIAL_SPEED 115200 
 #endif
 
 #endif

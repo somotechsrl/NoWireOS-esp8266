@@ -16,7 +16,7 @@ void setup() {
    
 
     //init serial speed
-    Serial.begin(115200);
+    Serial.begin(SERIAL_SPEED);
     logger_serial(); 
 
     ESP_LOGI(TAG, "Booting up...");

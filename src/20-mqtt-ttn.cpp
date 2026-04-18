@@ -41,7 +41,7 @@ void mkDevKeys() {
   }
 }
 
-void downLinkDataHandle(McpsIndication_t *mcpsIndication) {
+static void downLinkDataHandle(McpsIndication_t *mcpsIndication) {
   ll.onDownlinkReceived(mcpsIndication);
   deviceState = DEVICE_STATE_SEND;
 }
@@ -114,24 +114,18 @@ void mqttRpcUp(String responseID) {
   }
 
 void netInit() {
-  ESP_LOGI(TAG, "Initializing LoRaWAN network...");
+  ESP_LOGI(TAG, "Initializing LoRaWAN Keys...");
+  boardInitMcu();
+  ESP_LOGI(TAG, "Generating device keys from chip ID...");
   mkDevKeys();
+  ESP_LOGI(TAG, "Initializing LoRaWAN stack...");
   ll.setup();
-  ll.join();
 }
 
 void mqttInit() {
-  if (DEBUG_SERIAL_ENABLED) {
-    ESP_LOGI(TAG, "Initializing serial debug...");
-    ESP_LOGI(TAG, "Serial debug started at 9600 baud");
-  }
-
-  boardInitMcu();
-  mkDevKeys();
-
-  ll.setup();
+  ESP_LOGI(TAG, "Joining LoRaWAN network...");
   ll.join();
-}
+ }
 
 bool netCheck() {
   // In LoRaWAN, the device is always "connected" after joining the network, so we can return true here. The actual communication status will be handled in the mqttUp function and the downlink handler.
