@@ -18,6 +18,8 @@ void setup() {
     //init serial speed
     Serial.begin(SERIAL_SPEED);
     logger_serial(); 
+    Serial.println();
+    Serial.println("NoWireOS Starting...");
 
     ESP_LOGI(TAG, "Booting up...");
 

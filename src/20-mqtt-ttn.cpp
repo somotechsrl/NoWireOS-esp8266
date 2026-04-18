@@ -18,8 +18,6 @@ uint8_t appKey[16];
 /* Application port (BME280) */
 uint8_t appPort = 3;
 
-#define debugSerial Serial
-
 LualtekCubecell ll(CLASS_A, LORAMAC_REGION_EU868, MINUTES_20_COMMAND_INDEX);
 // BME280 bme280;
 
@@ -41,7 +39,7 @@ void mkDevKeys() {
   }
 }
 
-static void downLinkDataHandle(McpsIndication_t *mcpsIndication) {
+void downLinkDataHandle(McpsIndication_t *mcpsIndication) {
   ll.onDownlinkReceived(mcpsIndication);
   deviceState = DEVICE_STATE_SEND;
 }
