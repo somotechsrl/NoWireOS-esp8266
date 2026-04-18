@@ -100,11 +100,13 @@ bool rpcIsEnabled(const char *type) {
 
 void sysGetInfo(void) {
 
+#ifndef CUBE_CELL
   char ipbuf[20],rutbuf[20];
   IPAddress ip = WiFi.localIP();
   sprintf(ipbuf, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
   ip = WiFi.gatewayIP();
   sprintf(rutbuf, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+#endif
 
   float uptime=(millis() / 1000.0f);
 
@@ -127,9 +129,11 @@ void sysGetInfo(void) {
   jsonAddObject("fw", REVISION);
   jsonAddObject("us", uptime);
   jsonAddObject("ut", buffer);
+#ifndef CUBE_CELL
   jsonAddObject("ip", ipbuf);
   jsonAddObject("gw", rutbuf);
   jsonAddObject("heap", ESP.getFreeHeap());
+#endif
 #ifdef __ESP32__
   String temp = String(temperatureRead());
   jsonAddObject("te", temp.c_str());

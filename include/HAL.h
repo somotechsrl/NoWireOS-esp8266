@@ -98,8 +98,11 @@ void logger_off();
 #endif
 
 #ifdef CUBE_CELL
-#include "00-debug.h"
+#include <Arduino.h>
+#include "LualtekCubecell.h"
+#include <Wire.h>
 #include <Adafruit_NeoPixel.h>
+#include "00-debug.h"
 #include "20-mqtt-ttn.h"
 //#define USEWIFI 1
 #define ARCH "CUBE_CELL"

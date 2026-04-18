@@ -151,15 +151,4 @@ void mqttRpcUp(String responseID) {
   mqttSend(topic,jsonGetBase64());
 }
 
-#elif defined(CUBE_CELL)  
-
-// commond publish function
-void mqttUp() {
-}
-
-void mqttRpcUp(String responseID) {
-}
-
-
-
 #endif

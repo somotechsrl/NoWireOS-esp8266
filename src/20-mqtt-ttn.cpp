@@ -1,9 +1,9 @@
 #ifdef CUBE_CELL
 
-#include "00-debug.h"
-#include "LualtekCubecell.h"
-// #include <Seeed_BME280.h>
-#include <Wire.h>
+#include "00-main.h"
+#include "HAL.h"
+
+#define TAG "MTTN"
 
 /* OTAA */
 uint8_t claimKey[16];
@@ -103,7 +103,7 @@ void mqttUp(uint8_t port) {
 void mqttRpcUp(String responseID) {
     ESP_LOGI(TAG, "Publishing RPC response with ID: %s",responseID.c_str());
     ESP_LOGI(TAG, "RPC response payload size: %d bytes", appDataSize);
-    ESP_LOGW("Not Yet Implemented!!!");
+    ESP_LOGW(TAG, "Not Yet Implemented!!!");
   }
 
 void mqttInit() {

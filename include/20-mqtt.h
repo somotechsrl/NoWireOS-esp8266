@@ -8,6 +8,4 @@ void mqttInit();
 bool mqttPoll();
 void mqttUp();
 void mqttRpcUp(String responseID);
-void mqttUp();
-void mqttRpcUp(String responseID);
 #endif
