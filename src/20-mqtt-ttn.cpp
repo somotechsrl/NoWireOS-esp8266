@@ -44,62 +44,6 @@ void downLinkDataHandle(McpsIndication_t *mcpsIndication) {
   deviceState = DEVICE_STATE_SEND;
 }
 
-/* Prepares the payload of the frame */
-void mqttUp(uint8_t port) {
-  pinMode(Vext, OUTPUT);
-  digitalWrite(Vext, LOW);
-  delay(500);
-
-  // while (!bme280.init()) {
-  //   if (DEBUG_SERIAL_ENABLED) {
-  //     debugSerial.println("Waiting for device...");
-  //   }
-  // }
-
-  // temperature = bme280.getTemperature();
-  // humidity = bme280.getHumidity();
-  // pressure = bme280.getPressure();
-
-  // Turn the power to the sensor off again
-  Wire.end();
-  digitalWrite(Vext, HIGH);
-
-  batteryVoltage = getBatteryVoltage();
-  batteryLevel = (BoardGetBatteryLevel() / 254) * 100;
-
-  appDataSize = 12;
-  appData[0] = highByte(temperature);
-  appData[1] = lowByte(temperature);
-
-  appData[2] = highByte(humidity);
-  appData[3] = lowByte(humidity);
-
-  appData[4] = (byte) ((pressure & 0xFF000000) >> 24 );
-  appData[5] = (byte) ((pressure & 0x00FF0000) >> 16 );
-  appData[6] = (byte) ((pressure & 0x0000FF00) >> 8  );
-  appData[7] = (byte) ((pressure & 0X000000FF)       );
-
-  appData[8] = highByte(batteryVoltage);
-  appData[9] = lowByte(batteryVoltage);
-
-  appData[10] = highByte(batteryLevel);
-  appData[11] = lowByte(batteryLevel);
-
-  if (DEBUG_SERIAL_ENABLED) {
-    debugSerial.print("Temperature: ");
-    debugSerial.print(temperature);
-    debugSerial.print("C, Humidity: ");
-    debugSerial.print(humidity);
-    debugSerial.print("%, Pressure: ");
-    debugSerial.print(pressure / 100);
-    debugSerial.print(" mbar, Battery Voltage: ");
-    debugSerial.print(batteryVoltage);
-    debugSerial.print(" mV, Battery Level: ");
-    debugSerial.print(batteryLevel);
-    debugSerial.println(" %");
-  }
-}
-
 void mqttUp() {
   // NOt yet implemented send Buffer64 to standard LoRa Port
   ESP_LOGW(TAG,"Not Yet Implemented");

@@ -6,7 +6,6 @@
 // ****************************
 void mkDevKeys();
 void downLinkDataHandle(McpsIndication_t *mcpsIndication);
-void mqttUp(uint8_t port);
 void mqttUp();
 void mqttRpcUp(String responseID);
 void netInit();
