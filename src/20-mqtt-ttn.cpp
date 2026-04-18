@@ -6,6 +6,7 @@
 #define TAG "MTTN"
 
 /* OTAA */
+String uuid, mac;
 uint8_t claimKey[16];
 uint8_t devEui[8];
 uint8_t appEui[8];
@@ -27,6 +28,7 @@ long pressure;
 
 // Generates Device LoraWan OTAA Keys from chip Serial
 void mkDevKeys() {
+  uuid=mac="" + getID();
   uint64_t chipID = getID() << 16;
   uint8_t dk = 0x70, ak1 = 0x81, ak2 = 0x83, ck1 = 0x91, ck2 = 0x93, ak2offs = sizeof(devEui);
   memcpy(devEui, &chipID, sizeof(devEui));
@@ -100,13 +102,18 @@ void mqttUp(uint8_t port) {
   }
 }
 
+void mqttUp() {
+  // NOt yet implemented send Buffer64 to standard LoRa Port
+  ESP_LOGW(TAG,"Not Yet Implemented");
+  }
+
 void mqttRpcUp(String responseID) {
     ESP_LOGI(TAG, "Publishing RPC response with ID: %s",responseID.c_str());
     ESP_LOGI(TAG, "RPC response payload size: %d bytes", appDataSize);
     ESP_LOGW(TAG, "Not Yet Implemented!!!");
   }
 
-void mqttInit() {
+void netInit() {
   if (DEBUG_SERIAL_ENABLED) {
     debugSerial.begin(9600);
   }
@@ -118,7 +125,7 @@ void mqttInit() {
   ll.join();
 }
 
-void mqttLoop() {
+void netCheck() {
   ll.loop();
 }
 

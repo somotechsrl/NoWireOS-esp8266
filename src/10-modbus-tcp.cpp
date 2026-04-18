@@ -1,15 +1,15 @@
 // Modbus TCP client implementation for ESP32 and ESP8266, can be extended later to include additional features such as write functionality, support for more function codes, or more detailed error handling as needed for robustness in real-world applications --- IGNORE ---
-#ifndef CUBE_CELL
-
 #include "main.h"
 #include "10-encoder.h"
+
+#define TAG "MBTCP"
+#define MODBUS_TCP_BUFFER  256
+
+#ifndef CUBE_CELL
 
 static WiFiClient client;
 static uint16_t transactionId;
 static uint16_t modbus_timeout_ms=2000; 
-
-#define TAG "MBTCP"
-#define MODBUS_TCP_BUFFER  256
 
 void setModbusTimeout(uint16_t timeout_ms) {
     // sets socket timeout for Modbus TCP client, can be used to adjust responsiveness and error handling in real-world applications
@@ -209,5 +209,12 @@ uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_addres
 
     return response;
 }
+
+#else
+
+uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
+    ESP_LOGW(TAG, "Modbus TCP client functionality is not available on this platform");
+    return NULL;
+    }   
 
 #endif
