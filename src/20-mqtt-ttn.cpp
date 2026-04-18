@@ -39,7 +39,7 @@ void mkDevKeys() {
   }
 }
 
-static void downLinkDataHandle(McpsIndication_t *mcpsIndication) {
+void downLinkDataHandle(McpsIndication_t *mcpsIndication) {
   ll.onDownlinkReceived(mcpsIndication);
   deviceState = DEVICE_STATE_SEND;
 }
@@ -101,16 +101,10 @@ void mqttUp(uint8_t port) {
 }
 
 void mqttRpcUp(String responseID) {
-  // This function can be used to send RPC responses back to the server via LoRaWAN, can be extended later to include more detailed handling of different types of RPC responses, error handling, etc. as needed for robustness in real-world applications
-  appDataSize = payload.length() + responseID.length() + 2; // +2 for separator and null terminator
-  snprintf((char*)appData, appDataSize, "%s|%s", responseID.c_str(), payload.c_str());
-  if (DEBUG_SERIAL_ENABLED) {
-    debugSerial.print("Sending RPC response with ID: ");
-    debugSerial.print(resposeID);
-    debugSerial.print(" and payload: ");
-    debugSerial.println(payload);
+    ESP_LOGI(TAG, "Publishing RPC response with ID: %s",responseID.c_str());
+    ESP_LOGI(TAG, "RPC response payload size: %d bytes", appDataSize);
+    ESP_LOGW("Not Yet Implemented!!!");
   }
-}
 
 void mqttInit() {
   if (DEBUG_SERIAL_ENABLED) {
