@@ -10,5 +10,5 @@ void mqttUp(uint8_t port);
 void mqttUp();
 void mqttRpcUp(String responseID);
 void netInit();
-void netCheck();
+bool netCheck();
 #endif

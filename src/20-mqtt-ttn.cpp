@@ -125,8 +125,9 @@ void netInit() {
   ll.join();
 }
 
-void netCheck() {
+bool netCheck() {
   ll.loop();
+  return true;
 }
 
 #endif
