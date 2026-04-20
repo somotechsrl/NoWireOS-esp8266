@@ -1,4 +1,4 @@
-#ifdef CUBE_CELL_OFF
+#ifdef CUBE_CELL
 
 #include "00-main.h"
 #include "HAL.h"

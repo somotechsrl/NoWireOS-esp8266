@@ -4,11 +4,10 @@
 // ****************************
 // src/20-mqtt-cube.cpp prototypes
 // ****************************
-void mkDevKeys();
 void mqttInit();
 void mqttUp();
 void mqttRpcUp(String rpcid);
 bool netCheck();
-void checkReboot();
+bool netInit();
 bool mqttPoll();
 #endif

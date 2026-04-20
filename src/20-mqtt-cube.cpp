@@ -1,12 +1,15 @@
 #include "00-main.h"
-#ifdef CUBE_CELL
+#ifdef CUBE_CELL_OFF
 
+#include "00-debug.h"
 #include <LoRaWan_APP.h>
 #include <cppQueue.h>
 #include "innerWdt.h"
 #include "10-encoder.h"
+#include "20-mqtt-cube.h"
 
-#define DBG_LORA F("LoRaWan")
+
+#define TAG "LORA"
 
 /**************************************************************************
 
@@ -39,6 +42,7 @@ static payload_buffer pd;
 static cppQueue q(sizeof(payload_buffer), QUEUE_SIZE, FIFO);
 
 /* OTAA params */
+String uuid, mac;
 uint8_t devEui[8];
 uint8_t appEui[8];
 uint8_t appKey[16];
@@ -61,7 +65,7 @@ DeviceClass_t  loraWanClass   = LORAWAN_CLASS;
 
 // Other hard-coded parameters
 uint32_t appTxDutyCycle       = MIN_DUTYCYCLE;
-LoRaMacRegion_t loraWanRegion = ACTIVE_REGION;
+LoRaMacRegion_t loraWanRegion = LORAMAC_REGION_EU868;
 
 /*!
   Number of trials to transmit the frame, if the LoRaMAC layer did not
@@ -87,12 +91,22 @@ LoRaMacRegion_t loraWanRegion = ACTIVE_REGION;
 uint8_t appPort           = 0;
 uint8_t confirmedNbTrials = 4;
 
+static char*getHexString(const uint8_t* data, size_t length) {
+  static char hexString[33]; // 16 bytes * 2 chars/byte + null terminator
+  for (size_t i = 0; i < length && i < 16; i++) {
+    sprintf(hexString + i * 2, "%02X", data[i]);
+  }
+  hexString[length * 2] = '\0'; // Null-terminate the string
+  return hexString;
+}
+
 // cllsend flag
 // LoraWan.send() must be called to flush/receive data.
 // this flag tries to minime calls as they eat energy....
 
 // Generates Device LoraWan OTAA Keys from chip Serial
-void mkDevKeys() {
+static uint64_t chipID = getID() << 16;
+static void mkDevKeys() {
   uint64_t chipID = getID() << 16;
   uint8_t dk = 0x70, ak1 = 0x81, ak2 = 0x83, ck1 = 0x91, ck2 = 0x93, ak2offs = sizeof(devEui);
   memcpy(devEui, &chipID, sizeof(devEui));
@@ -142,12 +156,14 @@ void mqttInit() {
   pinMode(Vext, OUTPUT);
   digitalWrite(Vext, LOW);
 
-  // Messages -- useful for first registering
-  //char *sep="-----------------------------------------------------------------------------------------";
+  ESP_LOGI(TAG, "Initializing Board Mcu...");
+  boardInitMcu();
+  ESP_LOGI(TAG, "Generating Device Keys...");
   mkDevKeys();
-
-  // init board
-  boardInitMcu( );
+  ESP_LOGI(TAG, "Chip ID: %s", getHexString((uint8_t*)&chipID+2, sizeof(chipID)-2));
+  ESP_LOGI(TAG, "Dev EUI: %s", getHexString(devEui, sizeof(devEui)));
+  ESP_LOGI(TAG, "App EUI: %s", getHexString(appEui, sizeof(appEui)));
+  ESP_LOGI(TAG, "App Key: %s", getHexString(appKey, sizeof(appKey))); 
   innerWdtEnable(true);
 
   // Various cleanup
@@ -155,8 +171,45 @@ void mqttInit() {
   memset(&pd, 0, sizeof(pd));
 
   deviceState = DEVICE_STATE_INIT;
+  ESP_LOGI(TAG, "Initialization complete, entering main loop...");
   LoRaWAN.ifskipjoin();
+}
 
+
+// outgoing -- compiles payload to send at next run...
+static void mqttUp(int port) {
+
+  // cleanup
+  memset(&pd, 0, sizeof(pd));
+  const char *b=jsonGetBase64();
+  uint16_t l=strlen(b);
+  if (!l) return;
+  if (l > PAYLOAD_SIZE) {
+    ESP_LOGI(TAG, "Base64 Size of %d exceedes %d", l, PAYLOAD_SIZE);
+    jsonInit();
+    jsonAddObject("LoRaErr");
+    jsonAddObject("message", "Data too big");
+    jsonCloseAll();
+    return; 
+    }
+
+  pd.port = port;
+  pd.size = l;
+  memcpy(pd.raw, b, l);
+
+  ESP_LOGI(TAG, "Pushing Message: %s", jsonGetBuffer());
+  ESP_LOGI(TAG, "Port=%d Size=%d CSize=%d", pd.port, jsonGetBufferSize(), l);
+
+  // Push data i queue
+  q.push(&pd);
+
+  // cleanup buffer
+  memset(&pd, 0, sizeof(pd));
+}
+
+// default 'up' to FPORT_STD
+void mqttUp() {
+  //mqttUp(FPORT_STD);
 }
 
 // handle for generic string event
@@ -175,43 +228,8 @@ static void mqttUp(int port, const char *object, uint32_t value) {
   mqttUp(port);
 }
 
-// outgoing -- compiles payload to send at next run...
-static void mqttUp(int port) {
-
-  // cleanup
-  memset(&pd, 0, sizeof(pd));
-
-  // stores size
-  if (!(pd.size = jsonGetBase64Size())) return;
-  if (pd.size > PAYLOAD_SIZE) {
-    debug(DBG_LORA, "Binary Size of " + String(pd.size) + " exceedes " + String(PAYLOAD_SIZE));
-    jsonInit();
-    jsonAddObject("LoRaErr");
-    jsonAddObject("message", "Data too big");
-    jsonCloseAll();
-  }
-
-  pd.port = port;
-  memcpy(pd.raw, jsonGetBase64Buffer(), pd.size);
-
-  int jsonsize = jsonGetBufferSize();
-  debug(DBG_LORA, "Pushing Message: " + String(jsonGetBuffer()));
-  debug(DBG_LORA, String("Port=") + pd.port + " Size=" + jsonsize + " CSize=" + pd.size);
-  jsonClear();
-
-  // Push data i queue
-  q.push(&pd);
-
-  // cleanup buffer
-  memset(&pd, 0, sizeof(pd));
-}
-
-// default 'up' to FPORT_STD
-void mqttUp() {
-  //mqttUp(FPORT_STD);
-}
-
 // default 'rpc' to FPORT_RPC (response)
+static bool sync=false;
 void mqttRpcUp(String rpcid) {
   uint8_t outport = FPORT_RPC;
   if (!sync) {
@@ -232,9 +250,8 @@ bool netCheck() {
     return true;
 }
 
-void checkReboot() {
-  if (scheduleReboot && millis() - lastRebootCheck > scheduleReboot)
-    HW_Reset(0);
+bool netInit() {
+  return true;
 }
 
 // Simulates Downlink and send buffers
@@ -251,7 +268,7 @@ bool mqttPoll() {
   }
 
   // Check join status....
-  if (!IsLoRaMacNetworkJoined) errorPixel();
+  // (!IsLoRaMacNetworkJoined) errorPixel();
 
   switch ( deviceState )
   {
@@ -264,8 +281,8 @@ bool mqttPoll() {
     case DEVICE_STATE_JOIN:
 
       // Show device hard-coded tokens
-      debug("Claim", AUTOHEX(claimKey, true));
-      debug("JToken", AUTOHEX(devEui, false) + ":" + AUTOHEX(appEui, false) + ":" + AUTOHEX(appKey, false));
+      ESP_LOGI(TAG, "Claim: %s", claimKey, true);
+      ESP_LOGI(TAG, "JToken: %s:%s:%s", getHexString(devEui, 8), getHexString(appEui, 8), getHexString(appKey, 16));
 
       // queue cfg request to launch after join
       mqttUp(FPORT_CFG, "CFG", millis());
@@ -280,11 +297,8 @@ bool mqttPoll() {
       // Launch ONLY IF there are some data to send
       if (qCount) {
 
-        // Activity
-        commOutPixel();
-
         // Debug
-        debug(DBG_LORA, String("Pulling and Sending Message 1/") + qCount);
+        ESP_LOGI(TAG, "Pulling and Sending Message 1/%d", qCount);
 
         // pop data
         q.pop(&pd);
