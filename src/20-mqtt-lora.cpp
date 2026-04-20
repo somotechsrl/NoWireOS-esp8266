@@ -83,13 +83,15 @@ void mqttInit() {
     joinNetwork();
 }
 
-void mqttPoll() {
+bool mqttPoll() {
     if (isTxConfirmed == isTxDone) {
         prepareTxFrame(appPort);
         LoRaWAN.send();
         isTxDone = false;
+        return false;
     }
     radio.IrqProcess();
+    return true;
 }
 
 void mqttUp() {

@@ -9,7 +9,7 @@ void joinNetwork();
 void onJoin();
 void mqtPoll();
 void mqttInit();
-void mqttPoll();
+bool mqttPoll();
 void mqttUp();
 void mqttRpcUp(String responseID);
 #endif
