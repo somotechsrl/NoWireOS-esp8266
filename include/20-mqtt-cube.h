@@ -9,7 +9,7 @@ void mqttInit();
 void mqttUp();
 void mqttRpcUp(String rpcid, bool sync);
 void mqttDebugUp(const char *json);
-void netCheck();
+bool netCheck();
 void checkReboot();
 void sysGetInfo(void);
 void sysGetStatus(void);

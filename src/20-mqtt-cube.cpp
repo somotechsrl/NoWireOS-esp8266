@@ -241,8 +241,8 @@ const char getPinMode(uint8_t pin)
 }
 
 // Do nothing
-void netCheck() {
-
+bool netCheck() {
+    return true;
 }
 
 void checkReboot() {
