@@ -4,11 +4,11 @@
 // ****************************
 // src/20-mqtt-lora.cpp prototypes
 // ****************************
+void downLinkDataHandle(McpsIndication_t *m);
+void onSendUplink(uint8_t port);
 void netInit();
-void joinNetwork();
-void onJoin();
-void mqtPoll();
 void mqttInit();
+bool netCheck();
 bool mqttPoll();
 void mqttUp();
 void mqttRpcUp(String responseID);

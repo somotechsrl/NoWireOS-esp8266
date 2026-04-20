@@ -1,22 +1,25 @@
 #ifdef CUBE_CELL
 
-#include <Arduino.h>
-#include <LoRaWan_APP.h>
+#include "00-main.h"
+#include "HAL.h"
 
-// LoRa Parameters
-uint8_t appEui[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-uint8_t devEui[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-uint8_t appKey[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+#define TAG "MTTN"
 
-uint16_t userChannelsMask[6] = { 0x00FF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-LoRaMacRegion_t loraRegion = ACTIVE_REGION;
-DeviceClass_t loraClass = CLASS_A;
-uint32_t appTxDutyCycle = 15000;
-bool overTheAirActivation = true;
-bool lorawanAdrOn = true;
-bool isTxConfirmed = false;
-uint8_t appPort = 10;
-uint8_t confirmedNbTrials = 4;
+/* OTAA */
+String uuid, mac;
+uint8_t claimKey[16];
+uint8_t devEui[8];
+uint8_t appEui[8];
+uint8_t appKey[16];
+uint8_t appPort=1; // default application port for uplink, can be adjusted as needed for different applications or use cases
+
+
+#define DEBUG_SERIAL_ENABLED 1
+/* Data transmission duty cycle.  value in [ms].*/
+#define DEFAULT_DUTY_CYCLE_MINUTES MINUTES_1_IN_MILLISECONDS
+
+static uint64_t chipID = getID() << 16;
+LualtekCubecell ll(CLASS_A, LORAMAC_REGION_EU868, MINUTES_20_COMMAND_INDEX);
 
 static char*getHexString(const uint8_t* data, size_t length) {
   static char hexString[33]; // 16 bytes * 2 chars/byte + null terminator
@@ -27,7 +30,6 @@ static char*getHexString(const uint8_t* data, size_t length) {
   return hexString;
 }
 
-static uint64_t chipID = getID() << 16;
 // Generates Device LoraWan OTAA Keys from chip Serial
 static void mkDevKeys() {
   uint8_t dk = 0x70, ak1 = 0x81, ak2 = 0x83, ck1 = 0x91, ck2 = 0x93, ak2offs = sizeof(devEui);
@@ -41,67 +43,64 @@ static void mkDevKeys() {
     }
   }
 
-static void prepareTxFrame(uint8_t port) {
-    appDataSize = 2;
-    appData[0] = 0x00;
-    appData[1] = 0x01;
-}
+void downLinkDataHandle(McpsIndication_t *m) {
+  char payload[256];
+  ll.onDownlinkReceived(m);
+  ESP_LOGI(TAG, "Downlink received on port %d with payload size %d bytes", m->Port, m->BufferSize);
+  snprintf(payload, sizeof(payload), "%s", (char*)m->Buffer);
+  if (m->BufferSize > 0) {
+    ESP_LOGI(TAG, "Downlink port=%d, payload: %s", m->Port, payload);
+    }
+    m->BufferSize = 0; // Clear the buffer after processing
+  deviceState = DEVICE_STATE_SEND;
+  }
+
+void onSendUplink(uint8_t port) {
+  ESP_LOGI(TAG, "Uplink sent on port %d", port);
+  deviceState = DEVICE_STATE_CYCLE;
+  }
 
 void netInit() {
-    Serial.begin(115200);
-    BoardInitMcu();
-    mkDevKeys();
-    LoRaWAN.begin(loraClass, loraRegion);
-    LoRaWAN.setDataRateTxPower(DR_0, TX_POWER_14);
-    LoRaWAN.setAdaptiveDataRate(lorawanAdrOn);
-}
-
-void joinNetwork() {
-    if (overTheAirActivation) {
-        LoRaWAN.joinOTAA(appEui, devEui, appKey, userChannelsMask);
-    } else {
-        LoRaWAN.joinABP(devEui, appSKey, nwkSKey, userChannelsMask);
-    }
-}   
-
-void onJoin() {
-    Serial.println("Successfully joined LoRaWAN network");
-    isTxConfirmed = true;
-}
-
-void mqtPoll() {
-    if (isTxConfirmed == isTxDone) {
-        prepareTxFrame(appPort);
-        LoRaWAN.send();
-        isTxDone = false;
-    }
-    radio.IrqProcess();
-}
+  delay(2000); // Wait for the system to stabilize
+  ESP_LOGI(TAG, "Initializing Board Mcu...");
+  boardInitMcu();
+  ESP_LOGI(TAG, "Generating Device Keys...");
+  mkDevKeys();
+  ESP_LOGI(TAG, "Chip ID: %s", getHexString((uint8_t*)&chipID+2, sizeof(chipID)-2));
+  ESP_LOGI(TAG, "Dev EUI: %s", getHexString(devEui, sizeof(devEui)));
+  ESP_LOGI(TAG, "App EUI: %s", getHexString(appEui, sizeof(appEui)));
+  ESP_LOGI(TAG, "App Key: %s", getHexString(appKey, sizeof(appKey))); 
+  }
 
 void mqttInit() {
-    Serial.println("Initializing LoRaWAN stack...");
-    joinNetwork();
+  ESP_LOGI(TAG, "Initializing LoRaWAN stack...");
+  ll.setup();
+  ESP_LOGI(TAG, "Joining LoRaWAN network...");
+  ll.join();
+ }
+
+bool netCheck() {
+  // In LoRaWAN, the device is always "connected" after joining the network, so we can return true here. The actual communication status will be handled in the mqttUp function and the downlink handler.
+  return true;
 }
 
 bool mqttPoll() {
-    if (isTxConfirmed == isTxDone) {
-        prepareTxFrame(appPort);
-        LoRaWAN.send();
-        isTxDone = false;
-        return false;
-    }
-    radio.IrqProcess();
-    return true;
+  ll.loop();
+  return true;
 }
 
 void mqttUp() {
-    // In LoRaWAN, the device is always "connected" after joining the network, so we can return true here. The actual communication status will be handled in the mqttPoll function and the downlink handler.
-    return;
-}   
+  appPort=10; // default application port for uplink, can be adjusted as needed for different applications or use cases
+  ESP_LOGW(TAG,"Not Yet Implemented");
+  }
 
 void mqttRpcUp(String responseID) {
-    // LoRaWAN is not designed for request-response patterns, so this function can be used to prepare the next uplink message with the responseID included in the payload or as part of the application data. The actual sending will be handled in the mqttPoll function.
-    return;
-}
+  appPort=20; // default application port for RPC responses, can be adjusted as needed for different applications or use cases
+  ESP_LOGW(TAG,"Not Yet Implemented");
+  ESP_LOGI(TAG, "Publishing RPC response with ID: %s",responseID.c_str());
+  ESP_LOGI(TAG, "RPC response payload size: %d bytes", appDataSize);
+  ESP_LOGW(TAG, "Not Yet Implemented!!!");
+  }
+
 
 #endif
