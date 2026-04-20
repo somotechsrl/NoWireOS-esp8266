@@ -7,7 +7,7 @@
 void mkDevKeys();
 void mqttInit();
 void mqttUp();
-void mqttRpcUp(String rpcid, bool sync);
+void mqttRpcUp(String rpcid);
 void mqttDebugUp(const char *json);
 bool netCheck();
 void checkReboot();

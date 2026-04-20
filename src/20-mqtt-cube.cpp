@@ -1,5 +1,5 @@
-#include "NowireOS.h"
-#ifdef __CUBECELL__
+#include "00-main.h"
+#ifdef CUBE_CELL
 
 #include <LoRaWan_APP.h>
 #include <cppQueue.h>
@@ -214,7 +214,7 @@ void mqttUp() {
 }
 
 // default 'rpc' to FPORT_RPC (response)
-void mqttRpcUp(String rpcid, bool sync) {
+void mqttRpcUp(String rpcid) {
   uint8_t outport = FPORT_RPC;
   if (!sync) {
     jsonInit();
