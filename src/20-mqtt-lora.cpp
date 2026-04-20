@@ -50,6 +50,7 @@ static void prepareTxFrame(uint8_t port) {
 void netInit() {
     Serial.begin(115200);
     BoardInitMcu();
+    mkDevKeys();
     LoRaWAN.begin(loraClass, loraRegion);
     LoRaWAN.setDataRateTxPower(DR_0, TX_POWER_14);
     LoRaWAN.setAdaptiveDataRate(lorawanAdrOn);
@@ -69,6 +70,20 @@ void onJoin() {
 }
 
 void mqtPoll() {
+    if (isTxConfirmed == isTxDone) {
+        prepareTxFrame(appPort);
+        LoRaWAN.send();
+        isTxDone = false;
+    }
+    radio.IrqProcess();
+}
+
+void mqttInit() {
+    Serial.println("Initializing LoRaWAN stack...");
+    joinNetwork();
+}
+
+void mqttPoll() {
     if (isTxConfirmed == isTxDone) {
         prepareTxFrame(appPort);
         LoRaWAN.send();

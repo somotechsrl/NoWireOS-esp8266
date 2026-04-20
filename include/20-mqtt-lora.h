@@ -8,4 +8,6 @@ void netInit();
 void joinNetwork();
 void onJoin();
 void mqtPoll();
+void mqttInit();
+void mqttPoll();
 #endif
