@@ -11,6 +11,7 @@ void mqttRpcUp(String rpcid);
 void mqttDebugUp(const char *json);
 bool netCheck();
 void checkReboot();
+void mqttPoll();
 void sysGetInfo(void);
 void sysGetStatus(void);
 void sendStatus(void);
