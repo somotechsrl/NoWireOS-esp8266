@@ -253,7 +253,7 @@ void checkReboot() {
 static uint32_t lastFeed;
 
 // Simulates Downlink and send buffers
-void mqttPoll() {
+bool mqttPoll() {
 
   // checks queue couint
   unsigned qCount = q.getCount();
