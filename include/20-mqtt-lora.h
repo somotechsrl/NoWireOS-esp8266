@@ -10,4 +10,6 @@ void onJoin();
 void mqtPoll();
 void mqttInit();
 void mqttPoll();
+void mqttUp();
+vid mqttRpcUp(String responseID);
 #endif

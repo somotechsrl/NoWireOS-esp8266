@@ -92,4 +92,14 @@ void mqttPoll() {
     radio.IrqProcess();
 }
 
+void mqttUp() {
+    // In LoRaWAN, the device is always "connected" after joining the network, so we can return true here. The actual communication status will be handled in the mqttPoll function and the downlink handler.
+    return;
+}   
+
+vid mqttRpcUp(String responseID) {
+    // LoRaWAN is not designed for request-response patterns, so this function can be used to prepare the next uplink message with the responseID included in the payload or as part of the application data. The actual sending will be handled in the mqttPoll function.
+    return;
+}
+
 #endif
