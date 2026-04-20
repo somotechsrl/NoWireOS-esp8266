@@ -97,7 +97,7 @@ void mqttUp() {
     return;
 }   
 
-vid mqttRpcUp(String responseID) {
+void mqttRpcUp(String responseID) {
     // LoRaWAN is not designed for request-response patterns, so this function can be used to prepare the next uplink message with the responseID included in the payload or as part of the application data. The actual sending will be handled in the mqttPoll function.
     return;
 }

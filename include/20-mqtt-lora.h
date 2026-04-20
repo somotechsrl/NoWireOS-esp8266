@@ -11,5 +11,5 @@ void mqtPoll();
 void mqttInit();
 void mqttPoll();
 void mqttUp();
-vid mqttRpcUp(String responseID);
+void mqttRpcUp(String responseID);
 #endif
