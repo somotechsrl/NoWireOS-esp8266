@@ -8,11 +8,7 @@ void mkDevKeys();
 void mqttInit();
 void mqttUp();
 void mqttRpcUp(String rpcid);
-void mqttDebugUp(const char *json);
 bool netCheck();
 void checkReboot();
 bool mqttPoll();
-void sysGetInfo(void);
-void sysGetStatus(void);
-void sendStatus(void);
 #endif

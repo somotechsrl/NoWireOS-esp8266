@@ -4,6 +4,7 @@
 #include <LoRaWan_APP.h>
 #include <cppQueue.h>
 #include "innerWdt.h"
+#include "10-encoder.h"
 
 #define DBG_LORA F("LoRaWan")
 
@@ -107,9 +108,6 @@ void mkDevKeys() {
 // downlink data handle function -- compiles inBuffer for nowireRecv
 void __attribute__((weak)) downLinkDataHandle(McpsIndication_t *mcpsIndication)  {
 
-  // Activity
-  commInPixel();
-
   // cipy in buffer and cleanup
   memset(&pd, 0, sizeof(pd));
   memcpy(pd.raw, mcpsIndication->Buffer, mcpsIndication->BufferSize);
@@ -124,10 +122,10 @@ void __attribute__((weak)) downLinkDataHandle(McpsIndication_t *mcpsIndication) 
   // handle incoming data (only RPC admitted...)
   switch (mcpsIndication->Port) {
     case FPORT_RPC:
-      rpcManage(pd.raw, true);
+      //rpcManage(pd.raw, true);
       break;
     case FPORT_RPC_ASYNC:
-      rpcManage(pd.raw, false);
+      //rpcManage(pd.raw, false);
       break;
   }
 
@@ -184,7 +182,7 @@ static void mqttUp(int port) {
   memset(&pd, 0, sizeof(pd));
 
   // stores size
-  if (!(pd.size = jsonGetCompressedSize())) return;
+  if (!(pd.size = jsonGetBase64Size())) return;
   if (pd.size > PAYLOAD_SIZE) {
     debug(DBG_LORA, "Binary Size of " + String(pd.size) + " exceedes " + String(PAYLOAD_SIZE));
     jsonInit();
@@ -194,7 +192,7 @@ static void mqttUp(int port) {
   }
 
   pd.port = port;
-  memcpy(pd.raw, jsonGetEncryptedBuffer(), pd.size);
+  memcpy(pd.raw, jsonGetBase64Buffer(), pd.size);
 
   int jsonsize = jsonGetBufferSize();
   debug(DBG_LORA, "Pushing Message: " + String(jsonGetBuffer()));
@@ -210,7 +208,7 @@ static void mqttUp(int port) {
 
 // default 'up' to FPORT_STD
 void mqttUp() {
-  mqttUp(FPORT_STD);
+  //mqttUp(FPORT_STD);
 }
 
 // default 'rpc' to FPORT_RPC (response)
@@ -229,17 +227,6 @@ void mqttRpcUp(String rpcid) {
   deviceState = DEVICE_STATE_SEND;
 }
 
-// default 'debug' to FPORT_RPC (response)
-void mqttDebugUp(const char *json) {
-  // doesn't do anything -- too muche traffic...
-}
-
-// Gets Pin Modes as character (Pullout,Input,Output)
-const char getPinMode(uint8_t pin)
-{
-  return 'U';
-}
-
 // Do nothing
 bool netCheck() {
     return true;
@@ -250,12 +237,11 @@ void checkReboot() {
     HW_Reset(0);
 }
 
-static uint32_t lastFeed;
-
 // Simulates Downlink and send buffers
 bool mqttPoll() {
 
   // checks queue couint
+  static uint32_t lastFeed;
   unsigned qCount = q.getCount();
 
   // feed watchdog
@@ -343,39 +329,5 @@ bool mqttPoll() {
       break;
   }
 }
-
-// System Info
-void sysGetInfo(void) {
-  jsonAddObject("hw", String(BOARDID));
-  jsonAddObject("fw", REVISION);
-  jsonAddObject("EUI", hexKey(devEui, sizeof(devEui)));
-}
-
-// System Status
-void sysGetStatus(void) {
-
-  // Reads Battery Level
-  const uint8_t batlevel = BoardGetBatteryLevel();
-  jsonAddObject("batval", getBatteryVoltage());
-  jsonAddObject("batlev", batlevel);
-  jsonAddObject("batperc", (uint8_t)(100 * batlevel / 254));
-  jsonAddObject("uptime", millis() / 1000);
-}
-
-// sends GPIO data
-void sendStatus(void) {
-
-  // do nothing....
-  if (!configGetBit("STATUS"))
-    return;
-
-  jsonInit();
-  jsonAddObject("status");
-  sysGetStatus();
-  jsonCloseAll();
-
-  mqttUp();
-}
-
 
 #endif
