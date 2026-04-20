@@ -4,7 +4,8 @@
 // ****************************
 // src/20-mqtt-ttn.cpp prototypes
 // ****************************
-void downLinkDataHandle(McpsIndication_t *mcpsIndication);
+void downLinkDataHandle(McpsIndication_t *m);
+void onSendUplink(uint8_t port);
 void netInit();
 void mqttInit();
 bool netCheck();

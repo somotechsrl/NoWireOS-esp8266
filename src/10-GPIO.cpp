@@ -1,7 +1,6 @@
 #include "main.h"
 #include "10-encoder.h"
 #include "20-rpc-utils.h"
-#include "20-mqtt.h"
 
 // DIO and AIO maps and configs
 #define TAG "GPIO"

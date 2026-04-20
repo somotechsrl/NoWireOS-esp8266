@@ -1,8 +1,8 @@
-#ifndef __PROTO_20_MQTT_CPP__
-#define __PROTO_20_MQTT_CPP__
+#ifndef __PROTO_20_MQTT_WIFI_CPP__
+#define __PROTO_20_MQTT_WIFI_CPP__
 //Extracted Prototyes
 // ****************************
-// src/20-mqtt.cpp prototypes
+// src/20-mqtt-wifi.cpp prototypes
 // ****************************
 void mqttInit();
 bool mqttPoll();

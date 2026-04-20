@@ -1,4 +1,4 @@
-#ifdef CUBE_CELL
+#ifdef CUBE_CELL_NONE
 
 #include "00-main.h"
 #include "HAL.h"
@@ -16,10 +16,19 @@ uint8_t appPort=1; // default application port for uplink, can be adjusted as ne
 
 #define DEBUG_SERIAL_ENABLED 1
 /* Data transmission duty cycle.  value in [ms].*/
-#define DEFAULT_DUTY_CYCLE_MINUTES MINUTES_20_IN_MILLISECONDS
+#define DEFAULT_DUTY_CYCLE_MINUTES MINUTES_1_IN_MILLISECONDS
 
 static uint64_t chipID = getID() << 16;
 LualtekCubecell ll(CLASS_A, LORAMAC_REGION_EU868, MINUTES_20_COMMAND_INDEX);
+
+static char*getHexString(const uint8_t* data, size_t length) {
+  static char hexString[33]; // 16 bytes * 2 chars/byte + null terminator
+  for (size_t i = 0; i < length && i < 16; i++) {
+    sprintf(hexString + i * 2, "%02X", data[i]);
+  }
+  hexString[length * 2] = '\0'; // Null-terminate the string
+  return hexString;
+}
 
 // Generates Device LoraWan OTAA Keys from chip Serial
 static void mkDevKeys() {
@@ -34,22 +43,38 @@ static void mkDevKeys() {
     }
   }
 
-void downLinkDataHandle(McpsIndication_t *mcpsIndication) {
-  ll.onDownlinkReceived(mcpsIndication);
+void downLinkDataHandle(McpsIndication_t *m) {
+  char payload[256];
+  ll.onDownlinkReceived(m);
+  ESP_LOGI(TAG, "Downlink received on port %d with payload size %d bytes", m->Port, m->BufferSize);
+  snprintf(payload, sizeof(payload), "%s", (char*)m->Buffer);
+  if (m->BufferSize > 0) {
+    ESP_LOGI(TAG, "Downlink port=%d, payload: %s", m->Port, payload);
+    }
+    m->BufferSize = 0; // Clear the buffer after processing
   deviceState = DEVICE_STATE_SEND;
-}
+  }
+
+void onSendUplink(uint8_t port) {
+  ESP_LOGI(TAG, "Uplink sent on port %d", port);
+  deviceState = DEVICE_STATE_CYCLE;
+  }
 
 void netInit() {
-  ESP_LOGI(TAG, "Chip ID: %04x%08x", (uint16_t)(chipID >> 32), (uint32_t)chipID);
+  delay(2000); // Wait for the system to stabilize
   ESP_LOGI(TAG, "Initializing Board Mcu...");
   boardInitMcu();
   ESP_LOGI(TAG, "Generating Device Keys...");
   mkDevKeys();
-  ESP_LOGI(TAG, "Initializing LoRaWAN stack...");
-  ll.setup();
+  ESP_LOGI(TAG, "Chip ID: %s", getHexString((uint8_t*)&chipID+2, sizeof(chipID)-2));
+  ESP_LOGI(TAG, "Dev EUI: %s", getHexString(devEui, sizeof(devEui)));
+  ESP_LOGI(TAG, "App EUI: %s", getHexString(appEui, sizeof(appEui)));
+  ESP_LOGI(TAG, "App Key: %s", getHexString(appKey, sizeof(appKey))); 
   }
 
 void mqttInit() {
+  ESP_LOGI(TAG, "Initializing LoRaWAN stack...");
+  ll.setup();
   ESP_LOGI(TAG, "Joining LoRaWAN network...");
   ll.join();
  }

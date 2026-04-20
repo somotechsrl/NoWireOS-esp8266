@@ -1,6 +1,5 @@
 #include "main.h"
 #include "10-encoder.h"
-#include "20-mqtt.h"
 #include "20-rpc-utils.h"
 #include "revision.h"
 #include "HAL.h"
