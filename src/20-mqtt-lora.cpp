@@ -33,6 +33,10 @@ uint8_t appPort=1;
 static uint64_t chipID = getID() << 16;
 LualtekCubecell ll(CLASS_A, LORAMAC_REGION_EU868, MINUTES_20_COMMAND_INDEX);
 
+// Will eliminate LualtekCubecell dependency in favor of direct calls to LoRaWAN stack -- see mqttPoll() for details
+//DeviceClass_t loraWanClass = CLASS_A;
+//LoRaMacRegion_t loraWanRegion = LORAMAC_REGION_EU868;
+
 static char*getHexString(const uint8_t* data, size_t length) {
   static char hexString[33]; // 16 bytes * 2 chars/byte + null terminator
   for (size_t i = 0; i < length && i < 16; i++) {
@@ -55,9 +59,34 @@ static void mkDevKeys() {
     }
   }
 
+
+
+
+void onDownlinkReceived(McpsIndication_t *mcpsIndication) {
+  if (mcpsIndication->Status != LORAMAC_EVENT_INFO_STATUS_OK) {
+    return;
+  }
+
+  if (mcpsIndication->RxData != true) {
+    return;
+  }
+
+  switch(mcpsIndication->Port) {
+    case DOWNLINK_ACTION_CHANGE_INTERVAL_PORT:
+      //handleChangeDutyCycle(mcpsIndication->Buffer[0]);
+      break;
+    case DOWNLINK_ACTION_REJOIN_PORT:
+      deviceState = DEVICE_STATE_INIT;
+      break;
+    default:
+      break;
+  }
+}
+  
 void downLinkDataHandle(McpsIndication_t *m) {
+
   char payload[256];
-  ll.onDownlinkReceived(m);
+  onDownlinkReceived(m);
   ESP_LOGI(TAG, "Downlink received on port %d with payload size %d bytes", m->Port, m->BufferSize);
   snprintf(payload, sizeof(payload), "%s", (char*)m->Buffer);
   if (m->BufferSize > 0) {
@@ -122,12 +151,10 @@ void netInit() {
   ESP_LOGI(TAG, "App Key: %s", getHexString(appKey, sizeof(appKey))); 
   
   ESP_LOGI(TAG, "Initializing LoRaWAN stack...");
-  ll.setup();
-  ll.onSendUplink(onSendUplink);
+  //ll.setup();
+  //ll.onSendUplink(onSendUplink);
 
-  ESP_LOGI(TAG, "Joining LoRaWAN network...");
-  ll.join();
-  ll.loop();
+  ESP_LOGI(TAG, "Joining LoRaWAN network...");  ll.loop();
   }
 
 void mqttInit() {

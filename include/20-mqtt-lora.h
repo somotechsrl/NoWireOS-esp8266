@@ -4,6 +4,7 @@
 // ****************************
 // src/20-mqtt-lora.cpp prototypes
 // ****************************
+void onDownlinkReceived(McpsIndication_t *mcpsIndication);
 void downLinkDataHandle(McpsIndication_t *m);
 void netInit();
 void mqttInit();
