@@ -101,8 +101,6 @@ void logger_off();
 
 #ifdef CUBE_CELL
 #include <Arduino.h>
-#include "LualtekCubecell.h"
-#include <Wire.h>
 #include <Adafruit_NeoPixel.h>
 #include "00-debug.h"
 #include "20-mqtt-lora.h"

@@ -4,6 +4,7 @@
 #include "cppQueue.h"
 #include "10-encoder.h"
 #include "20-mqtt-lora.h"
+#include "LoraWAN_APP.h"
 
 #define TAG "LORA"
 
@@ -26,16 +27,15 @@ uint8_t appKey[16];
 uint8_t appPort=1;
 
 #define PAYLOAD_SIZE 128
-#define DEBUG_SERIAL_ENABLED 1
+#define DEBUG_SERIAL_ENABLED 0
 /* Data transmission duty cycle.  value in [ms].*/
 #define DEFAULT_DUTY_CYCLE_MINUTES MINUTES_1_IN_MILLISECONDS
 
 static uint64_t chipID = getID() << 16;
-LualtekCubecell ll(CLASS_A, LORAMAC_REGION_EU868, MINUTES_20_COMMAND_INDEX);
 
 // Will eliminate LualtekCubecell dependency in favor of direct calls to LoRaWAN stack -- see mqttPoll() for details
-//DeviceClass_t loraWanClass = CLASS_A;
-//LoRaMacRegion_t loraWanRegion = LORAMAC_REGION_EU868;
+DeviceClass_t loraWanClass = CLASS_A;
+LoRaMacRegion_t loraWanRegion = LORAMAC_REGION_EU868;
 
 static char*getHexString(const uint8_t* data, size_t length) {
   static char hexString[33]; // 16 bytes * 2 chars/byte + null terminator
@@ -59,10 +59,8 @@ static void mkDevKeys() {
     }
   }
 
-
-
-
 void onDownlinkReceived(McpsIndication_t *mcpsIndication) {
+
   if (mcpsIndication->Status != LORAMAC_EVENT_INFO_STATUS_OK) {
     return;
   }
@@ -71,6 +69,7 @@ void onDownlinkReceived(McpsIndication_t *mcpsIndication) {
     return;
   }
 
+  /*
   switch(mcpsIndication->Port) {
     case DOWNLINK_ACTION_CHANGE_INTERVAL_PORT:
       //handleChangeDutyCycle(mcpsIndication->Buffer[0]);
@@ -81,6 +80,8 @@ void onDownlinkReceived(McpsIndication_t *mcpsIndication) {
     default:
       break;
   }
+  */
+  
 }
   
 void downLinkDataHandle(McpsIndication_t *m) {
@@ -154,7 +155,7 @@ void netInit() {
   //ll.setup();
   //ll.onSendUplink(onSendUplink);
 
-  ESP_LOGI(TAG, "Joining LoRaWAN network...");  ll.loop();
+  ESP_LOGI(TAG, "Joining LoRaWAN network...");
   }
 
 void mqttInit() {
