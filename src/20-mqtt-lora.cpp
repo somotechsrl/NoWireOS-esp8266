@@ -105,19 +105,21 @@ void onDownlinkReceived(McpsIndication_t *mcpsIndication) {
   
 void downLinkDataHandle(McpsIndication_t *m) {
 
-  char payload[256];
   onDownlinkReceived(m);
   ESP_LOGI(TAG, "Downlink received on port %d with payload size %d bytes", m->Port, m->BufferSize);
-  snprintf(payload, sizeof(payload), "%s", (char*)m->Buffer);
+  m->Buffer[strcspn((char *)m->Buffer, "\n")] = '\0';
 
   if (m->BufferSize > 0) {
-    ESP_LOGI(TAG, "Downlink port=%d, payload: %s", m->Port, payload);
+    ESP_LOGI(TAG, "Downlink port=%d, payload: %s", m->Port, (char*)m->Buffer);
     switch(m->Port) {
       case FPORT_RPC:
-        rpcManage(payload, true);
+        rpcManage((char*)m->Buffer, true);
+        break; 
+      case FPORT_RPC_ASYNC:
+        rpcManage((char*)m->Buffer, false);
         break;
       default:
-        ESP_LOGI(TAG, "Received downlink on unhandled port %d with payload: %s", m->Port, payload);
+        ESP_LOGI(TAG, "Received downlink on unhandled port %d with payload: %s", m->Port, (char*)m->Buffer);
         break;
       }
     }
@@ -144,7 +146,7 @@ static void onSendUplink(int port) {
     free(pd->raw); 
   
     // Sends data -- may be a confirmation....
-    ESP_LOGI(TAG, "Port %d, Size: %d, Payloads: %s", appPort, appDataSize, getHexString((uint8_t*)appData, appDataSize));
+    ESP_LOGI(TAG, "Port %d, Size: %d, Payload: %s", appPort, appDataSize, appData);
     LoRaWAN.send();
 
     // Buffers Cleanup

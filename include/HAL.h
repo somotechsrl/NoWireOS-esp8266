@@ -108,9 +108,9 @@ void logger_off();
 //#define USEWIFI 1
 #define ARCH "CUBE_CELL"
 #define SERIAL_SPEED 9600
-#define BUFSIZE 256
+#define BUFSIZE 512
 #define BUFTINY 128
-#define MODBUS_CONFIGS 1 // maximum number of Modbus configurations, can be adjusted as needed
+#define MODBUS_CONFIGS 2 // maximum number of Modbus configurations, can be adjusted as needed
 //#define GPIO_WIFI_RESET D3
 #define NEOPIXEL_PIN 2
 #define ONBOARD_LED 2
