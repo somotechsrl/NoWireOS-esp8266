@@ -85,7 +85,7 @@ void logger_off();
 // for ssl client, can be extended to include certificate handling as needed for more secure communication with MQTT broker or other services
 #include <WiFiClient.h>
 #include <WiFiClientSecure.h>
-#icnlude "20-mqtt-wifi.h"
+#include "20-mqtt-wifi.h"
 // other macros
 #define USEWIFI 1
 #define ARCH "ESP8266"
@@ -103,6 +103,7 @@ void logger_off();
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include "00-debug.h"
+#include "LoRaWan_APP.h"
 #include "20-mqtt-lora.h"
 //#define USEWIFI 1
 #define ARCH "CUBE_CELL"
