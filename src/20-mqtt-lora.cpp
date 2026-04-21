@@ -4,6 +4,7 @@
 #include "cppQueue.h"
 #include "10-encoder.h"
 #include "20-mqtt-lora.h"
+#include "20-rpc-manager.h"
 
 #define TAG "LORA"
 
@@ -27,18 +28,17 @@ uint8_t appPort=1;
 
 #define PAYLOAD_SIZE 128
 #define DEBUG_SERIAL_ENABLED 0
-/* Data transmission duty cycle.  value in [ms].*/
-#define DEFAULT_DUTY_CYCLE_MINUTES MINUTES_1_IN_MILLISECONDS
+#define DUTY_CYCLE 30000
 
 static uint64_t chipID = getID() << 16;
 
 // Will eliminate LualtekCubecell dependency in favor of direct calls to LoRaWAN stack -- see mqttPoll() for details
-uint32_t appTxDutyCycle;
 bool overTheAirActivation = true;
 bool loraWanAdr = true;
 bool keepNet = false;
 bool isTxConfirmed = false;
 uint8_t confirmedNbTrials = 4;
+uint32_t appTxDutyCycle = DUTY_CYCLE;
 uint16_t userChannelsMask[6] = { 0x00FF,0x0000,0x0000,0x0000,0x0000,0x0000 };
 DeviceClass_t loraWanClass = CLASS_A;
 LoRaMacRegion_t loraWanRegion = LORAMAC_REGION_EU868;
@@ -101,10 +101,20 @@ void downLinkDataHandle(McpsIndication_t *m) {
   onDownlinkReceived(m);
   ESP_LOGI(TAG, "Downlink received on port %d with payload size %d bytes", m->Port, m->BufferSize);
   snprintf(payload, sizeof(payload), "%s", (char*)m->Buffer);
+
   if (m->BufferSize > 0) {
     ESP_LOGI(TAG, "Downlink port=%d, payload: %s", m->Port, payload);
+    switch(m->Port) {
+      case FPORT_RPC:
+        rpcManage(payload, true);
+        break;
+      default:
+        ESP_LOGI(TAG, "Received downlink on unhandled port %d with payload: %s", m->Port, payload);
+        break;
+      }
     }
-    m->BufferSize = 0; // Clear the buffer after processing
+
+  m->BufferSize = 0; // Clear the buffer after processing
   deviceState = DEVICE_STATE_SEND;
   }
 
@@ -266,5 +276,10 @@ void mqttUp() {
 void mqttRpcUp(String responseID) {
   mqttUp(FPORT_RPC_ASYNC);
   }
+
+void wifiReset() {
+  // Not applicable for LoRaWAN, but placeholder for future expansion if needed for hybrid connectivity management in real-world applications
+  ESP_LOGI(TAG, "WiFi reset requested, but not applicable for LoRaWAN. Ignoring.");
+  } 
 
 #endif

@@ -12,4 +12,5 @@ bool netCheck();
 bool mqttPoll();
 void mqttUp();
 void mqttRpcUp(String responseID);
+void wifiReset();
 #endif
