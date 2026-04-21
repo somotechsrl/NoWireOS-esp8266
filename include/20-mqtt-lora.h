@@ -5,7 +5,6 @@
 // src/20-mqtt-lora.cpp prototypes
 // ****************************
 void downLinkDataHandle(McpsIndication_t *m);
-void onSendUplink(uint8_t port);
 void netInit();
 void mqttInit();
 bool netCheck();

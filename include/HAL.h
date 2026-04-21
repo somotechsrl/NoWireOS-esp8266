@@ -105,7 +105,7 @@ void logger_off();
 #include <Wire.h>
 #include <Adafruit_NeoPixel.h>
 #include "00-debug.h"
-#include "20-mqtt-cube.h"
+#include "20-mqtt-lora.h"
 //#define USEWIFI 1
 #define ARCH "CUBE_CELL"
 #define SERIAL_SPEED 9600
