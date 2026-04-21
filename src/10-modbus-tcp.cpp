@@ -225,4 +225,13 @@ uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_addres
     return NULL;
     }   
 
+void setModbusTimeout(uint16_t timeout_ms) {
+    ESP_LOGW(TAG, "Modbus TCP client functionality is not available on this platform");
+    }   
+
+uint16_t getModbusTimeout() {
+    ESP_LOGW(TAG, "Modbus TCP client functionality is not available on this platform");
+    return 0;
+    }
+    
 #endif

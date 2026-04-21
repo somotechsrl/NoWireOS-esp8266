@@ -1,7 +1,6 @@
 #ifdef CUBE_CELL
 #include "00-main.h"
 #include "HAL.h"
-#include "cppQueue.h"
 #include "10-encoder.h"
 #include "20-mqtt-lora.h"
 #include "20-rpc-manager.h"
@@ -13,10 +12,13 @@
 #define FPORT_EVT 11
 #define FPORT_STD 20
 #define FPORT_RPC 21
+#define FPORT_RPC_RESP 22
 #define FPORT_RPC_ASYNC 22
 #define MIN_DUTYCYCLE 15000
-#define PAYLOAD_SIZE 128
+#define PAYLOAD_SIZE 512
 #define QUEUE_SIZE 10
+#define DUTY_CYCLE 2000
+#define DEBUG_SERIAL_ENABLED 0
 
 /* OTAA */
 String uuid, mac;
@@ -25,11 +27,6 @@ uint8_t devEui[8];
 uint8_t appEui[8];
 uint8_t appKey[16];
 uint8_t appPort=1;
-
-#define PAYLOAD_SIZE 128
-#define DEBUG_SERIAL_ENABLED 0
-#define DUTY_CYCLE 30000
-
 static uint64_t chipID = getID() << 16;
 
 // Will eliminate LualtekCubecell dependency in favor of direct calls to LoRaWAN stack -- see mqttPoll() for details
@@ -47,6 +44,17 @@ LoRaMacRegion_t loraWanRegion = LORAMAC_REGION_EU868;
 uint8_t nwkSKey[] = { 0x00 };
 uint8_t appSKey[] = { 0x00 };
 uint32_t devAddr =  ( uint32_t )0x007e6ae1;
+
+// I/O exchange buffer for LoRa/MQTT Data Queueing
+typedef struct {
+  uint8_t port;
+  uint16_t size;
+  char *raw;
+} payload_buffer;
+// exchange buffers -- use MODBUS_CONFIGS macro....
+static uint8_t qcount=0;
+static payload_buffer *pd,pbuff[QUEUE_SIZE];
+
 
 static char*getHexString(const uint8_t* data, size_t length) {
   static char hexString[33]; // 16 bytes * 2 chars/byte + null terminator
@@ -118,16 +126,7 @@ void downLinkDataHandle(McpsIndication_t *m) {
   deviceState = DEVICE_STATE_SEND;
   }
 
-// I/O exchange buffer for LoRa/MQTT Data
-typedef struct {
-  uint8_t port;
-  uint16_t size;
-  char raw[PAYLOAD_SIZE];
-} payload_buffer;
-// exchange buffers -- use MODBUS_CONFIGS macro....
-static uint8_t qcount=0;
-static payload_buffer pd;
-static cppQueue q(sizeof(payload_buffer), QUEUE_SIZE, FIFO);
+
 
 static void onSendUplink(int port) { 
   
@@ -136,23 +135,20 @@ static void onSendUplink(int port) {
   // Launch ONLY IF there are some data to send
   if (qcount > 0) {
 
-    // Debug
-    ESP_LOGI(TAG, "Uplink sent on port %d", port);
-
     // pop data
-    q.pop(&pd);
-    appPort = pd.port;
-    appDataSize = pd.size;
-    memcpy(appData, pd.raw, appDataSize);
-
+    pd=&pbuff[--qcount];
+    appPort = pd->port;
+    appDataSize = pd->size;
+    memcpy(appData, pd->raw, appDataSize);
+    appData[appDataSize] = '\0';
+    free(pd->raw); 
+  
     // Sends data -- may be a confirmation....
-    ESP_LOGI(TAG, "Sending uplink on port %d with payload size %d bytes", appPort, appDataSize);
+    ESP_LOGI(TAG, "Port %d, Size: %d, Payloads: %s", appPort, appDataSize, getHexString((uint8_t*)appData, appDataSize));
     LoRaWAN.send();
 
     // Buffers Cleanup
     appDataSize = 0;
-    memset(&pd, 0, sizeof(pd));
-    qcount--;
     }
 
   deviceState = DEVICE_STATE_CYCLE;
@@ -233,9 +229,6 @@ bool mqttPoll() {
 // outgoing -- compiles payload to send at next run...
 static void mqttUp(int port) {
 
-  // cleanup
-  memset(&pd, 0, sizeof(pd));
-
   // Payload is stored a jsonbuffer (b64) from caller -- see mqttUp(port) for details
   char *b64 = (char *)jsonGetBase64();
   uint16_t length = strlen(b64);
@@ -250,17 +243,14 @@ static void mqttUp(int port) {
     length=strlen(b64);
   }
 
+  pbuff[qcount].port = port;
+  pbuff[qcount].size=length;
+  pbuff[qcount].raw = strdup(b64);
   qcount++;
-  pd.port = port;
-  pd.size=length;
-  memcpy(pd.raw, b64, pd.size);
 
   int jsonsize = jsonGetBufferSize();
-  ESP_LOGI(TAG, "Prepared payload for port %d with size %d bytes", pd.port, pd.size);
+  ESP_LOGI(TAG, "Prepared payload %s for port %d with size %d bytes", b64, pbuff[qcount].port, pbuff[qcount].size);
   
-  // Push data in queue -- see mqttPoll() for processing
-  q.push(&pd);
-
   // buffer cleanuo
   memset(&pd, 0, sizeof(pd));
 }
@@ -274,7 +264,7 @@ void mqttUp() {
 // default 'up' to FPORT_RPC
 // uses compiled json (b64) from caller -- see mqttUp(port) for details
 void mqttRpcUp(String responseID) {
-  mqttUp(FPORT_RPC_ASYNC);
+  mqttUp(FPORT_RPC_RESP);
   }
 
 void wifiReset() {
