@@ -58,10 +58,6 @@ static bool receiveResponse(uint8_t *rxBuffer, uint8_t maxLength) {
     return (crc == rxCRC);
 }
 
-void modbusRTUInit() {
-    modbusSerial.begin(MODBUS_BAUDRATE);
-}
-
 static uint8_t modbus_error;
 static uint16_t receiveResponse(uint8_t* response, uint16_t maxLength) {
 
@@ -178,6 +174,10 @@ static uint16_t *modbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startA
 
     // return pointer to register values in response starting from count
     return (uint16_t*)(pdu);
+    }
+
+void modbusRTUInit() {
+    modbusSerial.begin(MODBUS_BAUDRATE);
     }
 
 // Default entry for modbus tcp client task, will be called by modbus client task loop for each call in config
