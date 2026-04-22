@@ -176,8 +176,8 @@ static uint16_t *modbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startA
     return (uint16_t*)(pdu);
     }
 
-void modbusRTUInit() {
-    modbusSerial.begin(MODBUS_BAUDRATE);
+void modbusRTUInit(uint32_t baudrate) {
+    modbusSerial.begin(baudrate);
     }
 
 // Default entry for modbus tcp client task, will be called by modbus client task loop for each call in config

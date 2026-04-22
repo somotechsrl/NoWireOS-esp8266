@@ -190,6 +190,9 @@ void modbusMasterTask() {
         }
       // RTU Serial call - not implemented yet, placeholder for future expansion 
       else if(strcmp(server_type, "rtu") == 0) {
+          // intialize serial rtu:gnored:speed:slave
+          // server host is ignored, server port defines speed, server_unit is address
+          modbusRTUInit(server_port);
           // RTU client call - not implemented yet, placeholder for future expansion
           modbusRTUReadJson(server_unit_id,conf->fn, conf->calls[0].rs, conf->calls[0].rn); // for now just processes first call in config for RTU, can be expanded later to process multiple calls with different rs and rn as needed for robustness in real-world applications
           mqttPoll();
