@@ -15,6 +15,8 @@ static const char *RPC_cmd[] = {
 ,"RPC.Enable"
 ,"RPC.Enabled"
 ,"RPC.List"
+,"RPC.Relay.Off"
+,"RPC.Relay.On"
 ,"RPC.Trigger"
 ,"Sys.Cancel.Reboot"
 ,"Sys.GetInfo"

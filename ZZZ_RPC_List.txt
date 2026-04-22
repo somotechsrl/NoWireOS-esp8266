@@ -13,6 +13,8 @@ RPC.Trigger
 RPC.Enable
 RPC.Disable
 RPC.Enabled
+RPC.Relay.On
+RPC.Relay.Off
 
 CFG.LOG.Mqtt
 CFG.LOG.Local

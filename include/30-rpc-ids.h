@@ -15,6 +15,8 @@ enum RPC_ids {
 ,RPC_Enable
 ,RPC_Enabled
 ,RPC_List
+,RPC_Relay_Off
+,RPC_Relay_On
 ,RPC_Trigger
 ,Sys_Cancel_Reboot
 ,Sys_GetInfo
