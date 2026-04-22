@@ -43,13 +43,13 @@ void loop() {
         
         // checks mqtt status
         mqttPoll();
-        delay(100);
 
          // mqtt active and time step reached, can be adjusted as needed for more responsive behavior or lower power consumption
         if(millis()-mbumillis > mbutimestep) {
             // calls modbus master task, reads config and executes
             // TO DO ... different timings for each task
             modbusMasterTask();
+            mbumillis = millis(); // Reset timer after reading Modbus
             }
 
         // default system timestep is 5min, will be changed 
@@ -58,15 +58,6 @@ void loop() {
             gpioMasterTask();
             sysGetInfoTask();
             sysmillis  = millis(); // Reset timer after reading Modbus
-            }
-
-        // mqtt active and time step reached, can be adjusted as needed for more responsive behavior or lower power consumption
-        // see rpcmanager module for dynamic configuration via RPC, can be adjusted as needed for more frequent updates or lower network traffic in real-world applications
-        if(millis()-mbumillis > mbutimestep) {
-            // calls modbus master task, reads config and executes
-            // TO DO ... different timings for each task
-            modbusMasterTask();
-            mbumillis = millis(); // Reset timer after reading Modbus
             }
 
         }

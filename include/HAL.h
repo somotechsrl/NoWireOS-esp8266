@@ -100,6 +100,7 @@ void logger_off();
 #endif
 
 #ifdef CUBE_CELL
+#define LoRaWAN_DEBUG_LEVEL 0
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include "00-debug.h"
@@ -108,7 +109,7 @@ void logger_off();
 //#define USEWIFI 1
 #define ARCH "CUBE_CELL"
 #define SERIAL_SPEED 9600
-#define BUFSIZE 512
+#define BUFSIZE 256 
 #define BUFTINY 128
 #define MODBUS_CONFIGS 2 // maximum number of Modbus configurations, can be adjusted as needed
 //#define GPIO_WIFI_RESET D3
@@ -120,6 +121,15 @@ void logger_off();
 
 #ifndef SERIAL_SPEED
 #define SERIAL_SPEED 115200 
+#endif
+
+// Software serial for modbus RTU
+#ifdef CUBE_CELL
+#include "softSerial.h"
+extern softSerial sSerial;
+#else
+#include <SoftwareSerial.h>
+extern SoftwareSerial sSerial;  
 #endif
 
 #endif

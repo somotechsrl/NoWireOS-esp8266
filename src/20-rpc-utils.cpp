@@ -124,11 +124,11 @@ void sysGetInfo(void) {
   jsonAddObject("ar", ARCH);
   jsonAddObject("hw", BOARDID);
   jsonAddObject("sn", uuid.c_str());
-  jsonAddObject("mac",mac.c_str());
-  jsonAddObject("fw", REVISION);
   jsonAddObject("us", uptime);
-  jsonAddObject("ut", buffer);
+  jsonAddObject("fw", REVISION);
 #ifndef CUBE_CELL
+  jsonAddObject("ut", buffer);
+  jsonAddObject("mac",mac.c_str());
   jsonAddObject("ip", ipbuf);
   jsonAddObject("gw", rutbuf);
   jsonAddObject("heap", ESP.getFreeHeap());

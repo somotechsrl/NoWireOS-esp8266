@@ -4,6 +4,7 @@
 #include "10-encoder.h"
 #include "20-mqtt-lora.h"
 #include "20-rpc-manager.h"
+#include "softSerial.h"
 
 #define TAG "LORA"
 
@@ -14,10 +15,9 @@
 #define FPORT_RPC 21
 #define FPORT_RPC_RESP 22
 #define FPORT_RPC_ASYNC 22
-#define MIN_DUTYCYCLE 15000
-#define PAYLOAD_SIZE 512
+#define PAYLOAD_SIZE 128
 #define QUEUE_SIZE 10
-#define DUTY_CYCLE 2000
+#define DUTY_CYCLE 5000 // 5 seconds
 #define DEBUG_SERIAL_ENABLED 0
 
 /* OTAA */
@@ -33,11 +33,11 @@ static uint64_t chipID = getID() << 16;
 bool overTheAirActivation = true;
 bool loraWanAdr = true;
 bool keepNet = false;
-bool isTxConfirmed = false;
+bool isTxConfirmed = true;
 uint8_t confirmedNbTrials = 4;
 uint32_t appTxDutyCycle = DUTY_CYCLE;
 uint16_t userChannelsMask[6] = { 0x00FF,0x0000,0x0000,0x0000,0x0000,0x0000 };
-DeviceClass_t loraWanClass = CLASS_A;
+DeviceClass_t loraWanClass = CLASS_C;
 LoRaMacRegion_t loraWanRegion = LORAMAC_REGION_EU868;
 
 /* ABP (not used) here as placeholder as required for Cubecell lib */
@@ -53,7 +53,7 @@ typedef struct {
 } payload_buffer;
 // exchange buffers -- use MODBUS_CONFIGS macro....
 static uint8_t qcount=0;
-static payload_buffer *pd,pbuff[QUEUE_SIZE];
+static payload_buffer pbuff[QUEUE_SIZE];
 
 
 static char*getHexString(const uint8_t* data, size_t length) {
@@ -132,13 +132,11 @@ void downLinkDataHandle(McpsIndication_t *m) {
 
 static void onSendUplink(int port) { 
   
-  ESP_LOGI(TAG, "Uplink sent on ignored port %d (queue %d)", port, qcount);
-
   // Launch ONLY IF there are some data to send
   if (qcount > 0) {
 
     // pop data
-    pd=&pbuff[--qcount];
+    payload_buffer *pd = &pbuff[--qcount];
     appPort = pd->port;
     appDataSize = pd->size;
     memcpy(appData, pd->raw, appDataSize);
@@ -232,8 +230,8 @@ bool mqttPoll() {
 static void mqttUp(int port) {
 
   // Payload is stored a jsonbuffer (b64) from caller -- see mqttUp(port) for details
-  char *b64 = (char *)jsonGetBase64();
-  uint16_t length = strlen(b64);
+  char *buffer = (char *)jsonGetBuffer();
+  uint16_t length = jsonGetBufferSize();
   if (length > PAYLOAD_SIZE) {
     ESP_LOGE(TAG, "Binary Size of %d exceedes %d", length, PAYLOAD_SIZE);
     jsonInit();
@@ -241,21 +239,22 @@ static void mqttUp(int port) {
     jsonAddObject("message", "Data too big");
     jsonCloseAll();
     // recalcuate message....
-    b64=(char *)jsonGetBase64();
-    length=strlen(b64);
+    buffer=(char *)jsonGetBuffer();
+    length=jsonGetBufferSize();
   }
 
   pbuff[qcount].port = port;
   pbuff[qcount].size=length;
-  pbuff[qcount].raw = strdup(b64);
-  qcount++;
+  pbuff[qcount].raw = strdup(buffer);
 
-  int jsonsize = jsonGetBufferSize();
-  ESP_LOGI(TAG, "Prepared payload %s for port %d with size %d bytes", b64, pbuff[qcount].port, pbuff[qcount].size);
-  
-  // buffer cleanuo
-  memset(&pd, 0, sizeof(pd));
-}
+  ESP_LOGI(TAG, "Prepared payload %s for port %d with size %d bytes", buffer, pbuff[qcount].port, pbuff[qcount].size); 
+ 
+  if (++qcount >= QUEUE_SIZE) {
+    ESP_LOGW(TAG, "Payload queue is full with %d items, consider increasing QUEUE_SIZE or optimizing payload size", qcount);
+    }
+
+  deviceState = DEVICE_STATE_SEND;
+  }
 
 // default 'up' to FPORT_STD
 // uses compiled json (b64) from caller -- see mqttUp(port) for details

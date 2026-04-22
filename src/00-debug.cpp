@@ -28,7 +28,7 @@ static void log_serial(const char *type, const char *tag,const char *fmt, va_lis
 
     static char logmessage[BUFTINY],logfull[BUFTINY*2];
     vsnprintf(logmessage, sizeof(logmessage), fmt, args);
-    snprintf(logfull,sizeof(logfull),"%s %s: %s", type, tag, logmessage);
+    snprintf(logfull,sizeof(logfull),"%12f %s %-8s: %s", millis()/1000.0, type, tag, logmessage);
 
     Serial.println(logfull); // Print to serial for local debugging
 }
