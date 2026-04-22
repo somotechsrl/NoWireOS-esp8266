@@ -96,7 +96,7 @@ static uint16_t receiveResponse(uint8_t* response, uint16_t maxLength) {
     return length-2; // return length without crc
     }
 
-static uint16_t *mdbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startAddr, uint16_t quantity) {
+static uint16_t *modbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startAddr, uint16_t quantity) {
 
     // modbus activities, including sending request, receiving response, and parsing response, can be expanded later to include more detailed error handling, retries, etc. as needed for robustness in real-world applications
     pixelBlink(10,10,0);
@@ -181,14 +181,14 @@ static uint16_t *mdbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startAd
     }
 
 // Default entry for modbus tcp client task, will be called by modbus client task loop for each call in config
-uint16_t *mdbusRTUReadJson(uint8_t slave_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
+uint16_t *modbusRTUReadJson(uint8_t slave_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
 
     char jobjectid[BUFTINY];
     sprintf(jobjectid,"x%04x",start_address);
 
     // reads data from modbus tcp server, response is array of uint16_t, jsonAddValue will add as number, if want to add as string need to convert to string first
     ESP_LOGI(TAG, "Reading from Modbus TCP server: slave_id=%d, function=%d, start_address=%d, quantity=%d", slave_id, func, start_address, quantity);
-    uint16_t *response=mdbusRTURead(slave_id , func, start_address, quantity);
+    uint16_t *response=modbusRTURead(slave_id , func, start_address, quantity);
 
     jsonAddArray(jobjectid);
     jsonAddValue(func);
