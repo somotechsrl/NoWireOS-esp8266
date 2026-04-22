@@ -190,9 +190,8 @@ void modbusMasterTask() {
       // RTU Serial call - not implemented yet, placeholder for future expansion 
       else if(strcmp(server_type, "rtu") == 0) {
           // RTU client call - not implemented yet, placeholder for future expansion
-          ESP_LOGE(TAG, "RTU client call not implemented yet: %s", conf->ad);
-          jsonAddObject("ERROR", "RTU client call not implemented yet: %s", conf->ad);
-          continue; 
+          modbusRTUReadJson(server_unit_id,conf->fn, conf->calls[0].rs, conf->calls[0].rn); // for now just processes first call in config for RTU, can be expanded later to process multiple calls with different rs and rn as needed for robustness in real-world applications
+          mqttPoll();
         } 
       // Unknown server type
       else {
