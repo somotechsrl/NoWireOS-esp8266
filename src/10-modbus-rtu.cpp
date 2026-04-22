@@ -58,7 +58,7 @@ static bool receiveResponse(uint8_t *rxBuffer, uint8_t maxLength) {
     return (crc == rxCRC);
 }
 
-static void initModbus() {
+void modbusRTUInit() {
     modbusSerial.begin(MODBUS_BAUDRATE);
 }
 
