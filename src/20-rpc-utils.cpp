@@ -121,12 +121,12 @@ void sysGetInfo(void) {
   char buffer[30];
   sprintf(buffer, "%02d days, %02d:%02d:%02d", days, hours, minutes, seconds);
 
-  jsonAddObject("ar", ARCH);
-  jsonAddObject("hw", BOARDID);
   jsonAddObject("sn", uuid.c_str());
   jsonAddObject("us", uptime);
   jsonAddObject("fw", REVISION);
 #ifndef CUBE_CELL
+  jsonAddObject("ar", ARCH);
+  jsonAddObject("hw", BOARDID);
   jsonAddObject("ut", buffer);
   jsonAddObject("mac",mac.c_str());
   jsonAddObject("ip", ipbuf);

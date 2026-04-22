@@ -2,8 +2,11 @@
 #include "10-encoder.h"
 #include "20-rpc-utils.h"
 
-// DIO and AIO maps and configs
 #define TAG "GPIO"
+#ifdef HAS_GPIO
+
+
+// DIO and AIO maps and configs
 static uint8_t adc[] = ANALOGS, dio[] = DIGITAL;
 
 // return formatted json string from gpio
@@ -105,3 +108,30 @@ void gpioMasterTask() {
     mqttUp();
     ESP_LOGI(TAG, "Completed GPIO Master Task");
 }
+
+#else
+void gpioMasterTask() {
+    ESP_LOGW(TAG, "GPIO functionality is not available on this platform");
+    } 
+#endif
+
+#ifdef RELAY_PIN
+
+void relayOn() {
+    // turn on relay with given id, can be extended to support multiple relays and different types of relays as needed for more complex control of external devices
+    digitalWrite(#RELAY_PIN, HIGH);
+    }
+
+void relayOff() {
+    // turn off relay with given id, can be extended to support multiple relays and different types of relays as needed for more complex control of external devices
+    digitalWrite(#RELAY_PIN, LOW);
+    } 
+
+#else
+void relayOn(uint8_t relay_id) {
+    ESP_LOGW(TAG, "Relay functionality is not available on this platform");
+    } 
+void relayOff(uint8_t relay_id) {
+    ESP_LOGW(TAG, "Relay functionality is not available on this platform");
+    }
+#endif

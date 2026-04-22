@@ -11,4 +11,9 @@ void ledToggle();
 void LedOn();
 void LedOff();
 void ledBlink();
+void ledInit();
+void ledToggle();
+void LedOn();
+void LedOff();
+void ledBlink();
 #endif

@@ -6,7 +6,7 @@
 bool led_blink_enabled = true; // global variable to control LED blinking, can be set via RPC or other means as needed for more flexible behavior
 
 
-#if defined(NEOPIXEL_PIN)
+#ifdef NEOPIXEL_PIN
 
 // Neopixel control functions, can be extended to include more complex patterns or effects as needed for more advanced visual feedback
 static bool pixelOk=false;
@@ -57,6 +57,8 @@ void pixelBlink(int r, int g, int b) {
 
 #endif
 
+#ifdef ONBOARD_LED
+
 // ************************************************
 // LED control functions, can be extended to include more complex patterns or effects as needed for more advanced visual feedback
 // ************************************************
@@ -95,3 +97,13 @@ void ledBlink() {
         pixelShow(0, 0, 0); // Turn off pixel after blink
     }
 }
+
+#else
+
+void ledInit() {}   
+void ledToggle() {}
+void LedOn() {}
+void LedOff() {}
+void ledBlink() {}
+
+#endif
