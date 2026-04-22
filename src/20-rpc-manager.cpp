@@ -3,6 +3,7 @@
 #include "30-rpc-cmd.h"
 #include "30-rpc-ids.h"
 #include "10-encoder.h"
+#include "10-GPIO.h"
 #include "10-modbus-tcp.h"
 #include "20-rpc-utils.h"
 #include "20-modbus-master.h"

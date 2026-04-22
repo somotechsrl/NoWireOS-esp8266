@@ -128,10 +128,10 @@ void relayOff() {
     } 
 
 #else
-void relayOn(uint8_t relay_id) {
+void relayOn() {
     ESP_LOGW(TAG, "Relay functionality is not available on this platform");
     } 
-void relayOff(uint8_t relay_id) {
+void relayOff() {
     ESP_LOGW(TAG, "Relay functionality is not available on this platform");
     }
 #endif
