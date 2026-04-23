@@ -79,7 +79,7 @@ static uint16_t receiveResponse(uint16_t maxLength) {
     return length-2; // return length without crc
     }
 
-static uint16_t *modbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startAddr, uint16_t quantity) {
+static uint8_t *modbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startAddr, uint16_t quantity) {
 
     // modbus activities, including sending request, receiving response, and parsing response, can be expanded later to include more detailed error handling, retries, etc. as needed for robustness in real-world applications
     pixelBlink(10,10,0);
