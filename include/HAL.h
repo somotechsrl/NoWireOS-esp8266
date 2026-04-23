@@ -7,6 +7,7 @@
 #define ARCH "ESP8266"
 #define ONBOARD_LED 2
 #define RELAY_PIN 0
+#define MODBUS_TCP
 #define USEWIFI 1
 #endif
 #ifdef ARDUINO_ESP8266_WEMOS_D1MINI
@@ -15,6 +16,7 @@
 #define HAS_GPIO
 #define SSERIAL_PINS D5,D6
 #define MODBUS_RTU
+#define MODBUS_TCP
 #define DIGITAL  {D0,D1,D2,D4,D8}
 #define ANALOGS  {A0}
 #define USEWIFI 1
@@ -46,6 +48,7 @@
 #define ARCH "ESP32"
 #define HAS_GPIO
 #define MODBUS_RTU
+#define MODBUS_TCP
 #define NEOPIXEL_PIN 16
 #define ONBOARD_LED 2
 #define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}
@@ -56,6 +59,7 @@
 #define ARCH "ESP32"
 #define HAS_GPIO
 #define MODBUS_RTU
+#define MODBUS_TCP
 #define NEOPIXEL_PIN 16
 #define ONBOARD_LED 2
 #define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}
@@ -66,6 +70,7 @@
 #define ARCH "ESP32"
 #define HAS_GPIO
 #define MODBUS_RTU
+#define MODBUS_TCP
 #define NEOPIXEL_PIN 16
 #define ONBOARD_LED 2
 #define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}
@@ -76,6 +81,7 @@
 #define ARCH "ESP32"
 #define HAS_GPIO
 #define MODBUS_RTU
+#define MODBUS_TCP
 #define NEOPIXEL_PIN 16
 #define ONBOARD_LED 2
 #define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}

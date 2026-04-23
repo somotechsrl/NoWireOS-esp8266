@@ -5,8 +5,7 @@ CFG.Debug
 
 CFG.Modbus.AddCall
 CFG.Modbus.Timeout
-
-CFG.Timestep
+CFG.Modbus.Timestep
 
 RPC.List
 RPC.Trigger
@@ -20,6 +19,7 @@ CFG.LOG.Mqtt
 CFG.LOG.Local
 CFG.LOG.None
 CFG.LOG.Off
+CFG.Sys.Timestep
 
 Sys.GetInfo
 Sys.GetStatus

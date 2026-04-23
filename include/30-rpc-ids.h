@@ -10,7 +10,8 @@ enum RPC_ids {
 ,CFG_LOG_Off
 ,CFG_Modbus_AddCall
 ,CFG_Modbus_Timeout
-,CFG_Timestep
+,CFG_Modbus_Timestep
+,CFG_Sys_Timestep
 ,RPC_Disable
 ,RPC_Enable
 ,RPC_Enabled

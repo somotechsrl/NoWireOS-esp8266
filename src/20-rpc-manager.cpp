@@ -13,7 +13,7 @@
 #define TAG "RPC"
 #define WIFIDISCONNECT_DELAY 10000 // delay before disconnecting WiFi as per RPC command, can be adjusted as needed for more immediate disconnection or longer delay for graceful shutdowns in real-world applications
 bool trigger = false;
-uint64_t mbutimestep=10000; // Modbus timestep
+uint64_t mbutimestep=300000; // Modbus timestep
 uint64_t systimestep=300000; // System info timestep
 
 // retrives command sequence if for switch/case
@@ -87,7 +87,8 @@ void rpcManage(const char *payload, bool sync) {
       break;
     case CFG_Timestep:
       // timestep is received in s, converted in ms
-      if (*rpc_params) mbutimestep = atoi(rpc_params)*1000;
+      uint16_t ts=atoi(rpc_ params);
+      if (*rpc_params) mbuti  mestep = ts*1000;
       jsonAddObject("value", (uint32_t)mbutimestep/1000);
       break;
     case CFG_LOG_Mqtt:

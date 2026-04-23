@@ -5,7 +5,7 @@
 #define TAG "MBTCP"
 #define MODBUS_TCP_BUFFER  256
 
-#ifndef CUBE_CELL
+#ifdef MODBUS_TCP
 
 static WiFiClient client;
 static uint16_t transactionId;
