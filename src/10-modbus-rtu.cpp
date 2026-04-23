@@ -160,7 +160,9 @@ static uint16_t *modbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startA
     }
 
     // return pointer to register values in response starting from count
-    return (uint16_t*)(pdu);
+    
+
+    return pdu;
     }
 
 void modbusRTUInit(uint32_t baudrate) {
@@ -176,7 +178,7 @@ void modbusRTUReadJson(uint8_t slave_id, uint8_t func, uint16_t start_address, u
 
     // reads data from modbus rtu server, response is array of uint16_t, jsonAddValue will add as number, if want to add as string need to convert to string first
     ESP_LOGI(TAG, "Reading from Modbus RTU server: slave_id=%d, function=%d, start_address=%d, quantity=%d", slave_id, func, start_address, quantity);
-    uint16_t *regs=modbusRTURead(slave_id , func, start_address, quantity);
+    uint8_t *regs=modbusRTURead(slave_id , func, start_address, quantity);
 
     jsonAddArray(jobjectid);
     jsonAddValue(func);
@@ -184,9 +186,10 @@ void modbusRTUReadJson(uint8_t slave_id, uint8_t func, uint16_t start_address, u
     jsonAddValue(start_address);
 
     // get values for non null response, if response is null, it means there was an error, modbus_error variable will have error code, if response is not null, modbus_error should be 0
-    for (uint16_t i = 0; regs!=NULL && i < quantity; ++i) {
-        ESP_LOGI(TAG, "Read register %u: %u", start_address + i, regs[i]);
-        jsonAddValue(regs[i]);
+    for (uint8_t i = 0; regs!=NULL && i < quantity; i++) {
+        uint16_t reg_value = (regs[i*2] << 8) | regs[i*2 + 1];
+        ESP_LOGI(TAG, "Read register %u: %u", start_address + i, reg_value);
+        jsonAddValue(reg_value);
         }
 
     jsonClose();
