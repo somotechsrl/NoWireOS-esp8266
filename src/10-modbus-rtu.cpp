@@ -199,9 +199,8 @@ void modbusRTUInit(uint32_t baudrate) {
     }
 
 // Default entry for modbus rtu client task, will be called by modbus client task loop for each call in config
-uint16_t *modbusRTUReadJson(uint8_t slave_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
+void modbusRTUReadJson(uint8_t slave_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
     ESP_LOGW(TAG, "Modbus RTU not supported on this platform");
-    return NULL;
 }
 
 #endif
