@@ -190,12 +190,21 @@ void modbusMasterTask() {
         }
       // RTU Serial call - not implemented yet, placeholder for future expansion 
       else if(strcmp(server_type, "rtu") == 0) {
-          // intialize serial rtu:gnored:speed:slave
+        
+          // intialize serial rtu:ignored:speed:slave
           // server host is ignored, server port defines speed, server_unit is address
-          modbusRTUInit(server_port);
+          uint16_t serial_speed=server_port>0 ? server_port : 9600;
+          uint16_t serial_slave=server_unit_id>0 ? server_unit_id : 1;
+
+          // default to 9600 if not specified, can be adjusted as needed for different devices in real-world applications
+          modbusRTUInit(serial_speed);
           // RTU client call - not implemented yet, placeholder for future expansion
-          modbusRTUReadJson(server_unit_id,conf->fn, conf->calls[0].rs, conf->calls[0].rn); // for now just processes first call in config for RTU, can be expanded later to process multiple calls with different rs and rn as needed for robustness in real-world applications
-          mqttPoll();
+          for(int i=0;i<conf->ncalls;i++) {
+              // gest response buffer and sets respLength
+              modbusRTUReadJson(serial_slave,conf->fn, conf->calls[i].rs, conf->calls[i].rn); 
+              // polls mqtt as we d't have a rtx system
+              mqttPoll();
+              }
         } 
       // Unknown server type
       else {

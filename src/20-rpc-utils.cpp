@@ -156,24 +156,28 @@ void sysGetInfoTask() {
     mqttUp();
     ESP_LOGI(TAG, "System info sent successfully");
     } 
-    
+
 #ifdef RELAY_PIN
 
 void relayOn() {
     // turn on relay with given id, can be extended to support multiple relays and different types of relays as needed for more complex control of external devices
     digitalWrite(RELAY_PIN, HIGH);
+    jsonAddObject("value","Relay turned ON");
     }
 
 void relayOff() {
     // turn off relay with given id, can be extended to support multiple relays and different types of relays as needed for more complex control of external devices
     digitalWrite(RELAY_PIN, LOW);
+    jsonAddObject("value","Relay turned OFF");
     } 
 
 #else
 void relayOn() {
     ESP_LOGW(TAG, "Relay functionality is not available on this platform");
+    jsonAddObject("value","Relay functionality is not available on this platform");
     } 
 void relayOff() {
     ESP_LOGW(TAG, "Relay functionality is not available on this platform");
+    jsonAddObject("value","Relay functionality is not available on this platform");
     }
 #endif

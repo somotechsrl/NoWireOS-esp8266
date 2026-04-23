@@ -4,7 +4,7 @@
 #include "10-encoder.h"
 #define TAG "MBRTU"
 
-#ifndef ARDUINO_ESP8266_ESP01
+#ifdef MODBUS_RTU
 
 // Uses Software Serial 
 #ifdef CUBE_CELL
@@ -13,9 +13,10 @@ softSerial modbusSerial(GPIO5, GPIO6);
 #else
 #include <SoftwareSerial.h>
 #if defined(ARDUINO_ESP8266_ESP01)
-SoftwareSerial modbusSerial(2, 0); // GPIO2 (D4) as RX, GPIO0 (D3) as TX for ESP-01
+// really not used....
+SoftwareSerial modbusSerial(0, 0);
 #else
-SoftwareSerial modbusSerial(D5, D6);
+SoftwareSerial modbusSerial(SSERIAL_PINS);
 #endif
 #endif
 
@@ -43,35 +44,9 @@ uint16_t calculateCRC(uint8_t *data, uint8_t length) {
     return crc;
 }
 
-static bool receiveResponse(uint8_t *rxBuffer, uint8_t maxLength) {
-
-    uint8_t index = 0;
-    unsigned long startTime = millis();
-    
-    while (millis() - startTime < modbus_timeout_ms && index < maxLength) {
-        if (modbusSerial.available()) {
-            rxBuffer[index++] = modbusSerial.read();
-            }
-        }   
-    
-    if (index!=maxLength) {
-        ESP_LOGE(TAG, "Wrong data size: expected %u, received %u", maxLength, index);
-        return false;
-        }
-    
-    uint16_t crc = calculateCRC(rxBuffer, index - 2);
-    uint16_t rxCRC = (rxBuffer[index - 1] << 8) | rxBuffer[index - 2];
-
-    if(crc!=rxCRC) {
-        ESP_LOGE(TAG,"CRC mismatch: calculated 0x%04X, received 0x%04X", crc, rxCRC);
-        return false;
-        }       
-
-    return (crc == rxCRC);
-}
-
 static uint8_t modbus_error;
-static uint16_t receiveResponse(uint8_t* response, uint16_t maxLength) {
+static uint8_t buffer[MODBUS_RTU_BUFFER];
+static uint16_t receiveResponse(uint16_t maxLength) {
 
     uint16_t length=0;
     unsigned long timeout = millis() + modbus_timeout_ms;
@@ -81,7 +56,7 @@ static uint16_t receiveResponse(uint8_t* response, uint16_t maxLength) {
 
     while (millis() < timeout && length < maxLength) {
         if (modbusSerial.available()) {
-            response[length++]=modbusSerial.read();
+            buffer[length++]=modbusSerial.read();
             }
         }
 
@@ -92,8 +67,8 @@ static uint16_t receiveResponse(uint8_t* response, uint16_t maxLength) {
         return 0;
         }
     
-    uint16_t crc = calculateCRC(response, length - 2);
-    uint16_t rxCRC = (response[length - 1] << 8) | response[length - 2];
+    uint16_t crc = calculateCRC(buffer, length - 2);
+    uint16_t rxCRC = (buffer[length - 1] << 8) | buffer[length - 2];
     if(crc != rxCRC) {
         modbus_error=0xe2; // custom error code for CRC mismatch    
         ESP_LOGE(TAG,"Wrong CRC: calculated 0x%04X, received 0x%04X", crc, rxCRC);
@@ -123,6 +98,9 @@ static uint16_t *modbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startA
     request[6] = crc & 0xFF;
     request[7] = (crc >> 8) & 0xFF;
     
+    // cleanup garbage?
+    while (modbusSerial.available()) modbusSerial.read();
+
     // sends request for header
     modbusSerial.write(request, 8);
 
@@ -133,8 +111,8 @@ static uint16_t *modbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startA
     uint16_t respsize=3+quantity*2; 
     // expected response size based on quantity of registers requested, can be used for validation of response length as needed for robustness in real-world applications
     static uint8_t buffer[MODBUS_RTU_BUFFER];
-    respLength=receiveResponse(buffer,respsize);
-    if (respLength == 0 || respLength != respsize) {
+    respLength=receiveResponse(respsize);
+    if (respLength != respsize) {
         modbus_error=0xe0; // custom error code for no response
         ESP_LOGE(TAG, "Wrong data size: expected %u, received %u", respsize, respLength);
         return NULL;
@@ -142,10 +120,9 @@ static uint16_t *modbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startA
    
     // basic validation of response header, can be expanded later to include more detailed validation and error handling as needed for robustness in real-world applications
     modbus_error=0;
-    uint8_t *header=buffer;
-    uint8_t recv_slave = header[0];
-    uint8_t recv_function = header[1];
-    uint16_t recv_length = header[2];
+    uint8_t recv_slave = buffer[0];
+    uint8_t recv_function = buffer[1];
+    uint16_t recv_length = buffer[2];
 
     if (recv_slave != slaveId) {
         ESP_LOGW(TAG, "unexpected slave id %u", recv_slave);
@@ -158,7 +135,7 @@ static uint16_t *modbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startA
     uint8_t *pdu=buffer+3; // pdu starts after header in response
     if (respLength == 0) {
         modbus_error=0xe1; // custom error code for no response
-        ESP_LOGE(TAG, "No PDU received from Modbus TCP server");
+        ESP_LOGE(TAG, "No PDU received from Modbus RTU server");
         return NULL;
         }
 
@@ -188,17 +165,18 @@ static uint16_t *modbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startA
     }
 
 void modbusRTUInit(uint32_t baudrate) {
+    ESP_LOGI(TAG, "Initializing Modbus RTU with baudrate: %u", baudrate);
     modbusSerial.begin(baudrate);
     }
 
-// Default entry for modbus tcp client task, will be called by modbus client task loop for each call in config
+// Default entry for modbus rtu client task, will be called by modbus client task loop for each call in config
 uint16_t *modbusRTUReadJson(uint8_t slave_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
 
     char jobjectid[BUFTINY];
     sprintf(jobjectid,"x%04x",start_address);
 
-    // reads data from modbus tcp server, response is array of uint16_t, jsonAddValue will add as number, if want to add as string need to convert to string first
-    ESP_LOGI(TAG, "Reading from Modbus TCP server: slave_id=%d, function=%d, start_address=%d, quantity=%d", slave_id, func, start_address, quantity);
+    // reads data from modbus rtu server, response is array of uint16_t, jsonAddValue will add as number, if want to add as string need to convert to string first
+    ESP_LOGI(TAG, "Reading from Modbus RTU server: slave_id=%d, function=%d, start_address=%d, quantity=%d", slave_id, func, start_address, quantity);
     uint16_t *response=modbusRTURead(slave_id , func, start_address, quantity);
 
     jsonAddArray(jobjectid);
@@ -223,7 +201,7 @@ void modbusRTUInit(uint32_t baudrate) {
     ESP_LOGW(TAG, "Modbus RTU not supported on this platform");
     }
 
-// Default entry for modbus tcp client task, will be called by modbus client task loop for each call in config
+// Default entry for modbus rtu client task, will be called by modbus client task loop for each call in config
 uint16_t *modbusRTUReadJson(uint8_t slave_id, uint8_t func, uint16_t start_address, uint16_t quantity) {
     ESP_LOGW(TAG, "Modbus RTU not supported on this platform");
     return NULL;

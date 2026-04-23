@@ -13,6 +13,8 @@
 #define BOARDID "d1mini"
 #define ARCH "ESP8266"
 #define HAS_GPIO
+#define SSERIAL_PINS D5,D6
+#define MODBUS_RTU
 #define DIGITAL  {D0,D1,D2,D4,D8}
 #define ANALOGS  {A0}
 #define USEWIFI 1
@@ -23,6 +25,7 @@
 #define BOARDID "nodemcu"
 #define ARCH "ESP8266"  
 #define HAS_GPIO
+#define MODBUS_RTU
 #define DIGITAL  {D0,D1,D2,D4,D8}
 #define ANALOGS  {A0}
 #define NEOPIXEL_PIN D2
@@ -32,6 +35,7 @@
 #define BOARDID "nodemcu"
 #define ARCH "ESP8266"      
 #define HAS_GPIO
+#define MODBUS_RTU
 #define DIGITAL  {D0,D1,D2,D4,D8}
 #define ANALOGS  {A0}
 #define NEOPIXEL_PIN D2
@@ -41,6 +45,7 @@
 #define BOARDID "esp32-dev"
 #define ARCH "ESP32"
 #define HAS_GPIO
+#define MODBUS_RTU
 #define NEOPIXEL_PIN 16
 #define ONBOARD_LED 2
 #define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}
@@ -50,6 +55,7 @@
 #define BOARDID "esp32-dev"
 #define ARCH "ESP32"
 #define HAS_GPIO
+#define MODBUS_RTU
 #define NEOPIXEL_PIN 16
 #define ONBOARD_LED 2
 #define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}
@@ -59,6 +65,7 @@
 #define BOARDID "esp32-mini"
 #define ARCH "ESP32"
 #define HAS_GPIO
+#define MODBUS_RTU
 #define NEOPIXEL_PIN 16
 #define ONBOARD_LED 2
 #define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}
@@ -68,6 +75,7 @@
 #define BOARDID "esp32-s3"
 #define ARCH "ESP32"
 #define HAS_GPIO
+#define MODBUS_RTU
 #define NEOPIXEL_PIN 16
 #define ONBOARD_LED 2
 #define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}
@@ -76,17 +84,13 @@
 #ifdef CUBE_CELL
 #define BOARDID "cubecell-board"
 #define ARCH "CUBE_CELL"
+#define MODBUS_RTU
 #endif  
 
 // Default debug modes
 #ifndef MINTSTEP
 #define MINTSTEP 300
 #endif
-
-// Define NTP server and timezone (e.g., CET/CEST)
-#include <time.h>
-#define NTP_SERVER "pool.ntp.org"
-#define TZ "GMT +1"
 
 // Include other necessary headers for the project, can be extended as needed for additional functionality
 #ifdef ESP32
@@ -151,19 +155,15 @@ void logger_off();
 #define ONBOARD_LED 2
 #define DIGITAL  {6,7,8,16,30,33,34}
 #define ANALOGS  {2}
-#endif
-
-#ifndef SERIAL_SPEED
-#define SERIAL_SPEED 115200 
-#endif
-
-// Software serial for modbus RTU
-#ifdef CUBE_CELL
 #include "softSerial.h"
 extern softSerial sSerial;
 #else
 #include <SoftwareSerial.h>
 extern SoftwareSerial sSerial;  
+#endif
+
+#ifndef SERIAL_SPEED
+#define SERIAL_SPEED 115200 
 #endif
 
 #endif
