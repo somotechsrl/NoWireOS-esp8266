@@ -134,7 +134,7 @@ void rpcManage(const char *payload, bool sync) {
       break;
       }
     case RPC_Relay_Off:
-      relayOff()
+      relayOff();
       jsonAddObject("value","Relay turned OFF");
       break;
     case RPC_Relay_On:

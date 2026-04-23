@@ -115,23 +115,3 @@ void gpioMasterTask() {
     } 
 #endif
 
-#ifdef RELAY_PIN
-
-void relayOn() {
-    // turn on relay with given id, can be extended to support multiple relays and different types of relays as needed for more complex control of external devices
-    digitalWrite(#RELAY_PIN, HIGH);
-    }
-
-void relayOff() {
-    // turn off relay with given id, can be extended to support multiple relays and different types of relays as needed for more complex control of external devices
-    digitalWrite(#RELAY_PIN, LOW);
-    } 
-
-#else
-void relayOn() {
-    ESP_LOGW(TAG, "Relay functionality is not available on this platform");
-    } 
-void relayOff() {
-    ESP_LOGW(TAG, "Relay functionality is not available on this platform");
-    }
-#endif

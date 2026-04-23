@@ -25,6 +25,12 @@ void setup() {
 
     netInit(); 
     mqttInit();
+    
+#ifdef RELAY_PIN
+    pinMode(RELAY_PIN, OUTPUT);
+    digitalWrite(RELAY_PIN, LOW); // Ensure relay is off at startup
+    ESP_LOGI(TAG, "Relay pin initialized to LOW");
+#endif
 }
 
 void loop() {

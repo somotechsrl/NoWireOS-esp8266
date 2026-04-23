@@ -12,8 +12,4 @@ uint8_t getPinNumber(String pinid);
 uint8_t getPinUsage(String pinid);
 void gpioMasterTask();
 void gpioMasterTask();
-void relayOn();
-void relayOff();
-void relayOn();
-void relayOff();
 #endif

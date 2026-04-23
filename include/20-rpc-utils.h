@@ -10,4 +10,8 @@ void rpcEnabled(const char *type);
 bool rpcIsEnabled(const char *type);
 void sysGetInfo(void);
 void sysGetInfoTask();
+void relayOn();
+void relayOff();
+void relayOn();
+void relayOff();
 #endif
