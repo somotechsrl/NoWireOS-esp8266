@@ -95,6 +95,7 @@ void wifiReset() {
     }
 
 // Not used at the moment, but can be expanded later to include more complex reset button handling as needed for robustness in real-world applications, such as long-press detection, multiple button support, etc.
+/*
 #define RESET_BUTTON 3
 #define RESET_BUTTON_DEBOUNCE_MS 50
 static void checkResetButton() {
@@ -109,6 +110,7 @@ static void checkResetButton() {
         }
     }
 }
+*/
 
 // uuid and mac
 String uuid, mac;
@@ -123,7 +125,7 @@ void netInit() {
     ESP_LOGI(TAG, "UUID: %s", uuid.c_str());
 
     // sets wifi reset button
-    pinMode(RESET_BUTTON_PIN, INPUT_PULLUP);
+    //pinMode(RESET_BUTTON_PIN, INPUT_PULLUP);
 
     }
 
@@ -159,7 +161,7 @@ bool netCheck() {
 
     // Checks if Wifi is connected and reset button
     if(WiFi.status() == WL_CONNECTED) {
-        checkResetButton();
+        //checkResetButton();
         return true;
         }
 

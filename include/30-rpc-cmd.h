@@ -27,6 +27,7 @@ static const char *RPC_cmd[] = {
 ,"Sys.Update.Cancel"
 ,"Sys.Update.Filesystem"
 ,"Sys.Update.Firmware"
+,"Sys.WiFi.Connect"
 ,"Sys.WiFi.Disconnect"
 };
 #endif

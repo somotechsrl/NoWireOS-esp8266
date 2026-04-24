@@ -91,7 +91,7 @@ void ledBlink() {
         // turns off
         LedOn();
         pixelShow(0, 0, 10);
-        delay(200);
+        delay(100);
         // turns off  
         LedOff();
         pixelShow(0, 0, 0); // Turn off pixel after blink

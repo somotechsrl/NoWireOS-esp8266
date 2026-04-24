@@ -29,6 +29,7 @@ Sys.Cancel.Reboot
 Sys.Update.Firmware
 Sys.Update.Filesystem
 Sys.Update.Cancel
+Sys.WiFi.Connect
 Sys.WiFi.Disconnect
 
 
