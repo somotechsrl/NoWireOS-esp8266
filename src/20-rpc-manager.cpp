@@ -174,9 +174,12 @@ void rpcManage(const char *payload, bool sync) {
       if (sscanf(rpc_params, "%31[^;];%63s", ssid, password) != 2) {
         jsonAddObject("value","ERROR: Invalid WiFi connect parameters, expected format: SSID;PASSWORD");
         ESP_LOGE(TAG, "Invalid WiFi connect parameters received: %s", rpc_params);
-        wifiSetup(ssid,password); 
-        break;
         }
+      else {
+        wifiSetup(ssid,password); 
+        }
+      break;
+      }
     // ************ Unknow management
     default:
       rpcStatus = (char *)"KO";

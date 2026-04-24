@@ -10,14 +10,19 @@
 #ifdef CUBE_CELL
 #include "softSerial.h"
 softSerial modbusSerial(GPIO5, GPIO6);
-#else
+#endif
+#ifdef ESP8266
 #include <SoftwareSerial.h>
-#if defined(ARDUINO_ESP8266_ESP01)
+#ifdef ARDUINO_ESP8266_ESP01
 // really not used....
 SoftwareSerial modbusSerial(0, 0);
 #else
-SoftwareSerial modbusSerial(SSERIAL_PINS);
+SoftwareSerial modbusSerial(D5, D6); // RX, TX pins for Modbus
 #endif
+#endif
+#ifdef ESP32
+#include <HardwareSerial.h>
+HardwareSerial modbusSerial(2); // Use UART1 for Modbus RTU, can
 #endif
 
 #define MODBUS_RTU_BUFFER  256

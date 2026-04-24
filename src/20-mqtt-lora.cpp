@@ -273,4 +273,9 @@ void wifiReset() {
   ESP_LOGI(TAG, "WiFi reset requested, but not applicable for LoRaWAN. Ignoring.");
   } 
 
+void wifiSetup(char *ssid, char *password) {
+  // Not applicable for LoRaWAN, but placeholder for future expansion if needed for hybrid connectivity management in real-world applications
+  ESP_LOGI(TAG, "WiFi setup requested, but not applicable for LoRaWAN. Ignoring.");
+  } 
+
 #endif

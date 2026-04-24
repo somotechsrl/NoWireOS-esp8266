@@ -43,21 +43,23 @@ void pixelBlink(int r, int g, int b) {
 
 #else
 
-static void pixelInit() {
-    // No neopixel available, nothing to initialize
-    }
-static void pixelShow(int r, int g, int b) {
-    // No neopixel available, nothing to show
-    }   
-
-void pixelBlink(int r, int g, int b) {
-    // No neopixel available, fallback to LED blink
-    ledBlink();
-    } 
+static void pixelShow(int r, int g, int b) {}
+void pixelBlink(int r, int g, int b) {}
 
 #endif
 
 #ifdef ONBOARD_LED
+
+// inversion of LED state for active LOW
+// can be adjusted as needed for different hardware configurations
+#if defined(LED_BUILTIN) && (LED_BUILTIN==ONBOARD_LED)
+#define LED_ON LOW
+#define LED_OFF HIGH
+#else
+#define LED_ON HIGH
+#define LED_OFF LOW
+#endif
+
 
 // ************************************************
 // LED control functions, can be extended to include more complex patterns or effects as needed for more advanced visual feedback
@@ -66,7 +68,7 @@ static bool ledInitialized=false;
 void ledInit() {
     if(ledInitialized) return;
     pinMode(ONBOARD_LED, OUTPUT);
-    digitalWrite(ONBOARD_LED, LOW); // Turn off LED (active LOW)
+    digitalWrite(ONBOARD_LED, LED_OFF); // Turn off LED (active LOW)
     ledInitialized=true;
     }   
 
@@ -76,27 +78,28 @@ void ledToggle() {
 }
 void LedOn() {
     ledInit();
-    digitalWrite(ONBOARD_LED, HIGH);
+    digitalWrite(ONBOARD_LED, LED_ON);
     }
 void LedOff() {
     ledInit();
-    digitalWrite(ONBOARD_LED, LOW);
+    digitalWrite(ONBOARD_LED, LED_OFF);
     }
 void ledBlink() {
     if(!led_blink_enabled) return;
     static uint64_t lastBlink = millis();
     // Led blinking to indicate activity, can be adjusted or removed as needed
     if (millis() - lastBlink >= BLINK_DELAY) {
-        lastBlink = millis();
         // turns off
         LedOn();
         pixelShow(0, 0, 10);
-        delay(100);
-        // turns off  
-        LedOff();
-        pixelShow(0, 0, 0); // Turn off pixel after blink
+        delay(50);
+        lastBlink = millis();
+        }
+
+    // turns off  
+    LedOff();
+    pixelShow(0, 0, 0); // Turn off pixel after blink
     }
-}
 
 #else
 

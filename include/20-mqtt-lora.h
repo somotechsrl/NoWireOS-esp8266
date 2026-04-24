@@ -13,4 +13,5 @@ bool mqttPoll();
 void mqttUp();
 void mqttRpcUp(String responseID);
 void wifiReset();
+void wifiSetup(char *ssid, char *password);
 #endif

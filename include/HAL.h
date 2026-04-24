@@ -20,7 +20,7 @@
 #define ANALOGS  {A0}
 #define USEWIFI 1
 #define NEOPIXEL_PIN D2
-#define ONBOARD_LED LED_BUILTIN
+#define ONBOARD_LED D1
 #endif
 #ifdef ARDUINO_ESP8266_NODEMCU
 #define BOARDID "nodemcu"
@@ -161,10 +161,6 @@ void logger_off();
 #define DIGITAL  {6,7,8,16,30,33,34}
 #define ANALOGS  {2}
 #include "softSerial.h"
-extern softSerial sSerial;
-#else
-#include <SoftwareSerial.h>
-extern SoftwareSerial sSerial;  
 #endif
 
 #ifndef SSERIAL_PINS
