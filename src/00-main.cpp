@@ -1,6 +1,6 @@
 #include "main.h"
 #include "20-modbus-master.h"
-#include "10-GPIO.h"
+#include "10-gpio.h"
 #include "10-wifi-provision.h"
 #include "20-mqtt-wifi.h"
 #include "20-rpc-utils.h"
@@ -25,7 +25,7 @@ void setup() {
 
     netInit(); 
     mqttInit();
-    
+
 #ifdef RELAY_PIN
     pinMode(RELAY_PIN, OUTPUT);
     digitalWrite(RELAY_PIN, LOW); // Ensure relay is off at startup

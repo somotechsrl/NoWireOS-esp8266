@@ -5,8 +5,11 @@
 #include "HAL.h"
 
 #define TAG "RPCU"
-static int modbusEnabled=false,gpioEnable=false,sysInfoEnable=false;
- 
+
+// All subsystems disabled by default, must be enabled from Cloud
+// Only Systnfio is enabled by default for basic monitoring
+static int modbusEnabled=false,gpioEnable=false,sysInfoEnable=true,i2cEnabled=false;
+
 void rpcEnable(const char *type) {
   if(strcmp(type, "modbus") == 0) {
     modbusEnabled=true;
@@ -28,7 +31,7 @@ void rpcEnable(const char *type) {
   }
   
   ESP_LOGW(TAG, "Unknown type for Enable: %s", type);
-  jsonAddObject("result","ERROR: Unknown type for Enable: %s", type);
+  jsonAddObject("result","ERROR: Unknown %s", type);
   }
 
 void rpcDisable(const char *type) {
@@ -50,7 +53,7 @@ void rpcDisable(const char *type) {
     jsonAddObject("result","Sysinfo Disabled");
     return;
     }
-  ESP_LOGW(TAG, "Unknown type for Enable: %s", type);
+  ESP_LOGW(TAG, "Unknown type for %s", type);
   jsonAddObject("result","ERROR: Unknown type for Enable: %s", type);  
   } 
 

@@ -2,7 +2,7 @@
 #define __PROTO_10_GPIO_CPP__
 //Extracted Prototyes
 // ****************************
-// src/10-GPIO.cpp prototypes
+// src/10-gpio.cpp prototypes
 // ****************************
 void gpioJsonModes();
 void gpioConfig();
