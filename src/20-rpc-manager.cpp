@@ -87,7 +87,7 @@ void rpcManage(const char *payload, bool sync) {
       break;
     case CFG_Modbus_Timestep:
       // timestep is received in s, converted in ms
-      if (*rpc_params) mbutimestep = atol(rpc_params)*1000;
+      if (*rpc_params) mbutimestep = atoi(rpc_params)*1000;
       jsonAddObject("received",rpc_params);
       jsonAddObject("value", (uint32_t)mbutimestep/1000);
       break;
@@ -106,7 +106,7 @@ void rpcManage(const char *payload, bool sync) {
         break;
       case CFG_Sys_Timestep:
         // timestep is received in s, converted in ms
-        if (*rpc_params) systimestep = atol(rpc_params)*1000;
+        if (*rpc_params) systimestep = atoi(rpc_params)*1000;
         jsonAddObject("received",rpc_params);
         jsonAddObject("value", (uint32_t)systimestep/1000);
         break;
