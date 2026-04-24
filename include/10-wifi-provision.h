@@ -7,5 +7,6 @@
 const time_t *getTime();
 void wifiReset();
 void netInit();
+bool setWifi(const char *ssid, const char *password);
 bool netCheck();
 #endif

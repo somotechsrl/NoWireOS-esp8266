@@ -8,8 +8,6 @@
 #include "HAL.h" 
 #include "00-utils.h"
 
-extern bool provisionMode;
-#define RESET_BUTTON_PIN 3
 
 extern String uuid, mac;
 extern uint64_t systimestep;

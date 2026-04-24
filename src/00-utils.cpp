@@ -66,7 +66,7 @@ static bool ledInitialized=false;
 void ledInit() {
     if(ledInitialized) return;
     pinMode(ONBOARD_LED, OUTPUT);
-    digitalWrite(ONBOARD_LED, HIGH); // Turn off LED (active LOW)
+    digitalWrite(ONBOARD_LED, LOW); // Turn off LED (active LOW)
     ledInitialized=true;
     }   
 
@@ -76,11 +76,11 @@ void ledToggle() {
 }
 void LedOn() {
     ledInit();
-    digitalWrite(ONBOARD_LED, LOW);
+    digitalWrite(ONBOARD_LED, HIGH);
     }
 void LedOff() {
     ledInit();
-    digitalWrite(ONBOARD_LED, HIGH);
+    digitalWrite(ONBOARD_LED, LOW);
     }
 void ledBlink() {
     if(!led_blink_enabled) return;

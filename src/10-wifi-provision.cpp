@@ -94,6 +94,9 @@ void wifiReset() {
     startProvisioningMode();
     }
 
+// Not used at the moment, but can be expanded later to include more complex reset button handling as needed for robustness in real-world applications, such as long-press detection, multiple button support, etc.
+#define RESET_BUTTON 3
+#define RESET_BUTTON_DEBOUNCE_MS 50
 static void checkResetButton() {
     if (digitalRead(RESET_BUTTON_PIN) == LOW) {
         delay(50);
@@ -124,6 +127,27 @@ void netInit() {
 
     }
 
+bool setWifi(const char *ssid, const char *password) {
+    // sets wifi credentials and restarts to apply changes, can be expanded later to include more complex connection management as needed for robustness in real-world applications
+    String ssidStr(ssid);
+    String passwordStr(password);
+    if (ssidStr.length() == 0 || ssidStr.length() > 31) {
+        ESP_LOGW(TAG, "Invalid SSID length: %d", ssidStr.length());
+        return false;
+    }
+    if (passwordStr.length() > 127) {
+        ESP_LOGW(TAG, "Invalid password length: %d", passwordStr.length());
+        return false;
+    }
+    ssidStr.toCharArray(wifiConfig.ssid, 64);
+    passwordStr.toCharArray(wifiConfig.password, 128);
+    EEPROM.put(0, wifiConfig);
+    EEPROM.commit();
+    ESP_LOGI(TAG, "WiFi credentials saved, restarting...");
+    ESP_LOGI(TAG, "Entering provisioning mode...");
+    startProvisioningMode();
+    return true;
+}
 
 bool netCheck() {
 
