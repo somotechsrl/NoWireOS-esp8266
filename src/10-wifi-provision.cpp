@@ -129,7 +129,7 @@ void netInit() {
 
     }
 
-bool wifiConnect(const char *ssid, const char *password) {
+bool wifiSetup(const char *ssid, const char *password) {
     // sets wifi credentials and restarts to apply changes, can be expanded later to include more complex connection management as needed for robustness in real-world applications
     String ssidStr(ssid);
     String passwordStr(password);
