@@ -100,7 +100,8 @@ static uint8_t *modbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startAd
     request[7] = (crc >> 8) & 0xFF;
     
     // cleanup garbage?
-    while (modbusSerial.available()) modbusSerial.read();
+    modbusSerial.flush();
+    //while (modbusSerial.available()) modbusSerial.read();
 
     // sends request for header
     modbusSerial.write(request, 8);

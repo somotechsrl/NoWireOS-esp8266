@@ -14,7 +14,6 @@
 #define BOARDID "d1mini"
 #define ARCH "ESP8266"
 #define HAS_GPIO
-#define SSERIAL_PINS D5,D6
 #define MODBUS_RTU
 #define MODBUS_TCP
 #define DIGITAL  {D0,D1,D2,D4,D8}
@@ -166,6 +165,10 @@ extern softSerial sSerial;
 #else
 #include <SoftwareSerial.h>
 extern SoftwareSerial sSerial;  
+#endif
+
+#ifndef SSERIAL_PINS
+#define SSERIAL_PINS D5,D6
 #endif
 
 #ifndef SERIAL_SPEED

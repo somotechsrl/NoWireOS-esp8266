@@ -85,10 +85,10 @@ void rpcManage(const char *payload, bool sync) {
       jsonAddObject("value", getModbusTimeout());
       }
       break;
-    case CFG_Timestep:
+    case CFG_Modbus_Timestep:
       // timestep is received in s, converted in ms
-      uint16_t ts=atoi(rpc_ params);
-      if (*rpc_params) mbuti  mestep = ts*1000;
+      if (*rpc_params) mbutimestep = atol(rpc_params)*1000;
+      jsonAddObject("received",rpc_params);
       jsonAddObject("value", (uint32_t)mbutimestep/1000);
       break;
     case CFG_LOG_Mqtt:
@@ -103,6 +103,12 @@ void rpcManage(const char *payload, bool sync) {
       case CFG_LOG_None:
         logger_off();
         jsonAddObject("value","Logging Disabled");
+        break;
+      case CFG_Sys_Timestep:
+        // timestep is received in s, converted in ms
+        if (*rpc_params) systimestep = atol(rpc_params)*1000;
+        jsonAddObject("received",rpc_params);
+        jsonAddObject("value", (uint32_t)systimestep/1000);
         break;
       case RPC_Enable:
         rpcEnable(rpc_params);

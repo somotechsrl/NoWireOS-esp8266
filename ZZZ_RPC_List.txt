@@ -9,9 +9,15 @@ CFG.Modbus.Timestep
 
 RPC.List
 RPC.Trigger
-RPC.Enable
-RPC.Disable
-RPC.Enabled
+RPC.Enable.Modbus
+RPC.Disable.Modbus
+RPC.Enabled.Modbus
+RPC.Enable.All
+RPC.Disable.All
+RPC.Enabled.All
+RPC.Enable.Sys
+RPC.Disable.Sys
+RPC.Enabled.Sys
 RPC.Relay.On
 RPC.Relay.Off
 
