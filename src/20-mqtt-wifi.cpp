@@ -1,5 +1,5 @@
 // Cube Cell uses only LoRa, no wif, no mqtt, so this module is only compiled if CUBE_CELL is not defined, allowing for a clean separation of WiFi/MQTT functionality and LoRa functionality in the codebase, and ensuring that the appropriate code is included based on the target platform and its capabilities.
-#ifndef CUBE_CELL
+#ifndef LORAWAN
 
 #include "main.h"
 #include "rBase64.h"

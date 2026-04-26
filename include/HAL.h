@@ -6,6 +6,8 @@
 #define BOARDID "esp01"
 #define ARCH "ESP8266"
 #define ONBOARD_LED 2
+#undef LED_BUILTIN
+#define LED_BUILTIN 2
 #define RELAY_PIN 0
 #define MODBUS_TCP
 #define USEWIFI 1
@@ -19,7 +21,6 @@
 #define DIGITAL  {D0,D1,D2,D4,D8}
 #define ANALOGS  {A0}
 #define USEWIFI 1
-#define NEOPIXEL_PIN D2
 #define ONBOARD_LED D1
 #endif
 #ifdef ARDUINO_ESP8266_NODEMCU
@@ -29,7 +30,6 @@
 #define MODBUS_RTU
 #define DIGITAL  {D0,D1,D2,D4,D8}
 #define ANALOGS  {A0}
-#define NEOPIXEL_PIN D2
 #define ONBOARD_LED LED_BUILTIN
 #endif
 #ifdef ARDUINO_ESP8266_NODEMCU_ESP12E
@@ -39,7 +39,6 @@
 #define MODBUS_RTU
 #define DIGITAL  {D0,D1,D2,D4,D8}
 #define ANALOGS  {A0}
-#define NEOPIXEL_PIN D2
 #define ONBOARD_LED LED_BUILTIN
 #endif
 #ifdef ARDUINO_ESP32_WROOM_DA
@@ -48,7 +47,6 @@
 #define HAS_GPIO
 #define MODBUS_RTU
 #define MODBUS_TCP
-#define NEOPIXEL_PIN 16
 #define ONBOARD_LED 2
 #define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}
 #define ANALOGS  {A0,A3,A4,A5,A6,A7}
@@ -59,7 +57,6 @@
 #define HAS_GPIO
 #define MODBUS_RTU
 #define MODBUS_TCP
-#define NEOPIXEL_PIN 16
 #define ONBOARD_LED 2
 #define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}
 #define ANALOGS  {A0,A3,A4,A5,A6,A7}
@@ -70,7 +67,6 @@
 #define HAS_GPIO
 #define MODBUS_RTU
 #define MODBUS_TCP
-#define NEOPIXEL_PIN 16
 #define ONBOARD_LED 2
 #define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}
 #define ANALOGS  {A0,A3,A4,A5,A6,A7}
@@ -81,7 +77,6 @@
 #define HAS_GPIO
 #define MODBUS_RTU
 #define MODBUS_TCP
-#define NEOPIXEL_PIN 16
 #define ONBOARD_LED 2
 #define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}
 #define ANALOGS  {A0,A3,A4,A5,A6,A7}
@@ -91,6 +86,15 @@
 #define ARCH "CUBE_CELL"
 #define MODBUS_RTU
 #endif  
+#ifdef HELTEC_WIFI_LORA_32
+#define BOARDID "heltec-lora32"
+#define ARCH "ESP32"
+#define HAS_GPIO
+#define MODBUS_RTU
+#define ONBOARD_LED 25
+#define DIGITAL  {0,2,4,5,12,13,14,15,16,17,18,19,21,22,23,26,27,32,33,34,35,36,39}
+#define ANALOGS  {A0,A3,A4,A5,A6,A7}
+#endif
 
 // Default debug modes
 #ifndef MINTSTEP
@@ -99,7 +103,6 @@
 
 // Include other necessary headers for the project, can be extended as needed for additional functionality
 #ifdef ESP32
-#include <Adafruit_NeoPixel.h>
 // for ssl client, can be extended to include certificate handling as needed for more secure communication with MQTT broker or other services
 #include <WiFiClient.h>
 #include <WiFiClientSecure.h>
@@ -120,12 +123,10 @@ void logger_off();
 #define BUFSIZE 2048
 #define BUFTINY 512
 #define MODBUS_CONFIGS 80 // maximum number of Modbus configurations, can be adjusted as needed
-#define GPIO_WIFI_RESET 4
 #endif
 
 #ifdef ESP8266
 #include "00-debug.h"
-#include <Adafruit_NeoPixel.h>
 // wifi and web server for provisioning
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
@@ -139,7 +140,6 @@ void logger_off();
 #define BUFSIZE 1536
 #define BUFTINY 256
 #define MODBUS_CONFIGS 80 // maximum number of Modbus configurations, can be adjusted as needed
-#define GPIO_WIFI_RESET D3
 #endif
 
 #ifdef CUBE_CELL
@@ -147,20 +147,25 @@ void logger_off();
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include "00-debug.h"
-#include "LoRaWan_APP.h"
-#include "20-mqtt-lora.h"
-//#define USEWIFI 1
 #define ARCH "CUBE_CELL"
 #define SERIAL_SPEED 9600
 #define BUFSIZE 256 
 #define BUFTINY 128
 #define MODBUS_CONFIGS 2 // maximum number of Modbus configurations, can be adjusted as needed
-//#define GPIO_WIFI_RESET D3
 #define NEOPIXEL_PIN 2
 #define ONBOARD_LED 2
 #define DIGITAL  {6,7,8,16,30,33,34}
 #define ANALOGS  {2}
+#define SSERIAL_PINS 14,15
 #include "softSerial.h"
+#endif
+
+#ifdef LORAWAN
+#include "LoRaWan_APP.h"
+#ifdef HELTEC_WIFI_LORA_32
+#define MCPSIndication_t TaskFunction_t
+#endif
+#include "20-mqtt-lora.h"
 #endif
 
 #ifndef SSERIAL_PINS

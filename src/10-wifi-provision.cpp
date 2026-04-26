@@ -1,5 +1,5 @@
 // Thi module is used only for ESP8266 and ESP32, Cube Cell uses only LoRa, so this module is not compiled for Cube Cell builds, allowing for a clean separation of WiFi/MQTT functionality and LoRa functionality in the codebase, and ensuring that the appropriate code is included based on the target platform and its capabilities.
-#ifndef CUBE_CELL
+#ifndef LORAWAN
 
 #include "main.h"
 #include <EEPROM.h>
@@ -93,24 +93,6 @@ void wifiReset() {
     ESP_LOGI(TAG, "Entering provisioning mode...");
     startProvisioningMode();
     }
-
-// Not used at the moment, but can be expanded later to include more complex reset button handling as needed for robustness in real-world applications, such as long-press detection, multiple button support, etc.
-/*
-#define RESET_BUTTON 3
-#define RESET_BUTTON_DEBOUNCE_MS 50
-static void checkResetButton() {
-    if (digitalRead(RESET_BUTTON_PIN) == LOW) {
-        delay(50);
-        if (digitalRead(RESET_BUTTON_PIN) == LOW) {
-            delay(3000);
-            if (digitalRead(RESET_BUTTON_PIN) == LOW) {
-                ESP_LOGI(TAG, "Reset button pressed - entering provisioning mode");
-                wifiReset();
-            }
-        }
-    }
-}
-*/
 
 // uuid and mac
 String uuid, mac;

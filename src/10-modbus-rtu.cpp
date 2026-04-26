@@ -9,7 +9,7 @@
 // Uses Software Serial 
 #ifdef CUBE_CELL
 #include "softSerial.h"
-softSerial modbusSerial(GPIO5, GPIO6);
+softSerial modbusSerial(GPIO4, GPIO5);
 #endif
 #ifdef ESP8266
 #include <SoftwareSerial.h>

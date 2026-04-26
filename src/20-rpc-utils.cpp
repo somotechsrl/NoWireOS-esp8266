@@ -125,10 +125,10 @@ void sysGetInfo(void) {
   sprintf(buffer, "%02d days, %02d:%02d:%02d", days, hours, minutes, seconds);
 
   jsonAddObject("sn", uuid.c_str());
-  jsonAddObject("us", uptime);
-  jsonAddObject("fw", REVISION);
-#ifndef CUBE_CELL
   jsonAddObject("ar", ARCH);
+  jsonAddObject("us", uptime);
+#ifndef CUBE_CELL
+  jsonAddObject("fw", REVISION);
   jsonAddObject("hw", BOARDID);
   jsonAddObject("ut", buffer);
   jsonAddObject("mac",mac.c_str());
@@ -136,7 +136,7 @@ void sysGetInfo(void) {
   jsonAddObject("gw", rutbuf);
   jsonAddObject("heap", ESP.getFreeHeap());
 #endif
-#ifdef __ESP32__
+#ifdef ESP32
   String temp = String(temperatureRead());
   jsonAddObject("te", temp.c_str());
   jsonAddObject("mf",ESP.getFreeHeap());

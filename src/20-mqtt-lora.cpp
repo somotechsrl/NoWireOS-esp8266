@@ -1,10 +1,8 @@
-#ifdef CUBE_CELL
+#ifdef LORAWAN
 #include "00-main.h"
 #include "HAL.h"
 #include "10-encoder.h"
-#include "20-mqtt-lora.h"
 #include "20-rpc-manager.h"
-#include "softSerial.h"
 
 #define TAG "LORA"
 
