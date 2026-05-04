@@ -1,5 +1,5 @@
 // Thi module is used only for ESP8266 and ESP32, Cube Cell uses only LoRa, so this module is not compiled for Cube Cell builds, allowing for a clean separation of WiFi/MQTT functionality and LoRa functionality in the codebase, and ensuring that the appropriate code is included based on the target platform and its capabilities.
-#ifndef LORAWAN
+#ifndef LORAWAN_CLIENT
 
 #include "main.h"
 #include <EEPROM.h>

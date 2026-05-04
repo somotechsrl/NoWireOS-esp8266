@@ -122,6 +122,7 @@ void logger_off();
 #define ARCH "ESP32"
 #define BUFSIZE 2048
 #define BUFTINY 512
+#define HAS_OTA
 #define MODBUS_CONFIGS 80 // maximum number of Modbus configurations, can be adjusted as needed
 #endif
 
@@ -160,11 +161,9 @@ void logger_off();
 #include "softSerial.h"
 #endif
 
-#ifdef LORAWAN
+//Uses LoraWan instead of Wifi+MQTT
+#ifdef LORAWAN_CLIENT
 #include "LoRaWan_APP.h"
-#ifdef HELTEC_WIFI_LORA_32
-#define MCPSIndication_t TaskFunction_t
-#endif
 #include "20-mqtt-lora.h"
 #endif
 

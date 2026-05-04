@@ -252,3 +252,4 @@ void jsonAddObject(const char *oname, double value) {
   bpAddValue('d', &value, sizeof(value));
   sprintf(s + strlen(s), "%s\"%s\":%f", jsonComma(), oname, value);
 }
+

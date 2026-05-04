@@ -196,9 +196,9 @@ uint16_t *modbusTcpReadJson(uint8_t unit_id, uint8_t func, uint16_t start_addres
 
     jsonAddArray(jobjectid);
     jsonAddValue(func);
-    jsonAddValue(modbus_error);
     jsonAddValue(start_address);
-
+    jsonAddValue(modbus_error);
+ 
     // get values for non null response, if response is null, it means there was an error, modbus_error variable will have error code, if response is not null, modbus_error should be 0
     for (uint8_t i = 0; response!=NULL && i < quantity; i++) {
         ESP_LOGI(TAG, "Read register %u: %u", start_address + i, response[i]);

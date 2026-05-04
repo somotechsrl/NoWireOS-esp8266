@@ -1,4 +1,5 @@
-#ifdef LORAWAN
+#ifdef LORAWAN_CLIENT
+
 #include "00-main.h"
 #include "HAL.h"
 #include "10-encoder.h"

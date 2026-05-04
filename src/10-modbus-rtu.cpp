@@ -21,8 +21,12 @@ SoftwareSerial modbusSerial(D5, D6); // RX, TX pins for Modbus
 #endif
 #endif
 #ifdef ESP32
+// esp32 uses always serial1
 #include <HardwareSerial.h>
-HardwareSerial modbusSerial(2); // Use UART1 for Modbus RTU, can
+HardwareSerial modbusSerial(1);
+#define TXD1 17
+#define RXD1 18
+#define TXD1EN 21 // DE pin for RS485, can be changed as needed for different hardware configurations
 #endif
 
 #define MODBUS_RTU_BUFFER  256
@@ -108,8 +112,19 @@ static uint8_t *modbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startAd
     modbusSerial.flush();
     //while (modbusSerial.available()) modbusSerial.read();
 
+// for RS485, set DE pin high to enable transmission, can be adjusted as needed for different hardware configurations
+#ifdef ESP32
+    modbusSerial.setPins(-1,-1,-1,TXD1EN); // set DE pin for RS485, can be changed as needed for different hardware configurations
+    //modbusSerial.setMode(SERIAL_RS485_HALF_DUPLEX); // set half duplex mode for RS485, can be changed as needed for different hardware configurations
+    #endif
+
     // sends request for header
     modbusSerial.write(request, 8);
+    //while(!modbusSerial.txdone()) { /* Wait */ } // Wait for hardware to finish
+
+#ifdef ESP32
+    //digitalWrite(RS485_DE, LOW);
+#endif
 
     // read response, check for errors, extract register values into provided buffer, and add to json response for mqtt transmission, can be expanded later to include error handling, retries, etc. as needed for robustness in real-world applications
     pixelBlink(10,10,0);
@@ -173,7 +188,11 @@ static uint8_t *modbusRTURead(uint8_t slaveId,uint8_t function, uint16_t startAd
 
 void modbusRTUInit(uint32_t baudrate) {
     ESP_LOGI(TAG, "Initializing Modbus RTU with baudrate: %u", baudrate);
-    modbusSerial.begin(baudrate);
+#ifdef ESP32
+    modbusSerial.begin(baudrate,SERIAL_8N1,RXD1,TXD1); // RX, TX pins for Modbus, can be changed as needed for different hardware configurations
+#else
+    modbusSerial.begin(baudrate); // Start software serial for Modbus RTU, can be changed as needed for different hardware configurations
+#endif
     }
 
 // Default entry for modbus rtu client task, will be called by modbus client task loop for each call in config
@@ -188,8 +207,8 @@ void modbusRTUReadJson(uint8_t slave_id, uint8_t func, uint16_t start_address, u
 
     jsonAddArray(jobjectid);
     jsonAddValue(func);
-    jsonAddValue(modbus_error);
     jsonAddValue(start_address);
+    jsonAddValue(modbus_error);
 
     // get values for non null response, if response is null, it means there was an error, modbus_error variable will have error code, if response is not null, modbus_error should be 0
     for (uint8_t i = 0; regs!=NULL && i < quantity; i++) {

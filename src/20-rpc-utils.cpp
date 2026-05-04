@@ -150,8 +150,8 @@ void sysGetInfoTask() {
         return;
         }
     jsonInit(); 
-    jsonAddObject("DEV","sysinfo"); 
-    jsonAddObject("BUS","internal");
+    jsonAddObject("DEV",BOARDID); 
+    jsonAddObject("BUS","sysinfo");
     jsonAddObject("DRV","sysinfo"); 
     jsonAddObject("data");
     sysGetInfo();
