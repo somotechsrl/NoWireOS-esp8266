@@ -31,5 +31,7 @@ Sys.Update.Filesystem
 Sys.Update.Cancel
 Sys.WiFi.Setup
 Sys.WiFi.Disconnect
+Sys.OTA.Update
+Sys.OTA.Cancel
 
 

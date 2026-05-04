@@ -23,6 +23,8 @@ enum RPC_ids {
 ,Sys_GetInfo
 ,Sys_GetStatus
 ,Sys_Identify
+,Sys_OTA_Cancel
+,Sys_OTA_Update
 ,Sys_Reboot
 ,Sys_Update_Cancel
 ,Sys_Update_Filesystem

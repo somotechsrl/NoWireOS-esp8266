@@ -23,6 +23,8 @@ static const char *RPC_cmd[] = {
 ,"Sys.GetInfo"
 ,"Sys.GetStatus"
 ,"Sys.Identify"
+,"Sys.OTA.Cancel"
+,"Sys.OTA.Update"
 ,"Sys.Reboot"
 ,"Sys.Update.Cancel"
 ,"Sys.Update.Filesystem"
