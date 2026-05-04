@@ -8,6 +8,7 @@
 #include "20-rpc-utils.h"
 #include "20-modbus-master.h"
 #include "10-wifi-provision.h"
+#include "10-OTAUpdate.h"
 #include "time.h"
 
 #define TAG "RPC"
@@ -180,6 +181,12 @@ void rpcManage(const char *payload, bool sync) {
         }
       break;
       }
+    case Sys_OTA_Update:
+      handleOTAUpdate(rpc_params);
+      break;
+    case Sys_OTA_Cancel:
+      //cancelOTAUpdate();
+      break;
     // ************ Unknow management
     default:
       rpcStatus = (char *)"KO";

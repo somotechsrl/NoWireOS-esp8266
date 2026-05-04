@@ -5,7 +5,5 @@
 // src/10-OTAUpdate.cpp prototypes
 // ****************************
 void handleOTAUpdate(const char* url);
-void registerOTACommands();
-void registerOTACommands();
 void handleOTAUpdate(const char* url);
 #endif
