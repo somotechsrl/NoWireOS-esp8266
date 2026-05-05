@@ -182,7 +182,7 @@ void rpcManage(const char *payload, bool sync) {
       break;
       }
     case Sys_OTA_Update:
-      handleOTAUpdate(rpc_params);
+      handleOTAUpdate();
       break;
     case Sys_OTA_Cancel:
       //cancelOTAUpdate();

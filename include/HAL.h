@@ -45,6 +45,7 @@
 #define BOARDID "esp32-dev"
 #define ARCH "ESP32"
 #define HAS_GPIO
+#define HAS_OTA
 #define MODBUS_RTU
 #define MODBUS_TCP
 #define ONBOARD_LED 2
@@ -55,6 +56,7 @@
 #define BOARDID "esp32-dev"
 #define ARCH "ESP32"
 #define HAS_GPIO
+#define HAS_OTA
 #define MODBUS_RTU
 #define MODBUS_TCP
 #define ONBOARD_LED 2
@@ -65,6 +67,7 @@
 #define BOARDID "esp32-mini"
 #define ARCH "ESP32"
 #define HAS_GPIO
+#define HAS_OTA
 #define MODBUS_RTU
 #define MODBUS_TCP
 #define ONBOARD_LED 2
@@ -74,8 +77,7 @@
 #ifdef CONFIG_IDF_TARGET_ESP32S3
 #define BOARDID "esp32-s3"
 #define ARCH "ESP32"
-#define HAS_GPIO
-#define MODBUS_RTU
+#define HAS_OTA
 #define MODBUS_TCP
 #define USEWIFI 1
 #define ONBOARD_LED 2
@@ -119,12 +121,17 @@ void logger_off();
 #include "WiFi.h"
 #include "WebServer.h"
 #include "esp_log.h"
+
+#ifdef HAS_OTA
+#include <HTTPClient.h>
+#include <Update.h>
+#endif
+
 // other macros
 #define USEWIFI 1   
 #define ARCH "ESP32"
 #define BUFSIZE 2048
 #define BUFTINY 512
-#define HAS_OTA
 #define MODBUS_CONFIGS 80 // maximum number of Modbus configurations, can be adjusted as needed
 #endif
 
@@ -133,16 +140,23 @@ void logger_off();
 // wifi and web server for provisioning
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+
 // for ssl client, can be extended to include certificate handling as needed for more secure communication with MQTT broker or other services
+#define USEWIFI 1
 #include <WiFiClient.h>
 #include <WiFiClientSecure.h>
 #include "20-mqtt-wifi.h"
+
+#ifdef HAS_OTA
+#include <ESP8266HTTPClient.h>
+#include <ESP8266httpUpdate.h>
+#endif
+
 // other macros
-#define USEWIFI 1
 #define ARCH "ESP8266"
 #define BUFSIZE 1536
 #define BUFTINY 256
-#define MODBUS_CONFIGS 80 // maximum number of Modbus configurations, can be adjusted as needed
+#define MODBUS_CONFIGS 20 // maximum number of Modbus configurations, can be adjusted as needed
 #endif
 
 #ifdef CUBE_CELL

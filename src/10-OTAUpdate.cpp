@@ -1,30 +1,32 @@
+#define TAG "OTA"
 #include "main.h"
-#define TAG "OTAUpdate"
+#include "10-encoder.h"
 
 #ifdef HAS_OTA
 
-#include <HTTPClient.h>
-#include <Update.h>
-
-static char url[TINYBUF];
+static char url[BUFTINY];
 void handleOTAUpdate() {
     
+    WiFiClientSecure client;
+    client.setInsecure();
     HTTPClient http;
-    snprintf(url, TINYBUF, "https://gate.somotech.it/ota-updates/%s.bin", DEVICE_ID);
+    snprintf(url, BUFTINY, "https://gate.somotech.it/ota-updates/%s.bin", BOARDID);
 
     ESP_LOGI(TAG, "Starting OTA update from: %s", url);
 
     if(!url || strlen(url) == 0) {
         ESP_LOGE(TAG, "Invalid URL for OTA update");
+        jsonAddObject("response", "ERROR: Invalid URL for OTA update");
         return;
     }
 
     
-    http.begin(url);
+    http.begin(client, url);
     int httpCode = http.GET();
     
     if (httpCode != HTTP_CODE_OK) {
-        ESP_LOGE(TAG, "HTTP error: %d", httpCode);    
+        ESP_LOGE(TAG, "HTTP error: %d", httpCode);
+        jsonAddObject("response", "ERROR: HTTP error during OTA update: %d", httpCode);
         http.end();
         return;
     }
@@ -32,12 +34,14 @@ void handleOTAUpdate() {
     int contentLength = http.getSize();
     if (contentLength <= 0) {
         ESP_LOGE(TAG, "Invalid content length");
+        jsonAddObject("response", "ERROR: Invalid content length for OTA update");
         http.end();
         return;
     }
     
     if (!Update.begin(contentLength)) {
         ESP_LOGE(TAG, "Not enough space for OTA");
+        jsonAddObject("response", "ERROR: Not enough space for OTA update");
         http.end();
         return;
     }
@@ -47,6 +51,7 @@ void handleOTAUpdate() {
     
     if (written != contentLength) {
         ESP_LOGE(TAG, "Written only: %d/%d", written, contentLength);
+        jsonAddObject("response", "ERROR: Written only: %d/%d", written, contentLength);
         Update.end();
         http.end();
         return;
@@ -54,9 +59,11 @@ void handleOTAUpdate() {
     
     if (Update.end()) {
         ESP_LOGI(TAG, "OTA update completed successfully");
+        jsonAddObject("response", "OTA update completed successfully");
         ESP.restart();
     } else {
         ESP_LOGE(TAG, "OTA update failed");
+        jsonAddObject("response", "ERROR: OTA update failed: %d", Update.getError());
     }
     
     http.end();
@@ -66,6 +73,7 @@ void handleOTAUpdate() {
 
 void handleOTAUpdate() {
   ESP_LOGW(TAG, "OTA update not supported on this platform");
+  jsonAddObject("response", "ERROR: OTA update not supported on this platform");
 }   
 
 #endif
