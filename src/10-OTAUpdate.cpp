@@ -6,9 +6,12 @@
 #include <HTTPClient.h>
 #include <Update.h>
 
-void handleOTAUpdate(const char* url) {
+static char url[TINYBUF];
+void handleOTAUpdate() {
+    
     HTTPClient http;
-  
+    snprintf(url, TINYBUF, "https://gate.somotech.it/ota-updates/%s.bin", DEVICE_ID);
+
     ESP_LOGI(TAG, "Starting OTA update from: %s", url);
 
     if(!url || strlen(url) == 0) {
@@ -61,7 +64,7 @@ void handleOTAUpdate(const char* url) {
 
 #else
 
-void handleOTAUpdate(const char* url) {
+void handleOTAUpdate() {
   ESP_LOGW(TAG, "OTA update not supported on this platform");
 }   
 

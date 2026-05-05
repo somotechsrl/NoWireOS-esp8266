@@ -4,6 +4,6 @@
 // ****************************
 // src/10-OTAUpdate.cpp prototypes
 // ****************************
-void handleOTAUpdate(const char* url);
-void handleOTAUpdate(const char* url);
+void handleOTAUpdate();
+void handleOTAUpdate();
 #endif

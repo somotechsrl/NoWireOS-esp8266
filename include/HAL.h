@@ -77,6 +77,7 @@
 #define HAS_GPIO
 #define MODBUS_RTU
 #define MODBUS_TCP
+#define USEWIFI 1
 #define ONBOARD_LED 2
 #define DIGITAL  {2,13,14,15,18,19,21,22,23,32,33,34,35,36,39}
 #define ANALOGS  {A0,A3,A4,A5,A6,A7}
@@ -91,6 +92,7 @@
 #define ARCH "ESP32"
 #define HAS_GPIO
 #define MODBUS_RTU
+#define MODBUS_TCP
 #define ONBOARD_LED 25
 #define DIGITAL  {0,2,4,5,12,13,14,15,16,17,18,19,21,22,23,26,27,32,33,34,35,36,39}
 #define ANALOGS  {A0,A3,A4,A5,A6,A7}
